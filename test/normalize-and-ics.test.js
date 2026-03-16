@@ -228,6 +228,23 @@ assert.equal(anthropicApiFeatureMilestone.length, 1);
 assert.equal(anthropicApiFeatureMilestone[0].category, "release_note");
 assert.deepEqual(anthropicApiFeatureMilestone[0].models, ["claude-opus-4.6"]);
 
+const anthropicApiDeprecation = normalizeSourceItems(anthropicApiSource, [
+  {
+    externalId: "anthropic-api-haiku-3-deprecation",
+    title:
+      "We announced the deprecation of the Claude Haiku 3 model ( claude-3-haiku-20240307 ), with retirement scheduled for April 19, 2026.",
+    canonicalUrl: "https://platform.claude.com/docs/en/about-claude/models/overview#latest-models-comparison",
+    summary:
+      "We announced the deprecation of the Claude Haiku 3 model ( claude-3-haiku-20240307 ), with retirement scheduled for April 19, 2026. We recommend migrating to Claude Haiku 4.5 . Read more in model deprecations .",
+    publishedAt: "2026-01-15T00:00:00.000Z",
+  },
+]);
+assert.equal(anthropicApiDeprecation.length, 1);
+assert.equal(anthropicApiDeprecation[0].category, "deprecation");
+assert.equal(anthropicApiDeprecation[0].eventDate, "2026-04-19");
+assert.equal(anthropicApiDeprecation[0].eventDateKind, "deprecation");
+assert.deepEqual(anthropicApiDeprecation[0].models, ["claude-haiku-20240307", "claude-haiku-3"]);
+
 const anthropicSdkRelease = normalizeSourceItems(anthropicSdkSource, [
   {
     externalId: "anthropic-sdk-v0.80.0",
@@ -348,6 +365,20 @@ const googleChangelogPricingNoise = normalizeSourceItems(googleChangelogSource, 
 ]);
 assert.equal(googleChangelogPricingNoise.length, 1);
 assert.equal(googleChangelogPricingNoise[0].category, "release_note");
+
+const googleChangelogDeprecation = normalizeSourceItems(googleChangelogSource, [
+  {
+    externalId: "google-changelog-deprecation-1",
+    title: "Deprecation announcement: The gemini-2.5-flash-lite-preview-09-2025 model will be shut down on March 31, 2026.",
+    canonicalUrl: "https://ai.google.dev/gemini-api/docs/deprecations",
+    summary: "Deprecation announcement: The gemini-2.5-flash-lite-preview-09-2025 model will be shut down on March 31, 2026.",
+    publishedAt: "2026-02-27T00:00:00.000Z",
+    sourceLabel: "Feature",
+  },
+]);
+assert.equal(googleChangelogDeprecation.length, 1);
+assert.equal(googleChangelogDeprecation[0].category, "deprecation");
+assert.equal(googleChangelogDeprecation[0].eventDateKind, "deprecation");
 
 const db = new TimelineDatabase(":memory:");
 db.seedDataIfEmpty([
@@ -685,6 +716,53 @@ for (const event of normalizeSourceItems(anthropicApiSource, [
   });
 }
 
+const anthropicApiDeprecationRaw = db.upsertRawItem({
+  source_id: anthropicApiSource.id,
+  external_id: "anthropic-api-haiku-3-deprecation",
+  title:
+    "We announced the deprecation of the Claude Haiku 3 model ( claude-3-haiku-20240307 ), with retirement scheduled for April 19, 2026.",
+  canonical_url: "https://platform.claude.com/docs/en/about-claude/models/overview#latest-models-comparison",
+  summary:
+    "We announced the deprecation of the Claude Haiku 3 model ( claude-3-haiku-20240307 ), with retirement scheduled for April 19, 2026. We recommend migrating to Claude Haiku 4.5 . Read more in model deprecations .",
+  published_at: "2026-01-15T00:00:00.000Z",
+  fetched_at: new Date().toISOString(),
+  payload_json: JSON.stringify({
+    externalId: "anthropic-api-haiku-3-deprecation",
+    title:
+      "We announced the deprecation of the Claude Haiku 3 model ( claude-3-haiku-20240307 ), with retirement scheduled for April 19, 2026.",
+    canonicalUrl: "https://platform.claude.com/docs/en/about-claude/models/overview#latest-models-comparison",
+    summary:
+      "We announced the deprecation of the Claude Haiku 3 model ( claude-3-haiku-20240307 ), with retirement scheduled for April 19, 2026. We recommend migrating to Claude Haiku 4.5 . Read more in model deprecations .",
+    publishedAt: "2026-01-15T00:00:00.000Z",
+  }),
+  checksum: "anthropic-api-haiku-3-deprecation",
+});
+
+for (const event of anthropicApiDeprecation) {
+  db.upsertEvent({
+    id: event.id,
+    vendor: event.vendor,
+    category: event.category,
+    title: event.title,
+    summary: event.summary,
+    canonical_url: event.canonicalUrl,
+    evidence_url: event.evidenceUrl,
+    evidence_excerpt: event.evidenceExcerpt,
+    published_at: event.publishedAt,
+    event_date: event.eventDate,
+    event_date_kind: event.eventDateKind,
+    date_precision: event.datePrecision,
+    products: event.products,
+    models: event.models,
+    tags: event.tags,
+    source_id: anthropicApiSource.id,
+    raw_item_id: anthropicApiDeprecationRaw.rawItemId,
+    anchor: event.anchor,
+    source_priority: event.sourcePriority,
+    last_seen_at: new Date().toISOString(),
+  });
+}
+
 const anthropicModelReleaseEvents = db.getEvents({
   vendor: "anthropic",
   category: "model_release",
@@ -699,6 +777,31 @@ const anthropicModelReleaseEvents = db.getEvents({
 assert.equal(anthropicModelReleaseEvents.length, 1);
 assert.equal(anthropicModelReleaseEvents[0].source_id, anthropicNewsSource.id);
 assert.equal(anthropicModelReleaseEvents[0].canonical_url, "https://www.anthropic.com/news/claude-opus-4-6");
+
+const anthropicDeprecationEvents = db.getEvents({
+  vendor: "anthropic",
+  category: "deprecation",
+  product: null,
+  model: null,
+  since: null,
+  until: null,
+  limit: 20,
+  cursor: null,
+}).events;
+
+const anthropicHaikuDeprecationEvent = anthropicDeprecationEvents.find(
+  (event) =>
+    event.title ===
+    "We announced the deprecation of the Claude Haiku 3 model ( claude-3-haiku-20240307 ), with retirement scheduled for April 19, 2026."
+);
+
+assert.ok(anthropicHaikuDeprecationEvent);
+assert.equal(
+  anthropicHaikuDeprecationEvent.title,
+  "We announced the deprecation of the Claude Haiku 3 model ( claude-3-haiku-20240307 ), with retirement scheduled for April 19, 2026."
+);
+assert.equal(anthropicHaikuDeprecationEvent.event_date, "2026-04-19");
+assert.equal(anthropicHaikuDeprecationEvent.event_date_kind, "deprecation");
 
 const googleVertexRaw = db.upsertRawItem({
   source_id: googleVertexSource.id,

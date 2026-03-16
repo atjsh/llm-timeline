@@ -181,6 +181,11 @@ const anthropicModelAvailabilityRegex =
 const anthropicReleaseNoteMilestoneRegex =
   /\b(1m token context|1 million token context|context window|128k output tokens?|context compaction|adaptive thinking|effort levels?|us-only inference|rate limits?)\b/i;
 
+const explicitDeprecationTitleRegex =
+  /\b(deprecation(?: announcement)?|deprecated|retired|retirement scheduled|scheduled for retirement|sunset|sunsetting|will be shut down|shut down|shutdown)\b/i;
+
+const explicitDeprecationUrlRegex = /\/(?:deprecations?|model-deprecations)(?:\/|$|[#?])/i;
+
 const googleSourcePriority: Record<string, number> = {
   "google-gemini-release-notes-rss": 10,
   "google-vertex-release-notes": 20,
@@ -508,6 +513,13 @@ const inferCategory = (source: SourceRow, item: ParsedSourceItem, text: string, 
   return base;
 };
 
+const isExplicitDeprecation = (item: ParsedSourceItem) => {
+  const normalizedUrl = normalizeCanonicalUrl(item.canonicalUrl);
+  if (item.sourceLabel?.trim().toLowerCase() === "deprecated") return true;
+  if (explicitDeprecationTitleRegex.test(item.title)) return true;
+  return explicitDeprecationUrlRegex.test(normalizedUrl);
+};
+
 const extractTerms = (text: string, vocabulary: string[]) =>
   vocabulary.filter((value) => text.toLowerCase().includes(value.toLowerCase()));
 
@@ -526,7 +538,8 @@ export const normalizeSourceItems = (source: SourceRow, items: ParsedSourceItem[
       : item.publishedAt
       ? [item.publishedAt]
       : [];
-    const category = vendorMetadata?.category ?? inferCategory(source, item, combined, source.default_category);
+    const baseCategory = vendorMetadata?.category ?? inferCategory(source, item, combined, source.default_category);
+    const category = isExplicitDeprecation(item) ? "deprecation" : baseCategory;
     const extractedProducts =
       source.vendor === "anthropic"
         ? extractTerms(combined, anthropicDeveloperProducts)
