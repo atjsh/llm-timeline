@@ -1,8 +1,14 @@
-import { ALLOWED_CATEGORIES, ALLOWED_VENDORS, type EventRow } from "../types.js";
+import {
+  ALLOWED_CATEGORIES,
+  ALLOWED_VENDORS,
+  type EventCategory,
+  type EventRow,
+  type Vendor,
+} from "../types.js";
 
 export interface FeedsPageState {
-  vendor: string;
-  category: string;
+  vendors: Vendor[];
+  categories: EventCategory[];
   product: string;
   model: string;
   since: string;
@@ -114,11 +120,33 @@ const renderSelectOptions = (
     )
     .join("");
 
+const renderCheckboxOptions = (
+  name: string,
+  options: Array<{ value: string; label: string }>,
+  selectedValues: string[]
+) =>
+  options
+    .map((option) => {
+      const checked = selectedValues.includes(option.value) ? " checked" : "";
+      const id = `${name}-${option.value}`;
+      return `
+                <label class="checkbox-option" for="${escapeHtml(id)}">
+                  <input id="${escapeHtml(id)}" type="checkbox" name="${escapeHtml(name)}" value="${escapeHtml(option.value)}"${checked} />
+                  <span>${escapeHtml(option.label)}</span>
+                </label>
+      `;
+    })
+    .join("");
+
 const buildPageHref = (state: FeedsPageState, overrides: Partial<FeedsPageState> = {}) => {
   const next = { ...state, ...overrides };
   const params = new URLSearchParams();
-  params.set("vendor", next.vendor || "all");
-  params.set("category", next.category || "all");
+  for (const vendor of next.vendors) params.append("vendor", vendor);
+  if (next.categories.length) {
+    for (const category of next.categories) params.append("category", category);
+  } else {
+    params.append("category", "all");
+  }
   if (next.product) params.set("product", next.product);
   if (next.model) params.set("model", next.model);
   if (next.since) params.set("since", next.since);
@@ -130,11 +158,19 @@ const buildPageHref = (state: FeedsPageState, overrides: Partial<FeedsPageState>
 
 const activeFilterChips = (state: FeedsPageState) => {
   const chips: Array<{ label: string; value: string }> = [];
-  if (state.vendor !== "all") chips.push({ label: "Vendor", value: vendorLabels[state.vendor] ?? humanizeToken(state.vendor) });
-  if (state.category === "all") {
+  if (state.vendors.length) {
+    for (const vendor of state.vendors) {
+      chips.push({ label: "Vendor", value: vendorLabels[vendor] ?? humanizeToken(vendor) });
+    }
+  } else {
+    chips.push({ label: "Vendor", value: "All" });
+  }
+  if (state.categories.length) {
+    for (const category of state.categories) {
+      chips.push({ label: "Category", value: humanizeToken(category) });
+    }
+  } else {
     chips.push({ label: "Category", value: "All" });
-  } else if (state.category) {
-    chips.push({ label: "Category", value: humanizeToken(state.category) });
   }
   if (state.product) chips.push({ label: "Product", value: state.product });
   if (state.model) chips.push({ label: "Model", value: state.model });
@@ -456,11 +492,14 @@ const styles = `
     font: 600 0.84rem/1.2 "Helvetica Neue", Arial, sans-serif;
     color: var(--muted);
     letter-spacing: 0.01em;
+    min-width: 0;
   }
 
   .controls input,
   .controls select {
     width: 100%;
+    max-width: 100%;
+    min-width: 0;
     min-height: 44px;
     border-radius: 14px;
     border: 1px solid var(--line);
@@ -468,6 +507,60 @@ const styles = `
     padding: 0 14px;
     color: var(--ink);
     font: 500 0.98rem/1.2 "Helvetica Neue", Arial, sans-serif;
+  }
+
+  .controls input[type="date"] {
+    display: block;
+    inline-size: 100%;
+    min-inline-size: 0;
+    padding-right: 12px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .checkbox-fieldset {
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  .checkbox-fieldset__legend {
+    margin: 0 0 8px;
+    padding: 0;
+    font: 600 0.84rem/1.2 "Helvetica Neue", Arial, sans-serif;
+    color: var(--muted);
+    letter-spacing: 0.01em;
+  }
+
+  .checkbox-grid {
+    display: grid;
+    gap: 10px;
+  }
+
+  .checkbox-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 44px;
+    padding: 10px 12px;
+    border-radius: 14px;
+    border: 1px solid var(--line);
+    background: rgba(255, 255, 255, 0.92);
+    color: var(--ink);
+    cursor: pointer;
+  }
+
+  .checkbox-option input {
+    width: 18px;
+    height: 18px;
+    min-height: 18px;
+    margin: 0;
+    flex: 0 0 auto;
+  }
+
+  .checkbox-option span {
+    min-width: 0;
+    font: 500 0.94rem/1.3 "Helvetica Neue", Arial, sans-serif;
   }
 
   .controls__actions {
@@ -717,6 +810,14 @@ const styles = `
       grid-template-columns: repeat(4, minmax(0, 1fr));
     }
 
+    .checkbox-fieldset {
+      grid-column: span 2;
+    }
+
+    .checkbox-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
     .timeline::before {
       left: 130px;
     }
@@ -741,14 +842,12 @@ const styles = `
 export const renderFeedsPage = (input: FeedsPageInput) => {
   const state = input.state;
   const vendorOptions = [
-    { value: "all", label: "All vendors" },
     ...ALLOWED_VENDORS.map((vendor) => ({
       value: vendor,
       label: vendorLabels[vendor] ?? humanizeToken(vendor),
     })),
   ];
   const categoryOptions = [
-    { value: "all", label: "All categories" },
     ...ALLOWED_CATEGORIES.map((category) => ({
       value: category,
       label: humanizeToken(category),
@@ -782,14 +881,20 @@ export const renderFeedsPage = (input: FeedsPageInput) => {
       <section class="controls">
         <form method="get" action="/feeds">
           <div class="controls__grid">
-            <label>
-              Vendor
-              <select name="vendor">${renderSelectOptions(vendorOptions, state.vendor)}</select>
-            </label>
-            <label>
-              Category
-              <select name="category">${renderSelectOptions(categoryOptions, state.category)}</select>
-            </label>
+            <fieldset class="checkbox-fieldset">
+              <legend class="checkbox-fieldset__legend">Vendor</legend>
+              <input type="hidden" name="vendor" value="all" />
+              <div class="checkbox-grid">
+                ${renderCheckboxOptions("vendor", vendorOptions, state.vendors)}
+              </div>
+            </fieldset>
+            <fieldset class="checkbox-fieldset">
+              <legend class="checkbox-fieldset__legend">Category</legend>
+              <input type="hidden" name="category" value="all" />
+              <div class="checkbox-grid">
+                ${renderCheckboxOptions("category", categoryOptions, state.categories)}
+              </div>
+            </fieldset>
             <label>
               Product
               <input type="text" name="product" value="${escapeHtml(state.product)}" placeholder="e.g. chatgpt" />

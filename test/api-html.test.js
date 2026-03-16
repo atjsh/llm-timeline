@@ -142,6 +142,9 @@ const defaultPage = await getHtml("/feeds");
 assert.equal(defaultPage.response.status, 200);
 assert.match(defaultPage.response.headers.get("content-type") ?? "", /^text\/html/i);
 assert.match(defaultPage.body, /LLM Feeds/);
+assert.match(defaultPage.body, /type="checkbox" name="vendor" value="openai"/);
+assert.match(defaultPage.body, /type="checkbox" name="category" value="model_release" checked/);
+assert.match(defaultPage.body, /\.controls input\[type="date"\][\s\S]*inline-size: 100%/);
 assert.match(defaultPage.body, /OpenAI &lt;Launch&gt; &quot;Alpha&quot; &amp; more/);
 assert.doesNotMatch(defaultPage.body, /<script>alert\("x"\)<\/script>/);
 assert.match(defaultPage.body, /Introducing Claude Opus 4\.6/);
@@ -153,6 +156,14 @@ const filteredPage = await getHtml("/feeds?vendor=anthropic&category=model_relea
 assert.match(filteredPage.body, /Introducing Claude Opus 4\.6/);
 assert.doesNotMatch(filteredPage.body, /OpenAI &lt;Launch&gt;/);
 assert.doesNotMatch(filteredPage.body, /Gemini 3\.1 Pro/);
+
+const multiFilteredPage = await getHtml(
+  "/feeds?vendor=all&vendor=openai&vendor=anthropic&category=all&category=model_release&category=release_note&limit=20"
+);
+assert.match(multiFilteredPage.body, /OpenAI &lt;Launch&gt; &quot;Alpha&quot; &amp; more/);
+assert.match(multiFilteredPage.body, /Introducing Claude Opus 4\.6/);
+assert.match(multiFilteredPage.body, /v2\.26\.0/);
+assert.doesNotMatch(multiFilteredPage.body, /Gemini 3\.1 Pro/);
 
 const pagedApiResult = db.getEvents({
   vendor: null,
@@ -183,6 +194,14 @@ assert.equal(fragment.body.has_more, true);
 assert.ok(fragment.body.next_cursor);
 assert.match(fragment.body.html, /Introducing Claude Opus 4\.6/);
 assert.doesNotMatch(fragment.body.html, /<script>alert\("x"\)<\/script>/);
+
+const multiVendorApi = await getJson("/events?vendor=all&vendor=openai&vendor=anthropic&category=model_release&limit=20");
+assert.equal(multiVendorApi.response.status, 200);
+assert.equal(multiVendorApi.body.data.length, 2);
+assert.deepEqual(
+  multiVendorApi.body.data.map((event) => event.vendor),
+  ["openai", "anthropic"]
+);
 
 const missingCursor = await getJson("/feeds/items?category=model_release&limit=1");
 assert.equal(missingCursor.response.status, 400);

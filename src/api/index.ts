@@ -3,7 +3,13 @@ import { buildCalendar } from "../ics/renderer.js";
 import { TimelineDatabase } from "../db/sqlite.js";
 import { sourceManifest } from "../sources/manifest.js";
 import { config } from "../config.js";
-import { type SourceMetadata } from "../types.js";
+import {
+  ALLOWED_CATEGORIES,
+  ALLOWED_VENDORS,
+  type EventCategory,
+  type SourceMetadata,
+  type Vendor,
+} from "../types.js";
 import { renderFeedsPage, renderTimelineItems, type FeedsPageState } from "../html/feeds.js";
 
 const hydrateManifest = (db: TimelineDatabase) => {
@@ -28,6 +34,11 @@ const clampLimit = (value: string | undefined, fallback: number) => {
 };
 
 const normalizeQueryValue = (value: string | undefined) => {
+  const trimmed = value?.trim();
+  return trimmed ? trimmed : null;
+};
+
+const normalizeSearchValue = (value: string | null) => {
   const trimmed = value?.trim();
   return trimmed ? trimmed : null;
 };
@@ -60,31 +71,63 @@ const parseCursorPayload = (value: string | null) => {
   return null;
 };
 
-const hasQueryKey = (query: Record<string, string | undefined>, key: string) =>
-  Object.prototype.hasOwnProperty.call(query, key);
-
-const normalizePageSelect = (value: string | undefined, fallback: string) => {
+const normalizeCursorValue = (value: string | null) => {
   const trimmed = value?.trim();
-  return trimmed ? trimmed : fallback;
+  return trimmed ? trimmed : null;
+};
+
+const readMultiSelect = <T extends string>(
+  searchParams: URLSearchParams,
+  key: string,
+  allowedValues: readonly T[]
+) => {
+  const selected = new Set<T>();
+  for (const rawValue of searchParams.getAll(key)) {
+    for (const part of rawValue.split(",")) {
+      const candidate = part.trim();
+      if (!candidate || candidate === "all") continue;
+      if ((allowedValues as readonly string[]).includes(candidate)) {
+        selected.add(candidate as T);
+      }
+    }
+  }
+  return [...selected] as T[];
+};
+
+type EventFilters = {
+  vendor: Vendor[] | null;
+  category: EventCategory[] | null;
+  product: string | null;
+  model: string | null;
+  since: string | null;
+  until: string | null;
+  cursor: string | null;
+  limit: number;
+};
+
+const appendMultiValueParams = (params: URLSearchParams, key: string, values: string[] | null) => {
+  if (!values?.length) {
+    params.append(key, "all");
+    return;
+  }
+  for (const value of values) {
+    params.append(key, value);
+  }
 };
 
 const buildApiHref = (
   path: string,
-  filters: {
-    vendor: string | null;
-    category: string | null;
-    product: string | null;
-    model: string | null;
-    since: string | null;
-    until: string | null;
-    cursor: string | null;
-    limit: number;
-  },
-  options: { includeCursor?: boolean; includeLimit?: boolean } = {}
+  filters: EventFilters,
+  options: { includeCursor?: boolean; includeLimit?: boolean; preserveEmptySelects?: boolean } = {}
 ) => {
   const params = new URLSearchParams();
-  if (filters.vendor) params.set("vendor", filters.vendor);
-  if (filters.category) params.set("category", filters.category);
+  if (options.preserveEmptySelects) {
+    appendMultiValueParams(params, "vendor", filters.vendor);
+    appendMultiValueParams(params, "category", filters.category);
+  } else {
+    for (const vendor of filters.vendor ?? []) params.append("vendor", vendor);
+    for (const category of filters.category ?? []) params.append("category", category);
+  }
   if (filters.product) params.set("product", filters.product);
   if (filters.model) params.set("model", filters.model);
   if (filters.since) params.set("since", filters.since);
@@ -95,26 +138,39 @@ const buildApiHref = (
   return query ? `${path}?${query}` : path;
 };
 
-const readFeedsPageState = (query: Record<string, string | undefined>): FeedsPageState => ({
-  vendor: normalizePageSelect(query.vendor, "all"),
-  category: hasQueryKey(query, "category") ? normalizePageSelect(query.category, "all") : "model_release",
-  product: query.product?.trim() ?? "",
-  model: query.model?.trim() ?? "",
-  since: query.since?.trim() ?? "",
-  until: query.until?.trim() ?? "",
-  limit: clampLimit(query.limit, 50),
-  cursor: normalizeCursor(query.cursor) ?? "",
+const readFeedsPageState = (searchParams: URLSearchParams): FeedsPageState => ({
+  vendors: searchParams.has("vendor") ? readMultiSelect(searchParams, "vendor", ALLOWED_VENDORS) : [],
+  categories: searchParams.has("category")
+    ? readMultiSelect(searchParams, "category", ALLOWED_CATEGORIES)
+    : ["model_release"],
+  product: searchParams.get("product")?.trim() ?? "",
+  model: searchParams.get("model")?.trim() ?? "",
+  since: searchParams.get("since")?.trim() ?? "",
+  until: searchParams.get("until")?.trim() ?? "",
+  limit: clampLimit(searchParams.get("limit") ?? undefined, 50),
+  cursor: normalizeCursorValue(searchParams.get("cursor")) ?? "",
 });
 
-const feedsStateToEventFilters = (state: FeedsPageState) => ({
-  vendor: state.vendor === "all" ? null : normalizeQueryValue(state.vendor),
-  category: state.category === "all" ? null : normalizeQueryValue(state.category),
+const feedsStateToEventFilters = (state: FeedsPageState): EventFilters => ({
+  vendor: state.vendors.length ? state.vendors : null,
+  category: state.categories.length ? state.categories : null,
   product: normalizeQueryValue(state.product),
   model: normalizeQueryValue(state.model),
   since: normalizeQueryValue(state.since),
   until: normalizeQueryValue(state.until),
   cursor: normalizeCursor(state.cursor),
   limit: state.limit,
+});
+
+const readEventFilters = (searchParams: URLSearchParams): EventFilters => ({
+  vendor: searchParams.has("vendor") ? readMultiSelect(searchParams, "vendor", ALLOWED_VENDORS) : null,
+  category: searchParams.has("category") ? readMultiSelect(searchParams, "category", ALLOWED_CATEGORIES) : null,
+  product: normalizeSearchValue(searchParams.get("product")),
+  model: normalizeSearchValue(searchParams.get("model")),
+  since: normalizeSearchValue(searchParams.get("since")),
+  until: normalizeSearchValue(searchParams.get("until")),
+  cursor: normalizeCursorValue(searchParams.get("cursor")),
+  limit: clampLimit(searchParams.get("limit") ?? undefined, 50),
 });
 
 export const createApp = (db: TimelineDatabase) => {
@@ -161,17 +217,8 @@ export const createApp = (db: TimelineDatabase) => {
   });
 
   app.get("/events", (c) => {
-    const query = c.req.query();
-    const filters = {
-      vendor: query.vendor ?? null,
-      category: query.category ?? null,
-      product: query.product ?? null,
-      model: query.model ?? null,
-      since: query.since ?? null,
-      until: query.until ?? null,
-      cursor: normalizeCursor(query.cursor),
-      limit: clampLimit(query.limit, 50),
-    };
+    const searchParams = new URL(c.req.url).searchParams;
+    const filters = readEventFilters(searchParams);
 
     const result = db.getEvents(filters);
     return c.json({
@@ -190,7 +237,8 @@ export const createApp = (db: TimelineDatabase) => {
   });
 
   app.get("/feeds", (c) => {
-    const pageState = readFeedsPageState(c.req.query());
+    const searchParams = new URL(c.req.url).searchParams;
+    const pageState = readFeedsPageState(searchParams);
     const filters = feedsStateToEventFilters(pageState);
     const result = db.getEvents(filters);
     const payload = renderFeedsPage({
@@ -201,7 +249,7 @@ export const createApp = (db: TimelineDatabase) => {
       eventsJsonHref: buildApiHref("/events", filters, { includeCursor: true, includeLimit: true }),
       calendarHref: buildApiHref("/calendar.ics", filters),
       sourcesHref: "/sources",
-      itemsHref: buildApiHref("/feeds/items", { ...filters, cursor: null }, { includeLimit: true }),
+      itemsHref: buildApiHref("/feeds/items", { ...filters, cursor: null }, { includeLimit: true, preserveEmptySelects: true }),
     });
     return c.body(payload, {
       status: 200,
@@ -212,7 +260,8 @@ export const createApp = (db: TimelineDatabase) => {
   });
 
   app.get("/feeds/items", (c) => {
-    const pageState = readFeedsPageState(c.req.query());
+    const searchParams = new URL(c.req.url).searchParams;
+    const pageState = readFeedsPageState(searchParams);
     const filters = feedsStateToEventFilters(pageState);
     if (!filters.cursor || !parseCursorPayload(filters.cursor)) {
       return c.json({ error: "valid cursor is required" }, 400);
@@ -227,22 +276,15 @@ export const createApp = (db: TimelineDatabase) => {
   });
 
   app.get("/calendar.ics", (c) => {
-    const query = c.req.query();
+    const searchParams = new URL(c.req.url).searchParams;
     const filters = {
-      vendor: query.vendor ?? null,
-      category: query.category ?? null,
-      product: query.product ?? null,
-      model: query.model ?? null,
-      since: query.since ?? null,
-      until: query.until ?? null,
+      ...readEventFilters(searchParams),
       cursor: null,
       limit: 500,
     };
     const result = db.getEvents(filters);
     const payload = buildCalendar(result.events);
-    const queryString = new URLSearchParams(
-      Object.entries(query).filter((entry): entry is [string, string] => entry[1] !== undefined)
-    ).toString();
+    const queryString = searchParams.toString();
     const source = queryString ? `?${queryString}` : "";
     return c.body(payload, {
       status: 200,

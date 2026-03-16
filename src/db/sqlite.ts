@@ -543,8 +543,8 @@ export class TimelineDatabase {
   }
 
   getEvents(filters: {
-    vendor?: string | null;
-    category?: string | null;
+    vendor?: string | string[] | null;
+    category?: string | string[] | null;
     product?: string | null;
     model?: string | null;
     since?: string | null;
@@ -554,13 +554,21 @@ export class TimelineDatabase {
   }) {
     const where: string[] = [];
     const params: Record<string, string | number> = {};
-    if (filters.vendor) {
-      where.push("vendor = :vendor");
-      params.vendor = filters.vendor;
+    const vendors = normalizeFilterList(filters.vendor);
+    const categories = normalizeFilterList(filters.category);
+    if (vendors.length) {
+      const placeholders = vendors.map((_, index) => `:vendor${index}`);
+      where.push(`vendor IN (${placeholders.join(", ")})`);
+      vendors.forEach((vendor, index) => {
+        params[`vendor${index}`] = vendor;
+      });
     }
-    if (filters.category) {
-      where.push("category = :category");
-      params.category = filters.category;
+    if (categories.length) {
+      const placeholders = categories.map((_, index) => `:category${index}`);
+      where.push(`category IN (${placeholders.join(", ")})`);
+      categories.forEach((category, index) => {
+        params[`category${index}`] = category;
+      });
     }
     if (filters.since) {
       where.push("event_date >= :since");
@@ -679,6 +687,17 @@ const parseJsonArray = (value: unknown) => {
   } catch {
     return [];
   }
+};
+
+const normalizeFilterList = (value: string | string[] | null | undefined) => {
+  if (Array.isArray(value)) {
+    return [...new Set(value.map((entry) => entry.trim()).filter(Boolean))];
+  }
+  if (typeof value === "string") {
+    const trimmed = value.trim();
+    return trimmed ? [trimmed] : [];
+  }
+  return [];
 };
 
 const parseCursorValue = (value: unknown) => {
