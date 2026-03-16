@@ -2,6 +2,7 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { TimelineDatabase } from "../db/sqlite.js";
 import {
+  buildChartFromEvents,
   createStaticFeedsEventSnapshot,
   renderStaticFeedsPage,
   type FeedsPageState,
@@ -176,6 +177,7 @@ export const exportPages = ({ db, outDir = "docs" }: ExportPagesOptions): Export
       events: initialEvents,
       hasMore: defaultEvents.length > initialEvents.length,
       state: defaultState,
+      chart: buildChartFromEvents(defaultEvents, defaultState),
       dataHref: "../assets/events.json",
       exportedAt,
     }),

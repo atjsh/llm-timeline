@@ -151,6 +151,10 @@ assert.match(defaultPage.body, /Introducing Claude Opus 4\.6/);
 assert.doesNotMatch(defaultPage.body, /Gemini tooling update/);
 assert.match(defaultPage.body, /Current JSON/);
 assert.match(defaultPage.body, /Current ICS/);
+assert.match(defaultPage.body, /Release activity over time/);
+assert.match(defaultPage.body, /data-chart-root/);
+assert.match(defaultPage.body, /data-chart-start="2026-03-10"/);
+assert.match(defaultPage.body, /since=2026-03-10&amp;until=2026-03-10/);
 
 const filteredPage = await getHtml("/feeds?vendor=anthropic&category=model_release");
 assert.match(filteredPage.body, /Introducing Claude Opus 4\.6/);
@@ -213,6 +217,12 @@ assert.equal(invalidCursor.response.status, 400);
 const allCategoriesPage = await getHtml("/feeds?category=all&limit=10");
 assert.match(allCategoriesPage.body, /Gemini tooling update/);
 
+const dateFocusedPage = await getHtml("/feeds?category=model_release&since=2026-03-10&until=2026-03-10");
+assert.match(dateFocusedPage.body, /Introducing Claude Opus 4\.6/);
+assert.doesNotMatch(dateFocusedPage.body, /OpenAI &lt;Launch&gt;/);
+assert.match(dateFocusedPage.body, /Focused: Mar 10, 2026/);
+assert.match(dateFocusedPage.body, /Clear date focus/);
+
 const htmlReleaseNotePage = await getHtml("/feeds?vendor=openai&category=release_note&limit=20");
 assert.match(htmlReleaseNotePage.body, /v2\.26\.0/);
 assert.match(htmlReleaseNotePage.body, /Full Changelog: v2\.25\.0\.\.\.v2\.26\.0/);
@@ -222,3 +232,7 @@ assert.doesNotMatch(htmlReleaseNotePage.body, /href=&quot;https:\/\/github\.com\
 
 const emptyPage = await getHtml("/feeds?vendor=openai&category=deprecation");
 assert.match(emptyPage.body, /No events matched the current filters/);
+
+const focusedEventsApi = await getJson("/events?vendor=anthropic&category=model_release&since=2026-03-10&until=2026-03-10&limit=20");
+assert.equal(focusedEventsApi.body.data.length, 1);
+assert.equal(focusedEventsApi.body.data[0].id, "evt-anthropic-opus");

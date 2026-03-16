@@ -552,40 +552,7 @@ export class TimelineDatabase {
     limit: number;
     cursor?: string | null;
   }) {
-    const where: string[] = [];
-    const params: Record<string, string | number> = {};
-    const vendors = normalizeFilterList(filters.vendor);
-    const categories = normalizeFilterList(filters.category);
-    if (vendors.length) {
-      const placeholders = vendors.map((_, index) => `:vendor${index}`);
-      where.push(`vendor IN (${placeholders.join(", ")})`);
-      vendors.forEach((vendor, index) => {
-        params[`vendor${index}`] = vendor;
-      });
-    }
-    if (categories.length) {
-      const placeholders = categories.map((_, index) => `:category${index}`);
-      where.push(`category IN (${placeholders.join(", ")})`);
-      categories.forEach((category, index) => {
-        params[`category${index}`] = category;
-      });
-    }
-    if (filters.since) {
-      where.push("event_date >= :since");
-      params.since = filters.since;
-    }
-    if (filters.until) {
-      where.push("event_date <= :until");
-      params.until = filters.until;
-    }
-    if (filters.product) {
-      where.push("EXISTS (SELECT 1 FROM json_each(events.products) WHERE value = :product)");
-      params.product = filters.product;
-    }
-    if (filters.model) {
-      where.push("EXISTS (SELECT 1 FROM json_each(events.models) WHERE value = :model)");
-      params.model = filters.model;
-    }
+    const { where, params } = buildEventWhere(filters);
     if (filters.cursor) {
       const decoded = decodeCursor(filters.cursor);
       if (decoded) {
@@ -614,6 +581,28 @@ export class TimelineDatabase {
         })
       : null;
     return { events, hasMore, nextCursor };
+  }
+
+  getEventCountsByDay(filters: {
+    vendor?: string | string[] | null;
+    category?: string | string[] | null;
+    product?: string | null;
+    model?: string | null;
+    since?: string | null;
+    until?: string | null;
+  }) {
+    const { where, params } = buildEventWhere(filters);
+    return this.db
+      .prepare(
+        `
+        SELECT substr(event_date, 1, 10) AS day, COUNT(*) AS count
+        FROM events
+        ${where.length ? `WHERE ${where.join(" AND ")}` : ""}
+        GROUP BY substr(event_date, 1, 10)
+        ORDER BY day ASC
+        `
+      )
+      .all(params) as Array<{ day: string; count: number }>;
   }
 
   getEventById(id: string): EventRow | null {
@@ -687,6 +676,63 @@ const parseJsonArray = (value: unknown) => {
   } catch {
     return [];
   }
+};
+
+const dateOnlyPattern = /^\d{4}-\d{2}-\d{2}$/;
+
+const buildEventWhere = (filters: {
+  vendor?: string | string[] | null;
+  category?: string | string[] | null;
+  product?: string | null;
+  model?: string | null;
+  since?: string | null;
+  until?: string | null;
+}) => {
+  const where: string[] = [];
+  const params: Record<string, string | number> = {};
+  const vendors = normalizeFilterList(filters.vendor);
+  const categories = normalizeFilterList(filters.category);
+  if (vendors.length) {
+    const placeholders = vendors.map((_, index) => `:vendor${index}`);
+    where.push(`vendor IN (${placeholders.join(", ")})`);
+    vendors.forEach((vendor, index) => {
+      params[`vendor${index}`] = vendor;
+    });
+  }
+  if (categories.length) {
+    const placeholders = categories.map((_, index) => `:category${index}`);
+    where.push(`category IN (${placeholders.join(", ")})`);
+    categories.forEach((category, index) => {
+      params[`category${index}`] = category;
+    });
+  }
+  if (filters.since) {
+    if (dateOnlyPattern.test(filters.since)) {
+      where.push("substr(event_date, 1, 10) >= :sinceDay");
+      params.sinceDay = filters.since;
+    } else {
+      where.push("event_date >= :since");
+      params.since = filters.since;
+    }
+  }
+  if (filters.until) {
+    if (dateOnlyPattern.test(filters.until)) {
+      where.push("substr(event_date, 1, 10) <= :untilDay");
+      params.untilDay = filters.until;
+    } else {
+      where.push("event_date <= :until");
+      params.until = filters.until;
+    }
+  }
+  if (filters.product) {
+    where.push("EXISTS (SELECT 1 FROM json_each(events.products) WHERE value = :product)");
+    params.product = filters.product;
+  }
+  if (filters.model) {
+    where.push("EXISTS (SELECT 1 FROM json_each(events.models) WHERE value = :model)");
+    params.model = filters.model;
+  }
+  return { where, params };
 };
 
 const normalizeFilterList = (value: string | string[] | null | undefined) => {

@@ -27,7 +27,7 @@ Example filters:
 - `/calendar.ics?vendor=anthropic`
 - `/calendar.ics?vendor=google&category=release_note`
 
-The `/feeds` page is a server-rendered timeline preview and progressively loads older events as you scroll.
+The `/feeds` page is a server-rendered timeline preview with a date-overview histogram, and it progressively loads older events as you scroll.
 
 ## Static export for GitHub Pages
 

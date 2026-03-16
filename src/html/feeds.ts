@@ -6,6 +6,11 @@ import {
   type EventRow,
   type Vendor,
 } from "../types.js";
+import {
+  buildDailyCountsFromEvents,
+  buildFeedsChartModel,
+  type FeedsChartModel,
+} from "./chart.js";
 
 export interface FeedsPageState {
   vendors: Vendor[];
@@ -23,6 +28,7 @@ export interface FeedsPageInput {
   hasMore: boolean;
   nextCursor: string | null;
   state: FeedsPageState;
+  chart: FeedsChartModel | null;
   eventsJsonHref: string;
   calendarHref: string;
   sourcesHref: string;
@@ -44,6 +50,7 @@ export interface StaticFeedsPageInput {
   events: EventRow[];
   hasMore: boolean;
   state: FeedsPageState;
+  chart: FeedsChartModel | null;
   dataHref: string;
   exportedAt: string;
 }
@@ -172,7 +179,7 @@ const renderCheckboxOptions = (
     })
     .join("");
 
-const buildPageHref = (state: FeedsPageState, overrides: Partial<FeedsPageState> = {}) => {
+const buildPageHrefFor = (basePath: string, state: FeedsPageState, overrides: Partial<FeedsPageState> = {}) => {
   const next = { ...state, ...overrides };
   const params = new URLSearchParams();
   for (const vendor of next.vendors) params.append("vendor", vendor);
@@ -187,8 +194,11 @@ const buildPageHref = (state: FeedsPageState, overrides: Partial<FeedsPageState>
   if (next.until) params.set("until", next.until);
   params.set("limit", String(next.limit));
   if (next.cursor) params.set("cursor", next.cursor);
-  return `/feeds?${params.toString()}`;
+  return `${basePath}?${params.toString()}`;
 };
+
+const buildPageHref = (state: FeedsPageState, overrides: Partial<FeedsPageState> = {}) =>
+  buildPageHrefFor("/feeds", state, overrides);
 
 const activeFilterChips = (state: FeedsPageState) => {
   const chips: Array<{ label: string; value: string }> = [];
@@ -268,6 +278,11 @@ export const createStaticFeedsEventSnapshot = (event: EventRow): StaticFeedsEven
   models: event.models,
   html: renderTimelineItemHtml(event, { includeJsonLink: false }),
 });
+
+export const buildChartFromEvents = (
+  events: Array<{ event_date: string }>,
+  selection: { since?: string | null; until?: string | null } = {}
+) => buildFeedsChartModel(buildDailyCountsFromEvents(events), selection);
 
 const renderSummaryHeading = (count: number, hasMore: boolean) =>
   `Showing ${count} event${count === 1 ? "" : "s"}${hasMore ? " with older pages available" : ""}.`;
@@ -359,6 +374,113 @@ const renderSummarySection = (state: FeedsPageState, count: number, hasMore: boo
         </div>
       </section>
 `;
+
+const chartUnitLabels: Record<FeedsChartModel["unit"], string> = {
+  day: "day",
+  week: "week",
+  month: "month",
+};
+
+const renderChartSection = (
+  chart: FeedsChartModel | null,
+  state: FeedsPageState,
+  options: { basePath: string }
+) => {
+  if (!chart || !chart.buckets.length) return "";
+
+  const chartWidth = Math.max(660, chart.buckets.length * 38 + 56);
+  const chartHeight = 220;
+  const plotTop = 20;
+  const plotBottom = 160;
+  const plotHeight = plotBottom - plotTop;
+  const leftPad = 28;
+  const rightPad = 20;
+  const baselineY = plotBottom;
+  const slotWidth = (chartWidth - leftPad - rightPad) / chart.buckets.length;
+  const barWidth = Math.max(14, slotWidth * 0.62);
+  const labelStep = chart.buckets.length > 28 ? 4 : chart.buckets.length > 16 ? 2 : 1;
+  const clearHref =
+    state.since || state.until ? buildPageHrefFor(options.basePath, state, { since: "", until: "", cursor: "" }) : null;
+
+  const gridValues = [chart.maxCount, Math.max(1, Math.ceil(chart.maxCount / 2)), 0]
+    .filter((value, index, values) => values.indexOf(value) === index)
+    .sort((left, right) => right - left);
+
+  return `
+      <section class="chart-shell" data-chart-root>
+        <div class="chart__header">
+          <div>
+            <p class="chart__eyebrow">Release Rhythm</p>
+            <h2 class="chart__title">Release activity over time</h2>
+            <p class="chart__copy">Select a ${escapeHtml(chartUnitLabels[chart.unit])} to focus the timeline while keeping the broader release curve visible.</p>
+          </div>
+          <div class="chart__meta">
+            <p class="chart__selection">${escapeHtml(chart.selectionLabel ? `Focused: ${chart.selectionLabel}` : `Showing all ${chart.totalCount} events across the current non-date filters.`)}</p>
+            ${clearHref ? `<a class="chart__clear" href="${safeHref(clearHref)}" data-chart-clear>Clear date focus</a>` : ""}
+          </div>
+        </div>
+        <div class="chart-scroll">
+          <svg
+            class="chart-svg"
+            viewBox="0 0 ${chartWidth} ${chartHeight}"
+            width="${chartWidth}"
+            height="${chartHeight}"
+            role="img"
+            aria-label="Histogram of event counts over time"
+          >
+            <rect x="0" y="0" width="${chartWidth}" height="${chartHeight}" rx="18" class="chart__backdrop"></rect>
+            ${gridValues
+              .map((value) => {
+                const y = plotTop + (1 - value / chart.maxCount) * plotHeight;
+                return `
+            <line x1="${leftPad}" y1="${y}" x2="${chartWidth - rightPad}" y2="${y}" class="chart__grid"></line>
+            <text x="8" y="${y + 4}" class="chart__axis">${value}</text>
+                `;
+              })
+              .join("")}
+            <line x1="${leftPad}" y1="${baselineY}" x2="${chartWidth - rightPad}" y2="${baselineY}" class="chart__baseline"></line>
+            ${chart.buckets
+              .map((bucket, index) => {
+                const slotX = leftPad + index * slotWidth;
+                const x = slotX + (slotWidth - barWidth) / 2;
+                const height = bucket.count > 0 ? Math.max(6, (bucket.count / chart.maxCount) * plotHeight) : 0;
+                const y = baselineY - height;
+                const labelY = chartHeight - 16;
+                const showLabel = index % labelStep === 0 || bucket.active;
+                const href = buildPageHrefFor(options.basePath, state, {
+                  since: bucket.startDay,
+                  until: bucket.endDay,
+                  cursor: "",
+                });
+                if (bucket.count <= 0) {
+                  return `
+            <g class="chart__bucket chart__bucket--empty" aria-hidden="true">
+              <rect x="${x}" y="${baselineY - 1}" width="${barWidth}" height="2" rx="1" class="chart-bar chart-bar--empty"></rect>
+              ${showLabel ? `<text x="${slotX + slotWidth / 2}" y="${labelY}" text-anchor="middle" class="chart__label">${escapeHtml(bucket.shortLabel)}</text>` : ""}
+            </g>
+                  `;
+                }
+                return `
+            <a
+              href="${safeHref(href)}"
+              class="chart__bucket${bucket.active ? " chart__bucket--active" : ""}"
+              data-chart-bucket
+              data-chart-start="${escapeHtml(bucket.startDay)}"
+              data-chart-end="${escapeHtml(bucket.endDay)}"
+              aria-label="${escapeHtml(bucket.ariaLabel)}"
+            >
+              <title>${escapeHtml(bucket.ariaLabel)}</title>
+              <rect x="${x}" y="${y}" width="${barWidth}" height="${height}" rx="8" class="chart-bar${bucket.active ? " chart-bar--active" : ""}"></rect>
+              ${showLabel ? `<text x="${slotX + slotWidth / 2}" y="${labelY}" text-anchor="middle" class="chart__label${bucket.active ? " chart__label--active" : ""}">${escapeHtml(bucket.shortLabel)}</text>` : ""}
+            </a>
+                `;
+              })
+              .join("")}
+          </svg>
+        </div>
+      </section>
+  `;
+};
 
 const renderTimelineSection = (input: {
   events: EventRow[];
@@ -517,6 +639,7 @@ const renderStaticInlineScript = () => `
 (() => {
   const root = document.querySelector("[data-static-feeds]");
   const form = document.querySelector("[data-feeds-form]");
+  const chartRoot = document.querySelector("[data-chart-root]");
   const summary = document.querySelector("[data-summary-heading]");
   const chips = document.querySelector("[data-filter-chips]");
   const timeline = document.querySelector("[data-timeline]");
@@ -526,6 +649,7 @@ const renderStaticInlineScript = () => `
   if (
     !(root instanceof HTMLElement) ||
     !(form instanceof HTMLFormElement) ||
+    !(chartRoot instanceof HTMLElement) ||
     !(summary instanceof HTMLElement) ||
     !(chips instanceof HTMLElement) ||
     !(timeline instanceof HTMLElement) ||
@@ -548,17 +672,115 @@ const renderStaticInlineScript = () => `
   const defaultCategories = ["model_release"];
   const defaultLimit = Number(root.dataset.defaultLimit || "50");
   const dataHref = root.dataset.dataHref || "";
+  const dayMs = 24 * 60 * 60 * 1000;
   let allEvents = null;
+  let baseFilteredEvents = [];
   let filteredEvents = [];
   let visibleCount = 0;
   let currentState = null;
   let loading = false;
   let observer = null;
 
+  const shortDayFormatter = new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    timeZone: "UTC",
+  });
+  const fullDayFormatter = new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    timeZone: "UTC",
+  });
+  const monthFormatter = new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    year: "numeric",
+    timeZone: "UTC",
+  });
+  const monthShortFormatter = new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    year: "numeric",
+    timeZone: "UTC",
+  });
+
   const humanizeToken = (value) =>
     String(value || "")
       .replace(/_/g, " ")
       .replace(/\\b\\w/g, (match) => match.toUpperCase());
+
+  const toDayString = (value) => {
+    const trimmed = String(value || "").trim();
+    const match = trimmed.match(/^(\\d{4}-\\d{2}-\\d{2})/);
+    return match ? match[1] : "";
+  };
+
+  const parseDay = (day) => Date.parse(day + "T00:00:00.000Z");
+
+  const formatDayFromMs = (value) => new Date(value).toISOString().slice(0, 10);
+
+  const formatShortDay = (day) => shortDayFormatter.format(new Date(day + "T00:00:00.000Z"));
+
+  const formatFullDay = (day) => fullDayFormatter.format(new Date(day + "T00:00:00.000Z"));
+
+  const formatMonthLabel = (day) => monthFormatter.format(new Date(day + "T00:00:00.000Z"));
+
+  const formatMonthShort = (day) => monthShortFormatter.format(new Date(day + "T00:00:00.000Z"));
+
+  const startOfWeek = (value) => {
+    const date = new Date(value);
+    const day = date.getUTCDay();
+    const mondayOffset = day === 0 ? -6 : 1 - day;
+    return value + mondayOffset * dayMs;
+  };
+
+  const startOfMonth = (value) => {
+    const date = new Date(value);
+    return Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), 1);
+  };
+
+  const addDays = (value, days) => value + days * dayMs;
+
+  const addWeeks = (value, weeks) => addDays(value, weeks * 7);
+
+  const addMonths = (value, months) => {
+    const date = new Date(value);
+    return Date.UTC(date.getUTCFullYear(), date.getUTCMonth() + months, 1);
+  };
+
+  const bucketUnitForRange = (rangeDays) => {
+    if (rangeDays <= 45) return "day";
+    if (rangeDays <= 240) return "week";
+    return "month";
+  };
+
+  const formatSelectionLabel = (sinceDay, untilDay) => {
+    if (sinceDay && untilDay) {
+      if (sinceDay === untilDay) return formatFullDay(sinceDay);
+      return formatFullDay(sinceDay) + " to " + formatFullDay(untilDay);
+    }
+    if (sinceDay) return "From " + formatFullDay(sinceDay);
+    if (untilDay) return "Through " + formatFullDay(untilDay);
+    return "";
+  };
+
+  const formatBucketLabels = (unit, startDay, endDay) => {
+    if (unit === "day") {
+      return {
+        label: formatFullDay(startDay),
+        shortLabel: formatShortDay(startDay),
+      };
+    }
+    if (unit === "week") {
+      return {
+        label: formatFullDay(startDay) + " to " + formatFullDay(endDay),
+        shortLabel: formatShortDay(startDay),
+      };
+    }
+    return {
+      label: formatMonthLabel(startDay),
+      shortLabel: formatMonthShort(startDay),
+    };
+  };
 
   const readSelectedValues = (name, allowed) => {
     const selected = [];
@@ -601,8 +823,8 @@ const renderStaticInlineScript = () => `
       categories: hasCategoryParam ? readMultiFromSearch(params, "category", allowedCategories) : defaultCategories.slice(),
       product: (params.get("product") || "").trim(),
       model: (params.get("model") || "").trim(),
-      since: (params.get("since") || "").trim(),
-      until: (params.get("until") || "").trim(),
+      since: toDayString(params.get("since")),
+      until: toDayString(params.get("until")),
       limit: clampLimit(params.get("limit") || defaultLimit),
     };
   };
@@ -618,8 +840,8 @@ const renderStaticInlineScript = () => `
       categories: readSelectedValues("category", allowedCategories),
       product: productInput instanceof HTMLInputElement ? productInput.value.trim() : "",
       model: modelInput instanceof HTMLInputElement ? modelInput.value.trim() : "",
-      since: sinceInput instanceof HTMLInputElement ? sinceInput.value.trim() : "",
-      until: untilInput instanceof HTMLInputElement ? untilInput.value.trim() : "",
+      since: sinceInput instanceof HTMLInputElement ? toDayString(sinceInput.value) : "",
+      until: untilInput instanceof HTMLInputElement ? toDayString(untilInput.value) : "",
       limit: clampLimit(limitInput instanceof HTMLSelectElement ? limitInput.value : defaultLimit),
     };
   };
@@ -706,14 +928,242 @@ const renderStaticInlineScript = () => `
     }
   };
 
-  const matchesState = (event, state) => {
+  const matchesCoreState = (event, state) => {
     if (state.vendors.length && !state.vendors.includes(event.vendor)) return false;
     if (state.categories.length && !state.categories.includes(event.category)) return false;
     if (state.product && (!Array.isArray(event.products) || !event.products.includes(state.product))) return false;
     if (state.model && (!Array.isArray(event.models) || !event.models.includes(state.model))) return false;
-    if (state.since && String(event.event_date || "") < state.since) return false;
-    if (state.until && String(event.event_date || "") > state.until) return false;
     return true;
+  };
+
+  const matchesState = (event, state) => {
+    if (!matchesCoreState(event, state)) return false;
+    const eventDay = toDayString(event.event_date);
+    if (state.since && eventDay < state.since) return false;
+    if (state.until && eventDay > state.until) return false;
+    return true;
+  };
+
+  const buildDailyCounts = (events) => {
+    const counts = new Map();
+    for (const event of events) {
+      const day = toDayString(event.event_date);
+      if (!day) continue;
+      counts.set(day, (counts.get(day) || 0) + 1);
+    }
+    return Array.from(counts.entries())
+      .sort((left, right) => left[0].localeCompare(right[0]))
+      .map(([day, count]) => ({ day, count }));
+  };
+
+  const buildChartModel = (events, state) => {
+    const dailyCounts = buildDailyCounts(events);
+    if (!dailyCounts.length) return null;
+
+    const firstDay = dailyCounts[0].day;
+    const lastDay = dailyCounts[dailyCounts.length - 1].day;
+    const firstMs = parseDay(firstDay);
+    const lastMs = parseDay(lastDay);
+    const rangeDays = Math.floor((lastMs - firstMs) / dayMs) + 1;
+    const unit = bucketUnitForRange(rangeDays);
+    const selectedSince = toDayString(state.since);
+    const selectedUntil = toDayString(state.until);
+    const countsByDay = new Map(dailyCounts.map((entry) => [entry.day, entry.count]));
+    const buckets = [];
+    let cursor = unit === "day" ? firstMs : unit === "week" ? startOfWeek(firstMs) : startOfMonth(firstMs);
+    const boundary = unit === "day" ? lastMs : unit === "week" ? startOfWeek(lastMs) : startOfMonth(lastMs);
+
+    while (cursor <= boundary) {
+      const startDay = formatDayFromMs(cursor);
+      const rawEnd = unit === "day" ? cursor : unit === "week" ? addDays(cursor, 6) : addDays(addMonths(cursor, 1), -1);
+      const endDay = formatDayFromMs(rawEnd);
+      let count = 0;
+      for (const [day, value] of countsByDay.entries()) {
+        if (day >= startDay && day <= endDay) count += value;
+      }
+      const labels = formatBucketLabels(unit, startDay, endDay);
+      buckets.push({
+        key: startDay + ":" + endDay,
+        startDay,
+        endDay,
+        label: labels.label,
+        shortLabel: labels.shortLabel,
+        count,
+        active: selectedSince === startDay && selectedUntil === endDay,
+        ariaLabel: labels.label + ": " + count + " event" + (count === 1 ? "" : "s"),
+      });
+      cursor = unit === "day" ? addDays(cursor, 1) : unit === "week" ? addWeeks(cursor, 1) : addMonths(cursor, 1);
+    }
+
+    const totalCount = buckets.reduce((sum, bucket) => sum + bucket.count, 0);
+    const maxCount = Math.max.apply(
+      null,
+      buckets.map((bucket) => bucket.count).concat([1])
+    );
+    const activeBucket = buckets.find((bucket) => bucket.active);
+    return {
+      unit,
+      buckets,
+      totalCount,
+      maxCount,
+      selectionLabel: activeBucket ? activeBucket.label : formatSelectionLabel(selectedSince, selectedUntil),
+    };
+  };
+
+  const buildChartHtml = (chart, state) => {
+    if (!chart || !chart.buckets.length) return "";
+    const chartWidth = Math.max(660, chart.buckets.length * 38 + 56);
+    const chartHeight = 220;
+    const plotTop = 20;
+    const plotBottom = 160;
+    const plotHeight = plotBottom - plotTop;
+    const leftPad = 28;
+    const rightPad = 20;
+    const slotWidth = (chartWidth - leftPad - rightPad) / chart.buckets.length;
+    const barWidth = Math.max(14, slotWidth * 0.62);
+    const labelStep = chart.buckets.length > 28 ? 4 : chart.buckets.length > 16 ? 2 : 1;
+    const unitLabel = chart.unit === "day" ? "day" : chart.unit === "week" ? "week" : "month";
+    const clearHref =
+      state.since || state.until
+        ? "./?" + buildStateSearch({ ...state, since: "", until: "" })
+        : "";
+    const gridValues = Array.from(new Set([chart.maxCount, Math.max(1, Math.ceil(chart.maxCount / 2)), 0])).sort(
+      (left, right) => right - left
+    );
+    return [
+      '<div class="chart__header">',
+      "<div>",
+      '<p class="chart__eyebrow">Release Rhythm</p>',
+      '<h2 class="chart__title">Release activity over time</h2>',
+      '<p class="chart__copy">Select a ' + unitLabel + " to focus the timeline while keeping the broader release curve visible.</p>",
+      "</div>",
+      '<div class="chart__meta">',
+      '<p class="chart__selection">' +
+        (chart.selectionLabel
+          ? "Focused: " + chart.selectionLabel
+          : "Showing all " + chart.totalCount + " events across the current non-date filters.") +
+        "</p>",
+      clearHref ? '<a class="chart__clear" href="' + clearHref + '" data-chart-clear>Clear date focus</a>' : "",
+      "</div>",
+      "</div>",
+      '<div class="chart-scroll">',
+      '<svg class="chart-svg" viewBox="0 0 ' +
+        chartWidth +
+        " " +
+        chartHeight +
+        '" width="' +
+        chartWidth +
+        '" height="' +
+        chartHeight +
+        '" role="img" aria-label="Histogram of event counts over time">',
+      '<rect x="0" y="0" width="' + chartWidth + '" height="' + chartHeight + '" rx="18" class="chart__backdrop"></rect>',
+      gridValues
+        .map((value) => {
+          const y = plotTop + (1 - value / chart.maxCount) * plotHeight;
+          return (
+            '<line x1="' +
+            leftPad +
+            '" y1="' +
+            y +
+            '" x2="' +
+            (chartWidth - rightPad) +
+            '" y2="' +
+            y +
+            '" class="chart__grid"></line><text x="8" y="' +
+            (y + 4) +
+            '" class="chart__axis">' +
+            value +
+            "</text>"
+          );
+        })
+        .join(""),
+      '<line x1="' +
+        leftPad +
+        '" y1="' +
+        plotBottom +
+        '" x2="' +
+        (chartWidth - rightPad) +
+        '" y2="' +
+        plotBottom +
+        '" class="chart__baseline"></line>',
+      chart.buckets
+        .map((bucket, index) => {
+          const slotX = leftPad + index * slotWidth;
+          const x = slotX + (slotWidth - barWidth) / 2;
+          const height = bucket.count > 0 ? Math.max(6, (bucket.count / chart.maxCount) * plotHeight) : 0;
+          const y = plotBottom - height;
+          const labelY = chartHeight - 16;
+          const showLabel = index % labelStep === 0 || bucket.active;
+          if (bucket.count <= 0) {
+            return (
+              '<g class="chart__bucket chart__bucket--empty" aria-hidden="true"><rect x="' +
+              x +
+              '" y="' +
+              (plotBottom - 1) +
+              '" width="' +
+              barWidth +
+              '" height="2" rx="1" class="chart-bar chart-bar--empty"></rect>' +
+              (showLabel
+                ? '<text x="' +
+                  (slotX + slotWidth / 2) +
+                  '" y="' +
+                  labelY +
+                  '" text-anchor="middle" class="chart__label">' +
+                  bucket.shortLabel +
+                  "</text>"
+                : "") +
+              "</g>"
+            );
+          }
+          const href =
+            "./?" +
+            buildStateSearch({
+              ...state,
+              since: bucket.startDay,
+              until: bucket.endDay,
+            });
+          return (
+            '<a href="' +
+            href +
+            '" class="chart__bucket' +
+            (bucket.active ? " chart__bucket--active" : "") +
+            '" data-chart-bucket data-chart-start="' +
+            bucket.startDay +
+            '" data-chart-end="' +
+            bucket.endDay +
+            '" aria-label="' +
+            bucket.ariaLabel.replace(/"/g, "&quot;") +
+            '"><title>' +
+            bucket.ariaLabel.replace(/</g, "&lt;").replace(/>/g, "&gt;") +
+            "</title><rect x=\"" +
+            x +
+            '" y="' +
+            y +
+            '" width="' +
+            barWidth +
+            '" height="' +
+            height +
+            '" rx="8" class="chart-bar' +
+            (bucket.active ? " chart-bar--active" : "") +
+            '"></rect>' +
+            (showLabel
+              ? '<text x="' +
+                (slotX + slotWidth / 2) +
+                '" y="' +
+                labelY +
+                '" text-anchor="middle" class="chart__label' +
+                (bucket.active ? " chart__label--active" : "") +
+                '">' +
+                bucket.shortLabel +
+                "</text>"
+              : "") +
+            "</a>"
+          );
+        })
+        .join(""),
+      "</svg>",
+      "</div>",
+    ].join("");
   };
 
   const updateControls = () => {
@@ -752,6 +1202,18 @@ const renderStaticInlineScript = () => `
     emptyState.hidden = filteredEvents.length !== 0;
   };
 
+  const renderChart = () => {
+    if (!allEvents) return;
+    const chart = buildChartModel(baseFilteredEvents, currentState);
+    if (!chart) {
+      chartRoot.hidden = true;
+      chartRoot.innerHTML = "";
+      return;
+    }
+    chartRoot.hidden = false;
+    chartRoot.innerHTML = buildChartHtml(chart, currentState);
+  };
+
   const applyState = (state, pushHistory) => {
     currentState = state;
     syncForm(state);
@@ -760,8 +1222,10 @@ const renderStaticInlineScript = () => `
       summary.textContent = summaryText(Number(root.dataset.initialCount || "0"), root.dataset.initialHasMore === "true");
       return;
     }
-    filteredEvents = allEvents.filter((event) => matchesState(event, state));
+    baseFilteredEvents = allEvents.filter((event) => matchesCoreState(event, state));
+    filteredEvents = baseFilteredEvents.filter((event) => matchesState(event, state));
     visibleCount = 0;
+    renderChart();
     renderVisibleEvents(false);
     updateControls();
     if (pushHistory) {
@@ -786,6 +1250,24 @@ const renderStaticInlineScript = () => `
   form.addEventListener("submit", (event) => {
     event.preventDefault();
     applyState(readStateFromForm(), true);
+  });
+
+  chartRoot.addEventListener("click", (event) => {
+    const target = event.target instanceof Element ? event.target.closest("[data-chart-bucket], [data-chart-clear]") : null;
+    if (!(target instanceof HTMLAnchorElement)) return;
+    event.preventDefault();
+    if (target.hasAttribute("data-chart-clear")) {
+      applyState({ ...currentState, since: "", until: "" }, true);
+      return;
+    }
+    applyState(
+      {
+        ...currentState,
+        since: target.dataset.chartStart || "",
+        until: target.dataset.chartEnd || "",
+      },
+      true
+    );
   });
 
   if (resetLink instanceof HTMLAnchorElement) {
@@ -842,6 +1324,7 @@ const renderStaticInlineScript = () => `
         throw new Error("invalid payload");
       }
       allEvents = payload.events;
+      baseFilteredEvents = payload.events;
       applyState(currentState, false);
     })
     .catch(() => {
@@ -1073,6 +1556,123 @@ const styles = `
   .controls__actions a {
     border: 1px solid var(--line);
     background: rgba(255, 255, 255, 0.92);
+  }
+
+  .chart-shell {
+    margin-top: 20px;
+    padding: 20px;
+    background: rgba(255, 253, 248, 0.9);
+    border: 1px solid rgba(214, 205, 191, 0.9);
+    border-radius: 24px;
+    box-shadow: var(--shadow);
+  }
+
+  .chart__header {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+
+  .chart__eyebrow {
+    margin: 0 0 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font: 600 0.72rem/1.2 "Helvetica Neue", Arial, sans-serif;
+    color: var(--accent);
+  }
+
+  .chart__title {
+    margin: 0;
+    font-size: clamp(1.25rem, 2vw, 1.7rem);
+    line-height: 1.1;
+  }
+
+  .chart__copy,
+  .chart__selection {
+    margin: 10px 0 0;
+    color: var(--muted);
+    font: 500 0.94rem/1.5 "Helvetica Neue", Arial, sans-serif;
+  }
+
+  .chart__meta {
+    display: grid;
+    gap: 10px;
+    justify-items: start;
+  }
+
+  .chart__clear {
+    display: inline-flex;
+    align-items: center;
+    min-height: 38px;
+    padding: 0 14px;
+    border-radius: 999px;
+    border: 1px solid rgba(157, 91, 59, 0.24);
+    background: rgba(157, 91, 59, 0.12);
+    text-decoration: none;
+    font: 600 0.88rem/1 "Helvetica Neue", Arial, sans-serif;
+  }
+
+  .chart-scroll {
+    margin-top: 18px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 6px;
+  }
+
+  .chart-svg {
+    display: block;
+    min-width: 100%;
+  }
+
+  .chart__backdrop {
+    fill: rgba(255, 255, 255, 0.84);
+  }
+
+  .chart__grid,
+  .chart__baseline {
+    stroke: rgba(111, 103, 95, 0.18);
+    stroke-width: 1;
+  }
+
+  .chart__axis,
+  .chart__label {
+    fill: rgba(111, 103, 95, 0.92);
+    font: 500 11px/1 "Helvetica Neue", Arial, sans-serif;
+  }
+
+  .chart__label--active {
+    fill: var(--ink);
+    font-weight: 700;
+  }
+
+  .chart-bar {
+    fill: rgba(157, 91, 59, 0.4);
+    transition: fill 120ms ease, opacity 120ms ease;
+  }
+
+  .chart-bar--active {
+    fill: var(--accent);
+  }
+
+  .chart-bar--empty {
+    fill: rgba(111, 103, 95, 0.18);
+  }
+
+  .chart__bucket {
+    cursor: pointer;
+  }
+
+  .chart__bucket:hover .chart-bar,
+  .chart__bucket:focus .chart-bar {
+    fill: rgba(157, 91, 59, 0.65);
+  }
+
+  .chart__bucket--active .chart-bar,
+  .chart__bucket--active:hover .chart-bar,
+  .chart__bucket--active:focus .chart-bar {
+    fill: var(--accent);
   }
 
   .summary {
@@ -1359,6 +1959,7 @@ export const renderFeedsPage = (input: FeedsPageInput) => {
       </section>
 
       ${renderForm(state, { action: "/feeds", resetHref: "/feeds", newestHref })}
+      ${renderChartSection(input.chart, state, { basePath: "/feeds" })}
       ${renderSummarySection(state, input.events.length, input.hasMore)}
       ${renderTimelineSection({
         events: input.events,
@@ -1390,6 +1991,7 @@ export const renderStaticFeedsPage = (input: StaticFeedsPageInput) => {
       </section>
 
       ${renderForm(state, { action: "./", resetHref: "./", formAttribute: 'data-feeds-form' })}
+      ${renderChartSection(input.chart, state, { basePath: "./" })}
       ${renderSummarySection(state, input.events.length, input.hasMore)}
       <section
         class="timeline-shell"

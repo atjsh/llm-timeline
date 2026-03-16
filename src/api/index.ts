@@ -11,6 +11,7 @@ import {
   type Vendor,
 } from "../types.js";
 import { renderFeedsPage, renderTimelineItems, type FeedsPageState } from "../html/feeds.js";
+import { buildFeedsChartModel } from "../html/chart.js";
 
 const hydrateManifest = (db: TimelineDatabase) => {
   db.seedDataIfEmpty(
@@ -241,11 +242,20 @@ export const createApp = (db: TimelineDatabase) => {
     const pageState = readFeedsPageState(searchParams);
     const filters = feedsStateToEventFilters(pageState);
     const result = db.getEvents(filters);
+    const chartCounts = db.getEventCountsByDay({
+      vendor: filters.vendor,
+      category: filters.category,
+      product: filters.product,
+      model: filters.model,
+      since: null,
+      until: null,
+    });
     const payload = renderFeedsPage({
       events: result.events,
       hasMore: result.hasMore,
       nextCursor: result.nextCursor,
       state: pageState,
+      chart: buildFeedsChartModel(chartCounts, pageState),
       eventsJsonHref: buildApiHref("/events", filters, { includeCursor: true, includeLimit: true }),
       calendarHref: buildApiHref("/calendar.ics", filters),
       sourcesHref: "/sources",

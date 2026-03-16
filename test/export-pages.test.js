@@ -100,6 +100,19 @@ insertEvent(db, {
 });
 
 insertEvent(db, {
+  id: "evt-anthropic-opus",
+  sourceId: "anthropic-releases",
+  vendor: "anthropic",
+  category: "model_release",
+  title: "Introducing Claude Opus 4.6",
+  summary: "Anthropic release summary.",
+  canonicalUrl: "https://www.anthropic.com/news/claude-opus-4-6",
+  eventDate: "2026-03-10T00:00:00.000Z",
+  products: ["claude"],
+  models: ["claude-opus-4.6"],
+});
+
+insertEvent(db, {
   id: "evt-google-release",
   sourceId: "google-cloud-ai-release-notes",
   vendor: "google",
@@ -116,7 +129,7 @@ const outDir = mkdtempSync(join(tmpdir(), "llm-timeline-pages-"));
 
 try {
   const result = exportPages({ db, outDir });
-  assert.equal(result.eventCount, 3);
+  assert.equal(result.eventCount, 4);
   assert.ok(existsSync(join(outDir, "index.html")));
   assert.ok(existsSync(join(outDir, "feeds", "index.html")));
   assert.ok(existsSync(join(outDir, "assets", "events.json")));
@@ -129,9 +142,13 @@ try {
   const feedsHtml = readFileSync(join(outDir, "feeds", "index.html"), "utf8");
   assert.match(feedsHtml, /LLM timeline/);
   assert.match(feedsHtml, /Exported [A-Z][a-z]{2} \d{1,2}, \d{4}/);
+  assert.match(feedsHtml, /Release activity over time/);
+  assert.match(feedsHtml, /data-chart-root/);
+  assert.match(feedsHtml, /data-chart-start="2026-03-10"/);
   assert.match(feedsHtml, /data-data-href="\.\.\/assets\/events\.json"/);
   assert.match(feedsHtml, /data-feeds-form/);
   assert.match(feedsHtml, /OpenAI Alpha/);
+  assert.match(feedsHtml, /Introducing Claude Opus 4\.6/);
   assert.doesNotMatch(feedsHtml, /Current JSON/);
   assert.doesNotMatch(feedsHtml, /Current ICS/);
   assert.doesNotMatch(feedsHtml, /Source Status/);
@@ -141,7 +158,7 @@ try {
   assert.doesNotMatch(feedsHtml, /JSON<\/a>/);
 
   const payload = JSON.parse(readFileSync(join(outDir, "assets", "events.json"), "utf8"));
-  assert.equal(payload.events.length, 3);
+  assert.equal(payload.events.length, 4);
   assert.equal(typeof payload.exported_at, "string");
   assert.match(payload.events[0].html, /Source/);
   assert.doesNotMatch(payload.events[0].html, /JSON<\/a>/);

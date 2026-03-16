@@ -226,6 +226,123 @@
     background: rgba(255, 255, 255, 0.92);
   }
 
+  .chart-shell {
+    margin-top: 20px;
+    padding: 20px;
+    background: rgba(255, 253, 248, 0.9);
+    border: 1px solid rgba(214, 205, 191, 0.9);
+    border-radius: 24px;
+    box-shadow: var(--shadow);
+  }
+
+  .chart__header {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+
+  .chart__eyebrow {
+    margin: 0 0 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font: 600 0.72rem/1.2 "Helvetica Neue", Arial, sans-serif;
+    color: var(--accent);
+  }
+
+  .chart__title {
+    margin: 0;
+    font-size: clamp(1.25rem, 2vw, 1.7rem);
+    line-height: 1.1;
+  }
+
+  .chart__copy,
+  .chart__selection {
+    margin: 10px 0 0;
+    color: var(--muted);
+    font: 500 0.94rem/1.5 "Helvetica Neue", Arial, sans-serif;
+  }
+
+  .chart__meta {
+    display: grid;
+    gap: 10px;
+    justify-items: start;
+  }
+
+  .chart__clear {
+    display: inline-flex;
+    align-items: center;
+    min-height: 38px;
+    padding: 0 14px;
+    border-radius: 999px;
+    border: 1px solid rgba(157, 91, 59, 0.24);
+    background: rgba(157, 91, 59, 0.12);
+    text-decoration: none;
+    font: 600 0.88rem/1 "Helvetica Neue", Arial, sans-serif;
+  }
+
+  .chart-scroll {
+    margin-top: 18px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 6px;
+  }
+
+  .chart-svg {
+    display: block;
+    min-width: 100%;
+  }
+
+  .chart__backdrop {
+    fill: rgba(255, 255, 255, 0.84);
+  }
+
+  .chart__grid,
+  .chart__baseline {
+    stroke: rgba(111, 103, 95, 0.18);
+    stroke-width: 1;
+  }
+
+  .chart__axis,
+  .chart__label {
+    fill: rgba(111, 103, 95, 0.92);
+    font: 500 11px/1 "Helvetica Neue", Arial, sans-serif;
+  }
+
+  .chart__label--active {
+    fill: var(--ink);
+    font-weight: 700;
+  }
+
+  .chart-bar {
+    fill: rgba(157, 91, 59, 0.4);
+    transition: fill 120ms ease, opacity 120ms ease;
+  }
+
+  .chart-bar--active {
+    fill: var(--accent);
+  }
+
+  .chart-bar--empty {
+    fill: rgba(111, 103, 95, 0.18);
+  }
+
+  .chart__bucket {
+    cursor: pointer;
+  }
+
+  .chart__bucket:hover .chart-bar,
+  .chart__bucket:focus .chart-bar {
+    fill: rgba(157, 91, 59, 0.65);
+  }
+
+  .chart__bucket--active .chart-bar,
+  .chart__bucket--active:hover .chart-bar,
+  .chart__bucket--active:focus .chart-bar {
+    fill: var(--accent);
+  }
+
   .summary {
     padding: 18px 20px;
   }
@@ -580,6 +697,466 @@
             
           </div>
         </form>
+      </section>
+  
+      
+      <section class="chart-shell" data-chart-root>
+        <div class="chart__header">
+          <div>
+            <p class="chart__eyebrow">Release Rhythm</p>
+            <h2 class="chart__title">Release activity over time</h2>
+            <p class="chart__copy">Select a month to focus the timeline while keeping the broader release curve visible.</p>
+          </div>
+          <div class="chart__meta">
+            <p class="chart__selection">Showing all 102 events across the current non-date filters.</p>
+            
+          </div>
+        </div>
+        <div class="chart-scroll">
+          <svg
+            class="chart-svg"
+            viewBox="0 0 1614 220"
+            width="1614"
+            height="220"
+            role="img"
+            aria-label="Histogram of event counts over time"
+          >
+            <rect x="0" y="0" width="1614" height="220" rx="18" class="chart__backdrop"></rect>
+            
+            <line x1="28" y1="20" x2="1594" y2="20" class="chart__grid"></line>
+            <text x="8" y="24" class="chart__axis">10</text>
+                
+            <line x1="28" y1="90" x2="1594" y2="90" class="chart__grid"></line>
+            <text x="8" y="94" class="chart__axis">5</text>
+                
+            <line x1="28" y1="160" x2="1594" y2="160" class="chart__grid"></line>
+            <text x="8" y="164" class="chart__axis">0</text>
+                
+            <line x1="28" y1="160" x2="1594" y2="160" class="chart__baseline"></line>
+            
+            <a
+              href="./?category=model_release&amp;since=2022-11-01&amp;until=2022-11-30&amp;limit=50"
+              class="chart__bucket"
+              data-chart-bucket
+              data-chart-start="2022-11-01"
+              data-chart-end="2022-11-30"
+              aria-label="Nov 2022: 1 event"
+            >
+              <title>Nov 2022: 1 event</title>
+              <rect x="35.25707317073171" y="146" width="23.680975609756096" height="14" rx="8" class="chart-bar"></rect>
+              <text x="47.09756097560975" y="204" text-anchor="middle" class="chart__label">Nov 2022</text>
+            </a>
+                
+            <a
+              href="./?category=model_release&amp;since=2022-12-01&amp;until=2022-12-31&amp;limit=50"
+              class="chart__bucket"
+              data-chart-bucket
+              data-chart-start="2022-12-01"
+              data-chart-end="2022-12-31"
+              aria-label="Dec 2022: 1 event"
+            >
+              <title>Dec 2022: 1 event</title>
+              <rect x="73.4521951219512" y="146" width="23.680975609756096" height="14" rx="8" class="chart-bar"></rect>
+              
+            </a>
+                
+            <g class="chart__bucket chart__bucket--empty" aria-hidden="true">
+              <rect x="111.64731707317074" y="159" width="23.680975609756096" height="2" rx="1" class="chart-bar chart-bar--empty"></rect>
+              
+            </g>
+                  
+            <g class="chart__bucket chart__bucket--empty" aria-hidden="true">
+              <rect x="149.84243902439025" y="159" width="23.680975609756096" height="2" rx="1" class="chart-bar chart-bar--empty"></rect>
+              
+            </g>
+                  
+            <g class="chart__bucket chart__bucket--empty" aria-hidden="true">
+              <rect x="188.03756097560975" y="159" width="23.680975609756096" height="2" rx="1" class="chart-bar chart-bar--empty"></rect>
+              <text x="199.8780487804878" y="204" text-anchor="middle" class="chart__label">Mar 2023</text>
+            </g>
+                  
+            <g class="chart__bucket chart__bucket--empty" aria-hidden="true">
+              <rect x="226.23268292682926" y="159" width="23.680975609756096" height="2" rx="1" class="chart-bar chart-bar--empty"></rect>
+              
+            </g>
+                  
+            <g class="chart__bucket chart__bucket--empty" aria-hidden="true">
+              <rect x="264.4278048780488" y="159" width="23.680975609756096" height="2" rx="1" class="chart-bar chart-bar--empty"></rect>
+              
+            </g>
+                  
+            <a
+              href="./?category=model_release&amp;since=2023-06-01&amp;until=2023-06-30&amp;limit=50"
+              class="chart__bucket"
+              data-chart-bucket
+              data-chart-start="2023-06-01"
+              data-chart-end="2023-06-30"
+              aria-label="Jun 2023: 1 event"
+            >
+              <title>Jun 2023: 1 event</title>
+              <rect x="302.6229268292683" y="146" width="23.680975609756096" height="14" rx="8" class="chart-bar"></rect>
+              
+            </a>
+                
+            <g class="chart__bucket chart__bucket--empty" aria-hidden="true">
+              <rect x="340.8180487804878" y="159" width="23.680975609756096" height="2" rx="1" class="chart-bar chart-bar--empty"></rect>
+              <text x="352.6585365853659" y="204" text-anchor="middle" class="chart__label">Jul 2023</text>
+            </g>
+                  
+            <g class="chart__bucket chart__bucket--empty" aria-hidden="true">
+              <rect x="379.0131707317073" y="159" width="23.680975609756096" height="2" rx="1" class="chart-bar chart-bar--empty"></rect>
+              
+            </g>
+                  
+            <g class="chart__bucket chart__bucket--empty" aria-hidden="true">
+              <rect x="417.2082926829268" y="159" width="23.680975609756096" height="2" rx="1" class="chart-bar chart-bar--empty"></rect>
+              
+            </g>
+                  
+            <g class="chart__bucket chart__bucket--empty" aria-hidden="true">
+              <rect x="455.4034146341463" y="159" width="23.680975609756096" height="2" rx="1" class="chart-bar chart-bar--empty"></rect>
+              
+            </g>
+                  
+            <a
+              href="./?category=model_release&amp;since=2023-11-01&amp;until=2023-11-30&amp;limit=50"
+              class="chart__bucket"
+              data-chart-bucket
+              data-chart-start="2023-11-01"
+              data-chart-end="2023-11-30"
+              aria-label="Nov 2023: 1 event"
+            >
+              <title>Nov 2023: 1 event</title>
+              <rect x="493.5985365853659" y="146" width="23.680975609756096" height="14" rx="8" class="chart-bar"></rect>
+              <text x="505.43902439024396" y="204" text-anchor="middle" class="chart__label">Nov 2023</text>
+            </a>
+                
+            <g class="chart__bucket chart__bucket--empty" aria-hidden="true">
+              <rect x="531.7936585365853" y="159" width="23.680975609756096" height="2" rx="1" class="chart-bar chart-bar--empty"></rect>
+              
+            </g>
+                  
+            <a
+              href="./?category=model_release&amp;since=2024-01-01&amp;until=2024-01-31&amp;limit=50"
+              class="chart__bucket"
+              data-chart-bucket
+              data-chart-start="2024-01-01"
+              data-chart-end="2024-01-31"
+              aria-label="Jan 2024: 1 event"
+            >
+              <title>Jan 2024: 1 event</title>
+              <rect x="569.9887804878049" y="146" width="23.680975609756096" height="14" rx="8" class="chart-bar"></rect>
+              
+            </a>
+                
+            <g class="chart__bucket chart__bucket--empty" aria-hidden="true">
+              <rect x="608.1839024390243" y="159" width="23.680975609756096" height="2" rx="1" class="chart-bar chart-bar--empty"></rect>
+              
+            </g>
+                  
+            <g class="chart__bucket chart__bucket--empty" aria-hidden="true">
+              <rect x="646.3790243902439" y="159" width="23.680975609756096" height="2" rx="1" class="chart-bar chart-bar--empty"></rect>
+              <text x="658.219512195122" y="204" text-anchor="middle" class="chart__label">Mar 2024</text>
+            </g>
+                  
+            <a
+              href="./?category=model_release&amp;since=2024-04-01&amp;until=2024-04-30&amp;limit=50"
+              class="chart__bucket"
+              data-chart-bucket
+              data-chart-start="2024-04-01"
+              data-chart-end="2024-04-30"
+              aria-label="Apr 2024: 2 events"
+            >
+              <title>Apr 2024: 2 events</title>
+              <rect x="684.5741463414635" y="132" width="23.680975609756096" height="28" rx="8" class="chart-bar"></rect>
+              
+            </a>
+                
+            <a
+              href="./?category=model_release&amp;since=2024-05-01&amp;until=2024-05-31&amp;limit=50"
+              class="chart__bucket"
+              data-chart-bucket
+              data-chart-start="2024-05-01"
+              data-chart-end="2024-05-31"
+              aria-label="May 2024: 6 events"
+            >
+              <title>May 2024: 6 events</title>
+              <rect x="722.7692682926829" y="76" width="23.680975609756096" height="84" rx="8" class="chart-bar"></rect>
+              
+            </a>
+                
+            <a
+              href="./?category=model_release&amp;since=2024-06-01&amp;until=2024-06-30&amp;limit=50"
+              class="chart__bucket"
+              data-chart-bucket
+              data-chart-start="2024-06-01"
+              data-chart-end="2024-06-30"
+              aria-label="Jun 2024: 1 event"
+            >
+              <title>Jun 2024: 1 event</title>
+              <rect x="760.9643902439025" y="146" width="23.680975609756096" height="14" rx="8" class="chart-bar"></rect>
+              
+            </a>
+                
+            <g class="chart__bucket chart__bucket--empty" aria-hidden="true">
+              <rect x="799.1595121951219" y="159" width="23.680975609756096" height="2" rx="1" class="chart-bar chart-bar--empty"></rect>
+              <text x="811" y="204" text-anchor="middle" class="chart__label">Jul 2024</text>
+            </g>
+                  
+            <a
+              href="./?category=model_release&amp;since=2024-08-01&amp;until=2024-08-31&amp;limit=50"
+              class="chart__bucket"
+              data-chart-bucket
+              data-chart-start="2024-08-01"
+              data-chart-end="2024-08-31"
+              aria-label="Aug 2024: 1 event"
+            >
+              <title>Aug 2024: 1 event</title>
+              <rect x="837.3546341463415" y="146" width="23.680975609756096" height="14" rx="8" class="chart-bar"></rect>
+              
+            </a>
+                
+            <a
+              href="./?category=model_release&amp;since=2024-09-01&amp;until=2024-09-30&amp;limit=50"
+              class="chart__bucket"
+              data-chart-bucket
+              data-chart-start="2024-09-01"
+              data-chart-end="2024-09-30"
+              aria-label="Sep 2024: 3 events"
+            >
+              <title>Sep 2024: 3 events</title>
+              <rect x="875.5497560975609" y="118" width="23.680975609756096" height="42" rx="8" class="chart-bar"></rect>
+              
+            </a>
+                
+            <a
+              href="./?category=model_release&amp;since=2024-10-01&amp;until=2024-10-31&amp;limit=50"
+              class="chart__bucket"
+              data-chart-bucket
+              data-chart-start="2024-10-01"
+              data-chart-end="2024-10-31"
+              aria-label="Oct 2024: 2 events"
+            >
+              <title>Oct 2024: 2 events</title>
+              <rect x="913.7448780487805" y="132" width="23.680975609756096" height="28" rx="8" class="chart-bar"></rect>
+              
+            </a>
+                
+            <a
+              href="./?category=model_release&amp;since=2024-11-01&amp;until=2024-11-30&amp;limit=50"
+              class="chart__bucket"
+              data-chart-bucket
+              data-chart-start="2024-11-01"
+              data-chart-end="2024-11-30"
+              aria-label="Nov 2024: 2 events"
+            >
+              <title>Nov 2024: 2 events</title>
+              <rect x="951.94" y="132" width="23.680975609756096" height="28" rx="8" class="chart-bar"></rect>
+              <text x="963.7804878048781" y="204" text-anchor="middle" class="chart__label">Nov 2024</text>
+            </a>
+                
+            <a
+              href="./?category=model_release&amp;since=2024-12-01&amp;until=2024-12-31&amp;limit=50"
+              class="chart__bucket"
+              data-chart-bucket
+              data-chart-start="2024-12-01"
+              data-chart-end="2024-12-31"
+              aria-label="Dec 2024: 4 events"
+            >
+              <title>Dec 2024: 4 events</title>
+              <rect x="990.1351219512195" y="104" width="23.680975609756096" height="56" rx="8" class="chart-bar"></rect>
+              
+            </a>
+                
+            <a
+              href="./?category=model_release&amp;since=2025-01-01&amp;until=2025-01-31&amp;limit=50"
+              class="chart__bucket"
+              data-chart-bucket
+              data-chart-start="2025-01-01"
+              data-chart-end="2025-01-31"
+              aria-label="Jan 2025: 1 event"
+            >
+              <title>Jan 2025: 1 event</title>
+              <rect x="1028.3302439024392" y="146" width="23.680975609756096" height="14" rx="8" class="chart-bar"></rect>
+              
+            </a>
+                
+            <a
+              href="./?category=model_release&amp;since=2025-02-01&amp;until=2025-02-28&amp;limit=50"
+              class="chart__bucket"
+              data-chart-bucket
+              data-chart-start="2025-02-01"
+              data-chart-end="2025-02-28"
+              aria-label="Feb 2025: 5 events"
+            >
+              <title>Feb 2025: 5 events</title>
+              <rect x="1066.5253658536585" y="90" width="23.680975609756096" height="70" rx="8" class="chart-bar"></rect>
+              
+            </a>
+                
+            <a
+              href="./?category=model_release&amp;since=2025-03-01&amp;until=2025-03-31&amp;limit=50"
+              class="chart__bucket"
+              data-chart-bucket
+              data-chart-start="2025-03-01"
+              data-chart-end="2025-03-31"
+              aria-label="Mar 2025: 4 events"
+            >
+              <title>Mar 2025: 4 events</title>
+              <rect x="1104.720487804878" y="104" width="23.680975609756096" height="56" rx="8" class="chart-bar"></rect>
+              <text x="1116.560975609756" y="204" text-anchor="middle" class="chart__label">Mar 2025</text>
+            </a>
+                
+            <a
+              href="./?category=model_release&amp;since=2025-04-01&amp;until=2025-04-30&amp;limit=50"
+              class="chart__bucket"
+              data-chart-bucket
+              data-chart-start="2025-04-01"
+              data-chart-end="2025-04-30"
+              aria-label="Apr 2025: 7 events"
+            >
+              <title>Apr 2025: 7 events</title>
+              <rect x="1142.9156097560976" y="62" width="23.680975609756096" height="98" rx="8" class="chart-bar"></rect>
+              
+            </a>
+                
+            <a
+              href="./?category=model_release&amp;since=2025-05-01&amp;until=2025-05-31&amp;limit=50"
+              class="chart__bucket"
+              data-chart-bucket
+              data-chart-start="2025-05-01"
+              data-chart-end="2025-05-31"
+              aria-label="May 2025: 8 events"
+            >
+              <title>May 2025: 8 events</title>
+              <rect x="1181.110731707317" y="48" width="23.680975609756096" height="112" rx="8" class="chart-bar"></rect>
+              
+            </a>
+                
+            <a
+              href="./?category=model_release&amp;since=2025-06-01&amp;until=2025-06-30&amp;limit=50"
+              class="chart__bucket"
+              data-chart-bucket
+              data-chart-start="2025-06-01"
+              data-chart-end="2025-06-30"
+              aria-label="Jun 2025: 8 events"
+            >
+              <title>Jun 2025: 8 events</title>
+              <rect x="1219.3058536585365" y="48" width="23.680975609756096" height="112" rx="8" class="chart-bar"></rect>
+              
+            </a>
+                
+            <a
+              href="./?category=model_release&amp;since=2025-07-01&amp;until=2025-07-31&amp;limit=50"
+              class="chart__bucket"
+              data-chart-bucket
+              data-chart-start="2025-07-01"
+              data-chart-end="2025-07-31"
+              aria-label="Jul 2025: 6 events"
+            >
+              <title>Jul 2025: 6 events</title>
+              <rect x="1257.500975609756" y="76" width="23.680975609756096" height="84" rx="8" class="chart-bar"></rect>
+              <text x="1269.341463414634" y="204" text-anchor="middle" class="chart__label">Jul 2025</text>
+            </a>
+                
+            <a
+              href="./?category=model_release&amp;since=2025-08-01&amp;until=2025-08-31&amp;limit=50"
+              class="chart__bucket"
+              data-chart-bucket
+              data-chart-start="2025-08-01"
+              data-chart-end="2025-08-31"
+              aria-label="Aug 2025: 10 events"
+            >
+              <title>Aug 2025: 10 events</title>
+              <rect x="1295.6960975609757" y="20" width="23.680975609756096" height="140" rx="8" class="chart-bar"></rect>
+              
+            </a>
+                
+            <a
+              href="./?category=model_release&amp;since=2025-09-01&amp;until=2025-09-30&amp;limit=50"
+              class="chart__bucket"
+              data-chart-bucket
+              data-chart-start="2025-09-01"
+              data-chart-end="2025-09-30"
+              aria-label="Sep 2025: 3 events"
+            >
+              <title>Sep 2025: 3 events</title>
+              <rect x="1333.8912195121952" y="118" width="23.680975609756096" height="42" rx="8" class="chart-bar"></rect>
+              
+            </a>
+                
+            <a
+              href="./?category=model_release&amp;since=2025-10-01&amp;until=2025-10-31&amp;limit=50"
+              class="chart__bucket"
+              data-chart-bucket
+              data-chart-start="2025-10-01"
+              data-chart-end="2025-10-31"
+              aria-label="Oct 2025: 5 events"
+            >
+              <title>Oct 2025: 5 events</title>
+              <rect x="1372.0863414634146" y="90" width="23.680975609756096" height="70" rx="8" class="chart-bar"></rect>
+              
+            </a>
+                
+            <a
+              href="./?category=model_release&amp;since=2025-11-01&amp;until=2025-11-30&amp;limit=50"
+              class="chart__bucket"
+              data-chart-bucket
+              data-chart-start="2025-11-01"
+              data-chart-end="2025-11-30"
+              aria-label="Nov 2025: 4 events"
+            >
+              <title>Nov 2025: 4 events</title>
+              <rect x="1410.2814634146341" y="104" width="23.680975609756096" height="56" rx="8" class="chart-bar"></rect>
+              <text x="1422.121951219512" y="204" text-anchor="middle" class="chart__label">Nov 2025</text>
+            </a>
+                
+            <a
+              href="./?category=model_release&amp;since=2025-12-01&amp;until=2025-12-31&amp;limit=50"
+              class="chart__bucket"
+              data-chart-bucket
+              data-chart-start="2025-12-01"
+              data-chart-end="2025-12-31"
+              aria-label="Dec 2025: 5 events"
+            >
+              <title>Dec 2025: 5 events</title>
+              <rect x="1448.4765853658537" y="90" width="23.680975609756096" height="70" rx="8" class="chart-bar"></rect>
+              
+            </a>
+                
+            <g class="chart__bucket chart__bucket--empty" aria-hidden="true">
+              <rect x="1486.6717073170732" y="159" width="23.680975609756096" height="2" rx="1" class="chart-bar chart-bar--empty"></rect>
+              
+            </g>
+                  
+            <a
+              href="./?category=model_release&amp;since=2026-02-01&amp;until=2026-02-28&amp;limit=50"
+              class="chart__bucket"
+              data-chart-bucket
+              data-chart-start="2026-02-01"
+              data-chart-end="2026-02-28"
+              aria-label="Feb 2026: 7 events"
+            >
+              <title>Feb 2026: 7 events</title>
+              <rect x="1524.8668292682926" y="62" width="23.680975609756096" height="98" rx="8" class="chart-bar"></rect>
+              
+            </a>
+                
+            <a
+              href="./?category=model_release&amp;since=2026-03-01&amp;until=2026-03-31&amp;limit=50"
+              class="chart__bucket"
+              data-chart-bucket
+              data-chart-start="2026-03-01"
+              data-chart-end="2026-03-31"
+              aria-label="Mar 2026: 3 events"
+            >
+              <title>Mar 2026: 3 events</title>
+              <rect x="1563.0619512195121" y="118" width="23.680975609756096" height="42" rx="8" class="chart-bar"></rect>
+              <text x="1574.90243902439" y="204" text-anchor="middle" class="chart__label">Mar 2026</text>
+            </a>
+                
+          </svg>
+        </div>
       </section>
   
       
@@ -1616,6 +2193,7 @@
 (() => {
   const root = document.querySelector("[data-static-feeds]");
   const form = document.querySelector("[data-feeds-form]");
+  const chartRoot = document.querySelector("[data-chart-root]");
   const summary = document.querySelector("[data-summary-heading]");
   const chips = document.querySelector("[data-filter-chips]");
   const timeline = document.querySelector("[data-timeline]");
@@ -1625,6 +2203,7 @@
   if (
     !(root instanceof HTMLElement) ||
     !(form instanceof HTMLFormElement) ||
+    !(chartRoot instanceof HTMLElement) ||
     !(summary instanceof HTMLElement) ||
     !(chips instanceof HTMLElement) ||
     !(timeline instanceof HTMLElement) ||
@@ -1647,17 +2226,115 @@
   const defaultCategories = ["model_release"];
   const defaultLimit = Number(root.dataset.defaultLimit || "50");
   const dataHref = root.dataset.dataHref || "";
+  const dayMs = 24 * 60 * 60 * 1000;
   let allEvents = null;
+  let baseFilteredEvents = [];
   let filteredEvents = [];
   let visibleCount = 0;
   let currentState = null;
   let loading = false;
   let observer = null;
 
+  const shortDayFormatter = new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    timeZone: "UTC",
+  });
+  const fullDayFormatter = new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    timeZone: "UTC",
+  });
+  const monthFormatter = new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    year: "numeric",
+    timeZone: "UTC",
+  });
+  const monthShortFormatter = new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    year: "numeric",
+    timeZone: "UTC",
+  });
+
   const humanizeToken = (value) =>
     String(value || "")
       .replace(/_/g, " ")
       .replace(/\b\w/g, (match) => match.toUpperCase());
+
+  const toDayString = (value) => {
+    const trimmed = String(value || "").trim();
+    const match = trimmed.match(/^(\d{4}-\d{2}-\d{2})/);
+    return match ? match[1] : "";
+  };
+
+  const parseDay = (day) => Date.parse(day + "T00:00:00.000Z");
+
+  const formatDayFromMs = (value) => new Date(value).toISOString().slice(0, 10);
+
+  const formatShortDay = (day) => shortDayFormatter.format(new Date(day + "T00:00:00.000Z"));
+
+  const formatFullDay = (day) => fullDayFormatter.format(new Date(day + "T00:00:00.000Z"));
+
+  const formatMonthLabel = (day) => monthFormatter.format(new Date(day + "T00:00:00.000Z"));
+
+  const formatMonthShort = (day) => monthShortFormatter.format(new Date(day + "T00:00:00.000Z"));
+
+  const startOfWeek = (value) => {
+    const date = new Date(value);
+    const day = date.getUTCDay();
+    const mondayOffset = day === 0 ? -6 : 1 - day;
+    return value + mondayOffset * dayMs;
+  };
+
+  const startOfMonth = (value) => {
+    const date = new Date(value);
+    return Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), 1);
+  };
+
+  const addDays = (value, days) => value + days * dayMs;
+
+  const addWeeks = (value, weeks) => addDays(value, weeks * 7);
+
+  const addMonths = (value, months) => {
+    const date = new Date(value);
+    return Date.UTC(date.getUTCFullYear(), date.getUTCMonth() + months, 1);
+  };
+
+  const bucketUnitForRange = (rangeDays) => {
+    if (rangeDays <= 45) return "day";
+    if (rangeDays <= 240) return "week";
+    return "month";
+  };
+
+  const formatSelectionLabel = (sinceDay, untilDay) => {
+    if (sinceDay && untilDay) {
+      if (sinceDay === untilDay) return formatFullDay(sinceDay);
+      return formatFullDay(sinceDay) + " to " + formatFullDay(untilDay);
+    }
+    if (sinceDay) return "From " + formatFullDay(sinceDay);
+    if (untilDay) return "Through " + formatFullDay(untilDay);
+    return "";
+  };
+
+  const formatBucketLabels = (unit, startDay, endDay) => {
+    if (unit === "day") {
+      return {
+        label: formatFullDay(startDay),
+        shortLabel: formatShortDay(startDay),
+      };
+    }
+    if (unit === "week") {
+      return {
+        label: formatFullDay(startDay) + " to " + formatFullDay(endDay),
+        shortLabel: formatShortDay(startDay),
+      };
+    }
+    return {
+      label: formatMonthLabel(startDay),
+      shortLabel: formatMonthShort(startDay),
+    };
+  };
 
   const readSelectedValues = (name, allowed) => {
     const selected = [];
@@ -1700,8 +2377,8 @@
       categories: hasCategoryParam ? readMultiFromSearch(params, "category", allowedCategories) : defaultCategories.slice(),
       product: (params.get("product") || "").trim(),
       model: (params.get("model") || "").trim(),
-      since: (params.get("since") || "").trim(),
-      until: (params.get("until") || "").trim(),
+      since: toDayString(params.get("since")),
+      until: toDayString(params.get("until")),
       limit: clampLimit(params.get("limit") || defaultLimit),
     };
   };
@@ -1717,8 +2394,8 @@
       categories: readSelectedValues("category", allowedCategories),
       product: productInput instanceof HTMLInputElement ? productInput.value.trim() : "",
       model: modelInput instanceof HTMLInputElement ? modelInput.value.trim() : "",
-      since: sinceInput instanceof HTMLInputElement ? sinceInput.value.trim() : "",
-      until: untilInput instanceof HTMLInputElement ? untilInput.value.trim() : "",
+      since: sinceInput instanceof HTMLInputElement ? toDayString(sinceInput.value) : "",
+      until: untilInput instanceof HTMLInputElement ? toDayString(untilInput.value) : "",
       limit: clampLimit(limitInput instanceof HTMLSelectElement ? limitInput.value : defaultLimit),
     };
   };
@@ -1805,14 +2482,242 @@
     }
   };
 
-  const matchesState = (event, state) => {
+  const matchesCoreState = (event, state) => {
     if (state.vendors.length && !state.vendors.includes(event.vendor)) return false;
     if (state.categories.length && !state.categories.includes(event.category)) return false;
     if (state.product && (!Array.isArray(event.products) || !event.products.includes(state.product))) return false;
     if (state.model && (!Array.isArray(event.models) || !event.models.includes(state.model))) return false;
-    if (state.since && String(event.event_date || "") < state.since) return false;
-    if (state.until && String(event.event_date || "") > state.until) return false;
     return true;
+  };
+
+  const matchesState = (event, state) => {
+    if (!matchesCoreState(event, state)) return false;
+    const eventDay = toDayString(event.event_date);
+    if (state.since && eventDay < state.since) return false;
+    if (state.until && eventDay > state.until) return false;
+    return true;
+  };
+
+  const buildDailyCounts = (events) => {
+    const counts = new Map();
+    for (const event of events) {
+      const day = toDayString(event.event_date);
+      if (!day) continue;
+      counts.set(day, (counts.get(day) || 0) + 1);
+    }
+    return Array.from(counts.entries())
+      .sort((left, right) => left[0].localeCompare(right[0]))
+      .map(([day, count]) => ({ day, count }));
+  };
+
+  const buildChartModel = (events, state) => {
+    const dailyCounts = buildDailyCounts(events);
+    if (!dailyCounts.length) return null;
+
+    const firstDay = dailyCounts[0].day;
+    const lastDay = dailyCounts[dailyCounts.length - 1].day;
+    const firstMs = parseDay(firstDay);
+    const lastMs = parseDay(lastDay);
+    const rangeDays = Math.floor((lastMs - firstMs) / dayMs) + 1;
+    const unit = bucketUnitForRange(rangeDays);
+    const selectedSince = toDayString(state.since);
+    const selectedUntil = toDayString(state.until);
+    const countsByDay = new Map(dailyCounts.map((entry) => [entry.day, entry.count]));
+    const buckets = [];
+    let cursor = unit === "day" ? firstMs : unit === "week" ? startOfWeek(firstMs) : startOfMonth(firstMs);
+    const boundary = unit === "day" ? lastMs : unit === "week" ? startOfWeek(lastMs) : startOfMonth(lastMs);
+
+    while (cursor <= boundary) {
+      const startDay = formatDayFromMs(cursor);
+      const rawEnd = unit === "day" ? cursor : unit === "week" ? addDays(cursor, 6) : addDays(addMonths(cursor, 1), -1);
+      const endDay = formatDayFromMs(rawEnd);
+      let count = 0;
+      for (const [day, value] of countsByDay.entries()) {
+        if (day >= startDay && day <= endDay) count += value;
+      }
+      const labels = formatBucketLabels(unit, startDay, endDay);
+      buckets.push({
+        key: startDay + ":" + endDay,
+        startDay,
+        endDay,
+        label: labels.label,
+        shortLabel: labels.shortLabel,
+        count,
+        active: selectedSince === startDay && selectedUntil === endDay,
+        ariaLabel: labels.label + ": " + count + " event" + (count === 1 ? "" : "s"),
+      });
+      cursor = unit === "day" ? addDays(cursor, 1) : unit === "week" ? addWeeks(cursor, 1) : addMonths(cursor, 1);
+    }
+
+    const totalCount = buckets.reduce((sum, bucket) => sum + bucket.count, 0);
+    const maxCount = Math.max.apply(
+      null,
+      buckets.map((bucket) => bucket.count).concat([1])
+    );
+    const activeBucket = buckets.find((bucket) => bucket.active);
+    return {
+      unit,
+      buckets,
+      totalCount,
+      maxCount,
+      selectionLabel: activeBucket ? activeBucket.label : formatSelectionLabel(selectedSince, selectedUntil),
+    };
+  };
+
+  const buildChartHtml = (chart, state) => {
+    if (!chart || !chart.buckets.length) return "";
+    const chartWidth = Math.max(660, chart.buckets.length * 38 + 56);
+    const chartHeight = 220;
+    const plotTop = 20;
+    const plotBottom = 160;
+    const plotHeight = plotBottom - plotTop;
+    const leftPad = 28;
+    const rightPad = 20;
+    const slotWidth = (chartWidth - leftPad - rightPad) / chart.buckets.length;
+    const barWidth = Math.max(14, slotWidth * 0.62);
+    const labelStep = chart.buckets.length > 28 ? 4 : chart.buckets.length > 16 ? 2 : 1;
+    const unitLabel = chart.unit === "day" ? "day" : chart.unit === "week" ? "week" : "month";
+    const clearHref =
+      state.since || state.until
+        ? "./?" + buildStateSearch({ ...state, since: "", until: "" })
+        : "";
+    const gridValues = Array.from(new Set([chart.maxCount, Math.max(1, Math.ceil(chart.maxCount / 2)), 0])).sort(
+      (left, right) => right - left
+    );
+    return [
+      '<div class="chart__header">',
+      "<div>",
+      '<p class="chart__eyebrow">Release Rhythm</p>',
+      '<h2 class="chart__title">Release activity over time</h2>',
+      '<p class="chart__copy">Select a ' + unitLabel + " to focus the timeline while keeping the broader release curve visible.</p>",
+      "</div>",
+      '<div class="chart__meta">',
+      '<p class="chart__selection">' +
+        (chart.selectionLabel
+          ? "Focused: " + chart.selectionLabel
+          : "Showing all " + chart.totalCount + " events across the current non-date filters.") +
+        "</p>",
+      clearHref ? '<a class="chart__clear" href="' + clearHref + '" data-chart-clear>Clear date focus</a>' : "",
+      "</div>",
+      "</div>",
+      '<div class="chart-scroll">',
+      '<svg class="chart-svg" viewBox="0 0 ' +
+        chartWidth +
+        " " +
+        chartHeight +
+        '" width="' +
+        chartWidth +
+        '" height="' +
+        chartHeight +
+        '" role="img" aria-label="Histogram of event counts over time">',
+      '<rect x="0" y="0" width="' + chartWidth + '" height="' + chartHeight + '" rx="18" class="chart__backdrop"></rect>',
+      gridValues
+        .map((value) => {
+          const y = plotTop + (1 - value / chart.maxCount) * plotHeight;
+          return (
+            '<line x1="' +
+            leftPad +
+            '" y1="' +
+            y +
+            '" x2="' +
+            (chartWidth - rightPad) +
+            '" y2="' +
+            y +
+            '" class="chart__grid"></line><text x="8" y="' +
+            (y + 4) +
+            '" class="chart__axis">' +
+            value +
+            "</text>"
+          );
+        })
+        .join(""),
+      '<line x1="' +
+        leftPad +
+        '" y1="' +
+        plotBottom +
+        '" x2="' +
+        (chartWidth - rightPad) +
+        '" y2="' +
+        plotBottom +
+        '" class="chart__baseline"></line>',
+      chart.buckets
+        .map((bucket, index) => {
+          const slotX = leftPad + index * slotWidth;
+          const x = slotX + (slotWidth - barWidth) / 2;
+          const height = bucket.count > 0 ? Math.max(6, (bucket.count / chart.maxCount) * plotHeight) : 0;
+          const y = plotBottom - height;
+          const labelY = chartHeight - 16;
+          const showLabel = index % labelStep === 0 || bucket.active;
+          if (bucket.count <= 0) {
+            return (
+              '<g class="chart__bucket chart__bucket--empty" aria-hidden="true"><rect x="' +
+              x +
+              '" y="' +
+              (plotBottom - 1) +
+              '" width="' +
+              barWidth +
+              '" height="2" rx="1" class="chart-bar chart-bar--empty"></rect>' +
+              (showLabel
+                ? '<text x="' +
+                  (slotX + slotWidth / 2) +
+                  '" y="' +
+                  labelY +
+                  '" text-anchor="middle" class="chart__label">' +
+                  bucket.shortLabel +
+                  "</text>"
+                : "") +
+              "</g>"
+            );
+          }
+          const href =
+            "./?" +
+            buildStateSearch({
+              ...state,
+              since: bucket.startDay,
+              until: bucket.endDay,
+            });
+          return (
+            '<a href="' +
+            href +
+            '" class="chart__bucket' +
+            (bucket.active ? " chart__bucket--active" : "") +
+            '" data-chart-bucket data-chart-start="' +
+            bucket.startDay +
+            '" data-chart-end="' +
+            bucket.endDay +
+            '" aria-label="' +
+            bucket.ariaLabel.replace(/"/g, "&quot;") +
+            '"><title>' +
+            bucket.ariaLabel.replace(/</g, "&lt;").replace(/>/g, "&gt;") +
+            "</title><rect x="" +
+            x +
+            '" y="' +
+            y +
+            '" width="' +
+            barWidth +
+            '" height="' +
+            height +
+            '" rx="8" class="chart-bar' +
+            (bucket.active ? " chart-bar--active" : "") +
+            '"></rect>' +
+            (showLabel
+              ? '<text x="' +
+                (slotX + slotWidth / 2) +
+                '" y="' +
+                labelY +
+                '" text-anchor="middle" class="chart__label' +
+                (bucket.active ? " chart__label--active" : "") +
+                '">' +
+                bucket.shortLabel +
+                "</text>"
+              : "") +
+            "</a>"
+          );
+        })
+        .join(""),
+      "</svg>",
+      "</div>",
+    ].join("");
   };
 
   const updateControls = () => {
@@ -1851,6 +2756,18 @@
     emptyState.hidden = filteredEvents.length !== 0;
   };
 
+  const renderChart = () => {
+    if (!allEvents) return;
+    const chart = buildChartModel(baseFilteredEvents, currentState);
+    if (!chart) {
+      chartRoot.hidden = true;
+      chartRoot.innerHTML = "";
+      return;
+    }
+    chartRoot.hidden = false;
+    chartRoot.innerHTML = buildChartHtml(chart, currentState);
+  };
+
   const applyState = (state, pushHistory) => {
     currentState = state;
     syncForm(state);
@@ -1859,8 +2776,10 @@
       summary.textContent = summaryText(Number(root.dataset.initialCount || "0"), root.dataset.initialHasMore === "true");
       return;
     }
-    filteredEvents = allEvents.filter((event) => matchesState(event, state));
+    baseFilteredEvents = allEvents.filter((event) => matchesCoreState(event, state));
+    filteredEvents = baseFilteredEvents.filter((event) => matchesState(event, state));
     visibleCount = 0;
+    renderChart();
     renderVisibleEvents(false);
     updateControls();
     if (pushHistory) {
@@ -1885,6 +2804,24 @@
   form.addEventListener("submit", (event) => {
     event.preventDefault();
     applyState(readStateFromForm(), true);
+  });
+
+  chartRoot.addEventListener("click", (event) => {
+    const target = event.target instanceof Element ? event.target.closest("[data-chart-bucket], [data-chart-clear]") : null;
+    if (!(target instanceof HTMLAnchorElement)) return;
+    event.preventDefault();
+    if (target.hasAttribute("data-chart-clear")) {
+      applyState({ ...currentState, since: "", until: "" }, true);
+      return;
+    }
+    applyState(
+      {
+        ...currentState,
+        since: target.dataset.chartStart || "",
+        until: target.dataset.chartEnd || "",
+      },
+      true
+    );
   });
 
   if (resetLink instanceof HTMLAnchorElement) {
@@ -1941,6 +2878,7 @@
         throw new Error("invalid payload");
       }
       allEvents = payload.events;
+      baseFilteredEvents = payload.events;
       applyState(currentState, false);
     })
     .catch(() => {
