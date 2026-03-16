@@ -43,7 +43,7 @@ export const buildCalendar = (events: EventRow[]) => {
     if (event.evidence_url && event.evidence_url !== primaryUrl) {
       descriptionParts.push(`Source feed: ${event.evidence_url}`);
     }
-    const description = escapeText(descriptionParts.filter(Boolean).join("\\n\\n"));
+    const description = escapeText(descriptionParts.filter(Boolean).join("\n\n"));
     const category = escapeText(event.category);
     if (event.date_precision === "date") {
       const start = formatDateOnly(event.event_date);

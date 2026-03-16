@@ -222,3 +222,5 @@ assert.ok(calendar.includes("SUMMARY:Model update"));
 assert.ok(calendar.includes("DTEND;VALUE=DATE:20240111"));
 assert.ok(calendar.includes("URL:https://example.com/model-update"));
 assert.ok(calendar.includes("Source feed: https://example.com"));
+assert.ok(calendar.includes("https://example.com/model-update\\n\\nSource feed: https://example.com"));
+assert.ok(!calendar.includes("\\\\n\\\\n"));
