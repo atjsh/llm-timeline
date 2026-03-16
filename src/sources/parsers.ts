@@ -10,7 +10,10 @@ const decodeHtmlEntities = (value: string) =>
     .replace(/&quot;/g, '"')
     .replace(/&#39;/g, "'");
 
-const stripTags = (value: string) => decodeHtmlEntities(value.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim());
+const unwrapCdata = (value: string) => value.replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, "$1");
+
+const stripTags = (value: string) =>
+  decodeHtmlEntities(unwrapCdata(value).replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim());
 
 const xmlTag = (block: string, tag: string): string | undefined => {
   const match = new RegExp(`<${tag}\\b[^>]*>([\\s\\S]*?)<\\/${tag}>`, "i").exec(block);

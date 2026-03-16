@@ -399,6 +399,10 @@ export class TimelineDatabase {
     return { rawItemId: existing.id, changed: false, hadContentUpdate: false };
   }
 
+  deleteEventsForRawItem(rawItemId: number) {
+    this.db.prepare("DELETE FROM events WHERE raw_item_id = ?").run(rawItemId);
+  }
+
   upsertEvent(
     event: Omit<EventRow, "raw_item_id" | "created_at" | "updated_at"> & { raw_item_id: number; anchor?: string }
   ) {

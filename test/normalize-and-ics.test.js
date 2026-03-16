@@ -93,6 +93,107 @@ db.upsertEvent({
   last_seen_at: new Date().toISOString(),
 });
 
+const staleRaw = db.upsertRawItem({
+  source_id: source.id,
+  external_id: "stale-item",
+  title: "Untitled",
+  canonical_url: "https://example.com/stale-item",
+  summary: "",
+  published_at: "2024-02-01T00:00:00.000Z",
+  fetched_at: new Date().toISOString(),
+  payload_json: JSON.stringify({ title: "Untitled" }),
+  checksum: "stale-1",
+});
+
+const staleEvents = normalizeSourceItems(source, [
+  {
+    externalId: "stale-item",
+    title: "Untitled",
+    canonicalUrl: "https://example.com/stale-item",
+    summary: "",
+    publishedAt: "2024-02-01T00:00:00.000Z",
+  },
+]);
+
+for (const event of staleEvents) {
+  db.upsertEvent({
+    id: event.id,
+    vendor: event.vendor,
+    category: event.category,
+    title: event.title,
+    summary: event.summary,
+    canonical_url: event.canonicalUrl,
+    evidence_url: event.evidenceUrl,
+    evidence_excerpt: event.evidenceExcerpt,
+    published_at: event.publishedAt,
+    event_date: event.eventDate,
+    event_date_kind: event.eventDateKind,
+    date_precision: event.datePrecision,
+    products: event.products,
+    models: event.models,
+    tags: event.tags,
+    source_id: source.id,
+    raw_item_id: staleRaw.rawItemId,
+    anchor: event.anchor,
+    last_seen_at: new Date().toISOString(),
+  });
+}
+
+const repairedRaw = db.upsertRawItem({
+  source_id: source.id,
+  external_id: "stale-item",
+  title: "Introducing GPT-5.4",
+  canonical_url: "https://example.com/stale-item",
+  summary: "A repaired title after parser fix.",
+  published_at: "2024-02-01T00:00:00.000Z",
+  fetched_at: new Date().toISOString(),
+  payload_json: JSON.stringify({ title: "Introducing GPT-5.4" }),
+  checksum: "stale-2",
+});
+
+db.deleteEventsForRawItem(repairedRaw.rawItemId);
+
+const repairedEvents = normalizeSourceItems(source, [
+  {
+    externalId: "stale-item",
+    title: "Introducing GPT-5.4",
+    canonicalUrl: "https://example.com/stale-item",
+    summary: "A repaired title after parser fix.",
+    publishedAt: "2024-02-01T00:00:00.000Z",
+  },
+]);
+
+for (const event of repairedEvents) {
+  db.upsertEvent({
+    id: event.id,
+    vendor: event.vendor,
+    category: event.category,
+    title: event.title,
+    summary: event.summary,
+    canonical_url: event.canonicalUrl,
+    evidence_url: event.evidenceUrl,
+    evidence_excerpt: event.evidenceExcerpt,
+    published_at: event.publishedAt,
+    event_date: event.eventDate,
+    event_date_kind: event.eventDateKind,
+    date_precision: event.datePrecision,
+    products: event.products,
+    models: event.models,
+    tags: event.tags,
+    source_id: source.id,
+    raw_item_id: repairedRaw.rawItemId,
+    anchor: event.anchor,
+    last_seen_at: new Date().toISOString(),
+  });
+}
+
+const repairedList = db.getEvents({ limit: 200, cursor: null });
+assert.equal(repairedList.events.filter((event) => event.canonical_url === "https://example.com/stale-item").length, 1);
+assert.equal(
+  repairedList.events.find((event) => event.canonical_url === "https://example.com/stale-item")?.title,
+  "Introducing GPT-5.4"
+);
+
 const calendar = buildCalendar(normalized.map((event) => ({
   id: event.id,
   vendor: event.vendor,

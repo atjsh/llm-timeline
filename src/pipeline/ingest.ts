@@ -77,6 +77,9 @@ export const runIngestion = async (options: { backfillSince?: string | null } = 
           });
           if (!rawInsert.changed && !rawInsert.hadContentUpdate) continue;
           const events = normalizeSourceItems(source, [raw]);
+          if (rawInsert.hadContentUpdate) {
+            db.deleteEventsForRawItem(rawInsert.rawItemId);
+          }
           for (const event of events) {
             const normalized = normalizeRows([event])[0];
             const outcome = db.upsertEvent({
