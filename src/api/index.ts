@@ -4,7 +4,7 @@ import { TimelineDatabase } from "../db/sqlite.js";
 import { sourceManifest } from "../sources/manifest.js";
 import { config } from "../config.js";
 import { type SourceMetadata } from "../types.js";
-import { renderFeedsPage, type FeedsPageState } from "../html/feeds.js";
+import { renderFeedsPage, renderTimelineItems, type FeedsPageState } from "../html/feeds.js";
 
 const hydrateManifest = (db: TimelineDatabase) => {
   db.seedDataIfEmpty(
@@ -33,6 +33,32 @@ const normalizeQueryValue = (value: string | undefined) => {
 };
 
 const normalizeCursor = (value: string | undefined) => (value?.trim() ? value.trim() : null);
+
+const parseCursorPayload = (value: string | null) => {
+  if (!value) return null;
+  try {
+    let parsed: unknown = JSON.parse(Buffer.from(value, "base64").toString());
+    if (typeof parsed === "string") {
+      parsed = JSON.parse(parsed);
+    }
+    if (
+      typeof parsed === "object" &&
+      parsed !== null &&
+      "eventDate" in parsed &&
+      "id" in parsed &&
+      typeof parsed.eventDate === "string" &&
+      typeof parsed.id === "string"
+    ) {
+      return {
+        eventDate: parsed.eventDate,
+        id: parsed.id,
+      };
+    }
+  } catch {
+    // Invalid cursors are rejected by the fragment route.
+  }
+  return null;
+};
 
 const hasQueryKey = (query: Record<string, string | undefined>, key: string) =>
   Object.prototype.hasOwnProperty.call(query, key);
@@ -175,12 +201,28 @@ export const createApp = (db: TimelineDatabase) => {
       eventsJsonHref: buildApiHref("/events", filters, { includeCursor: true, includeLimit: true }),
       calendarHref: buildApiHref("/calendar.ics", filters),
       sourcesHref: "/sources",
+      itemsHref: buildApiHref("/feeds/items", { ...filters, cursor: null }, { includeLimit: true }),
     });
     return c.body(payload, {
       status: 200,
       headers: {
         "Content-Type": "text/html; charset=utf-8",
       },
+    });
+  });
+
+  app.get("/feeds/items", (c) => {
+    const pageState = readFeedsPageState(c.req.query());
+    const filters = feedsStateToEventFilters(pageState);
+    if (!filters.cursor || !parseCursorPayload(filters.cursor)) {
+      return c.json({ error: "valid cursor is required" }, 400);
+    }
+    const result = db.getEvents(filters);
+    return c.json({
+      html: renderTimelineItems(result.events),
+      has_more: result.hasMore,
+      next_cursor: result.nextCursor,
+      returned_count: result.events.length,
     });
   });
 

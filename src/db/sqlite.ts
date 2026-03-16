@@ -681,16 +681,33 @@ const parseJsonArray = (value: unknown) => {
   }
 };
 
+const parseCursorValue = (value: unknown) => {
+  if (typeof value === "string") {
+    try {
+      return parseCursorValue(JSON.parse(value));
+    } catch {
+      return null;
+    }
+  }
+  if (
+    typeof value === "object" &&
+    value !== null &&
+    "eventDate" in value &&
+    "id" in value &&
+    typeof value.eventDate === "string" &&
+    typeof value.id === "string"
+  ) {
+    return { eventDate: value.eventDate, id: value.id };
+  }
+  return null;
+};
+
 const encodeCursor = (value: { eventDate: string; id: string }) =>
-  Buffer.from(normalizeString(JSON.stringify(value))).toString("base64");
+  Buffer.from(JSON.stringify(value)).toString("base64");
 
 const decodeCursor = (cursor: string) => {
   try {
-    const value = JSON.parse(Buffer.from(cursor, "base64").toString());
-    if (typeof value?.eventDate === "string" && typeof value?.id === "string") {
-      return { eventDate: value.eventDate as string, id: value.id as string };
-    }
-    return null;
+    return parseCursorValue(JSON.parse(Buffer.from(cursor, "base64").toString()));
   } catch {
     return null;
   }

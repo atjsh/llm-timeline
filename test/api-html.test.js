@@ -118,6 +118,12 @@ const getHtml = async (path) => {
   return { response, body };
 };
 
+const getJson = async (path) => {
+  const response = await app.fetch(new Request(`http://localhost${path}`));
+  const body = await response.json();
+  return { response, body };
+};
+
 const defaultPage = await getHtml("/feeds");
 assert.equal(defaultPage.response.status, 200);
 assert.match(defaultPage.response.headers.get("content-type") ?? "", /^text\/html/i);
@@ -147,10 +153,29 @@ const pagedApiResult = db.getEvents({
 assert.ok(pagedApiResult.nextCursor);
 
 const firstPage = await getHtml("/feeds?category=model_release&limit=1");
+assert.match(firstPage.body, /Load more/);
+assert.match(firstPage.body, /data-feeds-loader/);
 assert.match(firstPage.body, /Older/);
+assert.match(firstPage.body, /data-summary-heading/);
 
 const secondPage = await getHtml(`/feeds?category=model_release&limit=1&cursor=${encodeURIComponent(pagedApiResult.nextCursor)}`);
 assert.match(secondPage.body, /Newest/);
+
+const fragment = await getJson(`/feeds/items?category=model_release&limit=1&cursor=${encodeURIComponent(pagedApiResult.nextCursor)}`);
+assert.equal(fragment.response.status, 200);
+assert.match(fragment.response.headers.get("content-type") ?? "", /^application\/json/i);
+assert.equal(fragment.body.returned_count, 1);
+assert.equal(fragment.body.has_more, true);
+assert.ok(fragment.body.next_cursor);
+assert.match(fragment.body.html, /Introducing Claude Opus 4\.6/);
+assert.doesNotMatch(fragment.body.html, /<script>alert\("x"\)<\/script>/);
+
+const missingCursor = await getJson("/feeds/items?category=model_release&limit=1");
+assert.equal(missingCursor.response.status, 400);
+assert.match(missingCursor.body.error, /cursor/i);
+
+const invalidCursor = await getJson("/feeds/items?category=model_release&limit=1&cursor=bad-cursor");
+assert.equal(invalidCursor.response.status, 400);
 
 const allCategoriesPage = await getHtml("/feeds?category=all&limit=10");
 assert.match(allCategoriesPage.body, /Gemini tooling update/);

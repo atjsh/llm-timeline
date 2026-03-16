@@ -19,6 +19,7 @@ export interface FeedsPageInput {
   eventsJsonHref: string;
   calendarHref: string;
   sourcesHref: string;
+  itemsHref: string;
 }
 
 const pageTitle = "LLM Feeds";
@@ -156,6 +157,148 @@ const renderTimelineItem = (event: EventRow) => {
   `;
 };
 
+export const renderTimelineItems = (events: EventRow[]) => events.map((event) => renderTimelineItem(event)).join("");
+
+const renderSummaryHeading = (count: number, hasMore: boolean) =>
+  `Showing ${count} event${count === 1 ? "" : "s"}${hasMore ? " with older pages available" : ""}.`;
+
+const renderNoscriptPagination = (olderHref: string | null, newestHref: string | null) => {
+  if (!olderHref && !newestHref) return "";
+  return `
+        <noscript>
+          <nav class="pagination pagination--fallback">
+            ${newestHref ? `<a href="${safeHref(newestHref)}">Newest</a>` : ""}
+            ${olderHref ? `<a href="${safeHref(olderHref)}">Older</a>` : ""}
+          </nav>
+        </noscript>
+  `;
+};
+
+const renderLoaderSection = (input: FeedsPageInput) => {
+  if (!input.hasMore || !input.nextCursor) return "";
+  return `
+        <div
+          class="feed-loader"
+          data-feeds-loader
+          data-fragment-base="${safeHref(input.itemsHref)}"
+          data-next-cursor="${escapeHtml(input.nextCursor)}"
+          data-has-more="${input.hasMore ? "true" : "false"}"
+          data-loaded-count="${input.events.length}"
+        >
+          <div class="feed-loader__controls">
+            <button type="button" class="feed-loader__button" data-load-more>Load more</button>
+            <p class="feed-loader__status" data-loader-status aria-live="polite">Scroll for older events or tap Load more.</p>
+          </div>
+          <div class="feed-loader__sentinel" data-loader-sentinel aria-hidden="true"></div>
+        </div>
+  `;
+};
+
+const inlineScript = `
+(() => {
+  const timeline = document.querySelector("[data-timeline]");
+  const loader = document.querySelector("[data-feeds-loader]");
+  const summary = document.querySelector("[data-summary-heading]");
+  if (!(timeline instanceof HTMLElement) || !(summary instanceof HTMLElement) || !(loader instanceof HTMLElement)) {
+    return;
+  }
+
+  const button = loader.querySelector("[data-load-more]");
+  const status = loader.querySelector("[data-loader-status]");
+  const sentinel = loader.querySelector("[data-loader-sentinel]");
+  if (!(button instanceof HTMLButtonElement) || !(status instanceof HTMLElement) || !(sentinel instanceof HTMLElement)) {
+    return;
+  }
+
+  let nextCursor = loader.dataset.nextCursor || "";
+  let hasMore = loader.dataset.hasMore === "true";
+  let loading = false;
+  let loadedCount = Number(loader.dataset.loadedCount || timeline.children.length || 0);
+  let observer = null;
+
+  const summaryText = (count, more) => {
+    return "Showing " + count + " event" + (count === 1 ? "" : "s") + (more ? " with older pages available." : ".");
+  };
+
+  const setStatus = (message) => {
+    status.textContent = message;
+  };
+
+  const updateControls = () => {
+    summary.textContent = summaryText(loadedCount, hasMore);
+    button.disabled = loading || !hasMore;
+    button.hidden = !hasMore;
+    sentinel.hidden = !hasMore;
+    loader.dataset.nextCursor = nextCursor;
+    loader.dataset.hasMore = String(hasMore);
+    loader.dataset.loadedCount = String(loadedCount);
+    if (!hasMore && !loading) {
+      setStatus("You’ve reached the end of the timeline.");
+      if (observer) {
+        observer.disconnect();
+      }
+    }
+  };
+
+  const loadMore = async (trigger) => {
+    if (loading || !hasMore || !nextCursor) {
+      return;
+    }
+    loading = true;
+    updateControls();
+    setStatus(trigger === "manual" ? "Loading more events…" : "Loading older events…");
+
+    try {
+      const url = new URL(loader.dataset.fragmentBase || "", window.location.href);
+      url.searchParams.set("cursor", nextCursor);
+      const response = await fetch(url.toString(), {
+        headers: {
+          "Accept": "application/json",
+        },
+      });
+      if (!response.ok) {
+        throw new Error("request failed");
+      }
+      const payload = await response.json();
+      if (typeof payload.html !== "string" || typeof payload.has_more !== "boolean") {
+        throw new Error("invalid payload");
+      }
+      if (payload.html.trim()) {
+        timeline.insertAdjacentHTML("beforeend", payload.html);
+      }
+      loadedCount += Number(payload.returned_count || 0);
+      nextCursor = typeof payload.next_cursor === "string" ? payload.next_cursor : "";
+      hasMore = Boolean(payload.has_more && nextCursor);
+      setStatus(hasMore ? "Loaded more events." : "You’ve reached the end of the timeline.");
+    } catch {
+      setStatus("Couldn’t load older events. Tap Load more to retry.");
+    } finally {
+      loading = false;
+      updateControls();
+    }
+  };
+
+  button.addEventListener("click", () => {
+    void loadMore("manual");
+  });
+
+  if ("IntersectionObserver" in window) {
+    observer = new IntersectionObserver((entries) => {
+      if (entries.some((entry) => entry.isIntersecting)) {
+        void loadMore("auto");
+      }
+    }, {
+      rootMargin: "480px 0px",
+    });
+    observer.observe(sentinel);
+  } else {
+    setStatus("Tap Load more to continue browsing older events.");
+  }
+
+  updateControls();
+})();
+`;
+
 const styles = `
   :root {
     color-scheme: light;
@@ -235,7 +378,8 @@ const styles = `
   .hero__links a,
   .controls__actions a,
   .controls__actions button,
-  .pagination a {
+  .pagination a,
+  .feed-loader__button {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -248,7 +392,8 @@ const styles = `
   }
 
   .hero__links a,
-  .pagination a {
+  .pagination a,
+  .feed-loader__button {
     background: rgba(157, 91, 59, 0.12);
     border: 1px solid rgba(157, 91, 59, 0.24);
   }
@@ -256,7 +401,8 @@ const styles = `
   .hero__links a:hover,
   .controls__actions a:hover,
   .controls__actions button:hover,
-  .pagination a:hover {
+  .pagination a:hover,
+  .feed-loader__button:hover {
     transform: translateY(-1px);
   }
 
@@ -459,7 +605,8 @@ const styles = `
   }
 
   .event-card__summary,
-  .event-card__meta {
+  .event-card__meta,
+  .feed-loader__status {
     margin: 0;
     color: var(--muted);
     line-height: 1.6;
@@ -488,11 +635,44 @@ const styles = `
     line-height: 1.7;
   }
 
+  .feed-loader,
   .pagination {
     display: flex;
     flex-wrap: wrap;
     gap: 12px;
     padding-top: 18px;
+  }
+
+  .feed-loader {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .feed-loader__controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .feed-loader__button {
+    cursor: pointer;
+    color: var(--ink);
+  }
+
+  .feed-loader__button[disabled] {
+    opacity: 0.6;
+    cursor: progress;
+    transform: none;
+  }
+
+  .feed-loader__sentinel {
+    width: 100%;
+    height: 1px;
+  }
+
+  .pagination--fallback {
+    padding-top: 8px;
   }
 
   @media (min-width: 720px) {
@@ -614,7 +794,7 @@ export const renderFeedsPage = (input: FeedsPageInput) => {
       </section>
 
       <section class="summary">
-        <p class="summary__heading">Showing ${input.events.length} event${input.events.length === 1 ? "" : "s"}${input.hasMore ? " with older pages available" : ""}.</p>
+        <p class="summary__heading" data-summary-heading>${escapeHtml(renderSummaryHeading(input.events.length, input.hasMore))}</p>
         <div class="chips">
           ${chips.map((chip) => `<span class="chip"><strong>${escapeHtml(chip.label)}:</strong><span>${escapeHtml(chip.value)}</span></span>`).join("")}
         </div>
@@ -623,18 +803,14 @@ export const renderFeedsPage = (input: FeedsPageInput) => {
       <section class="timeline-shell">
         ${
           input.events.length
-            ? `<ol class="timeline">${input.events.map((event) => renderTimelineItem(event)).join("")}</ol>`
+            ? `<ol class="timeline" data-timeline>${renderTimelineItems(input.events)}</ol>`
             : `<p class="empty-state">No events matched the current filters. Try widening the date range, switching category, or clearing product/model filters.</p>`
         }
-        ${
-          olderHref || newestHref
-            ? `<nav class="pagination">${newestHref ? `<a href="${safeHref(newestHref)}">Newest</a>` : ""}${
-                olderHref ? `<a href="${safeHref(olderHref)}">Older</a>` : ""
-              }</nav>`
-            : ""
-        }
+        ${renderLoaderSection(input)}
+        ${renderNoscriptPagination(olderHref, newestHref)}
       </section>
     </main>
+    <script>${inlineScript}</script>
   </body>
 </html>`;
 };
