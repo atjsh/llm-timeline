@@ -22,7 +22,9 @@ export interface SourceManifestEntry {
     | "rss_atom"
     | "github_releases"
     | "changelog_html"
-    | "docs_html";
+    | "docs_html"
+    | "google_gemini_api_html"
+    | "google_vertex_release_notes_html";
   enabled?: boolean;
   defaultCategory?: EventCategory;
   cooldownSeconds?: number;
@@ -79,6 +81,7 @@ export interface ParsedSourceItem {
   publishedAt?: string;
   eventDateHints?: string[];
   feedCategories?: string[];
+  sourceLabel?: string;
 }
 
 export interface RawParsedEvent {
@@ -98,6 +101,8 @@ export interface RawParsedEvent {
   models: string[];
   tags: string[];
   anchor: string;
+  dedupeKey?: string;
+  sourcePriority?: number;
   rawItemId?: number;
 }
 

@@ -13,6 +13,7 @@ const hydrateManifest = (db: TimelineDatabase) => {
       name: entry.name,
       url: entry.url,
       parser: entry.parser,
+      enabled: entry.enabled ?? true,
       defaultCategory: entry.defaultCategory ?? "blog_update",
       cooldownSeconds: entry.cooldownSeconds ?? 3600,
     }))

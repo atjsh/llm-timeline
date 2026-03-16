@@ -6,6 +6,13 @@ import { sourceManifest } from "../sources/manifest.js";
 import type { ParsedSourceItem, RawParsedEvent, SourceManifestEntry, SourceRow, StoredRawItem } from "../types.js";
 const parseDate = () => new Date().toISOString();
 
+const sourcePriority: Record<string, number> = {
+  "google-gemini-release-notes-rss": 10,
+  "google-vertex-release-notes": 20,
+  "google-cloud-ai-release-notes": 30,
+  "google-ai-blog-rss": 40,
+};
+
 const normalizeRows = (values: RawParsedEvent[]) =>
   values.map((event) => ({
     id: event.id,
@@ -23,6 +30,7 @@ const normalizeRows = (values: RawParsedEvent[]) =>
     products: event.products,
     models: event.models,
     tags: event.tags,
+    source_priority: event.sourcePriority ?? 0,
     last_seen_at: parseDate(),
   }));
 
@@ -32,6 +40,7 @@ const hydrateSources = (manifest: SourceManifestEntry[]) => manifest.map((entry)
   name: entry.name,
   url: entry.url,
   parser: entry.parser,
+  enabled: entry.enabled ?? true,
   defaultCategory: entry.defaultCategory ?? "blog_update",
   cooldownSeconds: entry.cooldownSeconds ?? 3600,
 }));
@@ -64,6 +73,7 @@ const parsedItemFromStoredRaw = (row: StoredRawItem): ParsedSourceItem => {
       typeof payload.publishedAt === "string" && payload.publishedAt.trim() ? payload.publishedAt : row.published_at ?? undefined,
     eventDateHints: normalizeStringArray(payload.eventDateHints),
     feedCategories: normalizeStringArray(payload.feedCategories),
+    sourceLabel: typeof payload.sourceLabel === "string" && payload.sourceLabel.trim() ? payload.sourceLabel : undefined,
   };
 };
 
@@ -117,7 +127,7 @@ export const runIngestion = async (options: { backfillSince?: string | null } = 
   const sources = options.backfillSince ? db.getAllSources() : db.getDueSources();
 
   const start = Date.now();
-  const queue = [...sources];
+  const queue = [...sources].sort((left, right) => (sourcePriority[left.id] ?? 0) - (sourcePriority[right.id] ?? 0));
   const concurrency = Math.max(1, config.maxFetchConcurrency);
   let running = 0;
   let idx = 0;

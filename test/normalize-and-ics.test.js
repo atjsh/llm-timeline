@@ -125,8 +125,116 @@ const openAiChatGptFeature = normalizeSourceItems(openAiRssSource, [
 ]);
 assert.equal(openAiChatGptFeature[0].category, "blog_update");
 
+const googleBlogSource = {
+  ...source,
+  id: "google-ai-blog-rss",
+  vendor: "google",
+  name: "Google Gemini Blog RSS",
+};
+
+const googleChangelogSource = {
+  ...source,
+  id: "google-cloud-ai-release-notes",
+  vendor: "google",
+  name: "Google Gemini API Changelog",
+  parser: "google_gemini_api_html",
+};
+
+const googleVertexSource = {
+  ...source,
+  id: "google-vertex-release-notes",
+  vendor: "google",
+  name: "Vertex Generative AI Release Notes",
+  parser: "google_vertex_release_notes_html",
+};
+
+const googleSdkSource = {
+  ...source,
+  id: "google-gemini-release-notes-rss",
+  vendor: "google",
+  name: "Google Gen AI JS SDK Releases",
+  parser: "github_releases",
+  default_category: "release_note",
+};
+
+const googleBlogRelease = normalizeSourceItems(googleBlogSource, [
+  {
+    externalId: "google-blog-1",
+    title: "Gemini 3.1 Pro: A smarter model for your most complex tasks",
+    canonicalUrl: "https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-3-1-pro/",
+    summary: "Gemini 3.1 Pro is available in preview for complex reasoning workloads.",
+    publishedAt: "2026-02-19T16:00:00.000Z",
+    feedCategories: ["Gemini models"],
+  },
+]);
+assert.equal(googleBlogRelease.length, 1);
+assert.equal(googleBlogRelease[0].category, "model_release");
+assert.ok(googleBlogRelease[0].models.includes("gemini-3.1-pro"));
+
+const googleBlogConsumerNoise = normalizeSourceItems(googleBlogSource, [
+  {
+    externalId: "google-blog-noise-1",
+    title: "Find out what’s new in the Gemini app in February's Gemini Drop.",
+    canonicalUrl: "https://blog.google/innovation-and-ai/products/gemini-app/gemini-drop-february-2026/",
+    summary: "Gemini Drops is our regular monthly update on how to get the most out of the Gemini app.",
+    publishedAt: "2026-02-27T17:00:00.000Z",
+    feedCategories: ["Gemini App"],
+  },
+]);
+assert.equal(googleBlogConsumerNoise.length, 0);
+
+const googleVertexPartnerModel = normalizeSourceItems(googleVertexSource, [
+  {
+    externalId: "google-vertex-partner-1",
+    title: "Anthropic's Claude 3 Haiku",
+    canonicalUrl: "https://docs.cloud.google.com/vertex-ai/generative-ai/docs/deprecations/partner-models#haiku-3",
+    summary: "Anthropic's Claude 3 Haiku is deprecated as of February 23, 2026 and will be shut down on August 23, 2026.",
+    publishedAt: "2026-02-23T00:00:00.000Z",
+    sourceLabel: "Deprecated",
+  },
+]);
+assert.equal(googleVertexPartnerModel.length, 0);
+
+const googleSdkRelease = normalizeSourceItems(googleSdkSource, [
+  {
+    externalId: "google-sdk-1",
+    title: "v1.44.0",
+    canonicalUrl: "https://github.com/googleapis/js-genai/releases/tag/v1.44.0",
+    summary: "Features Add gemini-3.1-flash-image-preview model.",
+    publishedAt: "2026-03-04T23:40:39.000Z",
+  },
+]);
+assert.equal(googleSdkRelease[0].category, "release_note");
+assert.ok(googleSdkRelease[0].products.includes("gemini"));
+
+const googleChangelogModelRelease = normalizeSourceItems(googleChangelogSource, [
+  {
+    externalId: "google-changelog-embedding-1",
+    title: "Released gemini-embedding-2-preview, our first multimodal embedding model.",
+    canonicalUrl: "https://ai.google.dev/gemini-api/docs/embeddings",
+    summary: "Released gemini-embedding-2-preview, our first multimodal embedding model.",
+    publishedAt: "2026-03-10T00:00:00.000Z",
+    sourceLabel: "Feature",
+  },
+]);
+assert.equal(googleChangelogModelRelease.length, 1);
+assert.equal(googleChangelogModelRelease[0].category, "model_release");
+
+const googleChangelogPricingNoise = normalizeSourceItems(googleChangelogSource, [
+  {
+    externalId: "google-changelog-pricing-1",
+    title: "Gemini 3 billing for Grounding with Google Search will begin on January 5, 2026.",
+    canonicalUrl: "https://ai.google.dev/gemini-api/docs/google-search",
+    summary: "Gemini 3 billing for Grounding with Google Search will begin on January 5, 2026.",
+    publishedAt: "2026-01-05T00:00:00.000Z",
+    sourceLabel: "Feature",
+  },
+]);
+assert.equal(googleChangelogPricingNoise.length, 1);
+assert.equal(googleChangelogPricingNoise[0].category, "release_note");
+
 const db = new TimelineDatabase(":memory:");
-db.seedDataIfEmpty([source, openAiRssSource]);
+db.seedDataIfEmpty([source, openAiRssSource, googleBlogSource, googleChangelogSource, googleVertexSource, googleSdkSource]);
 const raw = db.upsertRawItem({
   source_id: source.id,
   external_id: item.externalId,
@@ -353,6 +461,174 @@ assert.equal(
 const rebuiltCalendar = buildCalendar(rebuiltChatGptEvents);
 assert.ok(rebuiltCalendar.includes("SUMMARY:Introducing ChatGPT"));
 assert.ok(rebuiltCalendar.includes("URL:https://openai.com/index/chatgpt"));
+
+const googleVertexRaw = db.upsertRawItem({
+  source_id: googleVertexSource.id,
+  external_id: "google-vertex-gemini-3.1-pro",
+  title: "Gemini 3.1 Pro Preview",
+  canonical_url: "https://docs.cloud.google.com/vertex-ai/generative-ai/docs/models/gemini/3-1-pro",
+  summary: "Gemini 3.1 Pro is available in preview in Model Garden.",
+  published_at: "2026-02-19T00:00:00.000Z",
+  fetched_at: new Date().toISOString(),
+  payload_json: JSON.stringify({
+    externalId: "google-vertex-gemini-3.1-pro",
+    title: "Gemini 3.1 Pro Preview",
+    canonicalUrl: "https://docs.cloud.google.com/vertex-ai/generative-ai/docs/models/gemini/3-1-pro",
+    summary: "Gemini 3.1 Pro is available in preview in Model Garden.",
+    publishedAt: "2026-02-19T00:00:00.000Z",
+    sourceLabel: "Feature",
+  }),
+  checksum: "google-vertex-gemini-3.1-pro",
+});
+
+for (const event of normalizeSourceItems(googleVertexSource, [
+  {
+    externalId: "google-vertex-gemini-3.1-pro",
+    title: "Gemini 3.1 Pro Preview",
+    canonicalUrl: "https://docs.cloud.google.com/vertex-ai/generative-ai/docs/models/gemini/3-1-pro",
+    summary: "Gemini 3.1 Pro is available in preview in Model Garden.",
+    publishedAt: "2026-02-19T00:00:00.000Z",
+    sourceLabel: "Feature",
+  },
+])) {
+  db.upsertEvent({
+    id: event.id,
+    vendor: event.vendor,
+    category: event.category,
+    title: event.title,
+    summary: event.summary,
+    canonical_url: event.canonicalUrl,
+    evidence_url: event.evidenceUrl,
+    evidence_excerpt: event.evidenceExcerpt,
+    published_at: event.publishedAt,
+    event_date: event.eventDate,
+    event_date_kind: event.eventDateKind,
+    date_precision: event.datePrecision,
+    products: event.products,
+    models: event.models,
+    tags: event.tags,
+    source_id: googleVertexSource.id,
+    raw_item_id: googleVertexRaw.rawItemId,
+    anchor: event.anchor,
+    source_priority: event.sourcePriority,
+    last_seen_at: new Date().toISOString(),
+  });
+}
+
+const googleBlogRaw = db.upsertRawItem({
+  source_id: googleBlogSource.id,
+  external_id: "google-blog-gemini-3.1-pro",
+  title: "Gemini 3.1 Pro: A smarter model for your most complex tasks",
+  canonical_url: "https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-3-1-pro/",
+  summary: "Gemini 3.1 Pro is available in preview for complex reasoning workloads.",
+  published_at: "2026-02-19T16:00:00.000Z",
+  fetched_at: new Date().toISOString(),
+  payload_json: JSON.stringify({
+    externalId: "google-blog-gemini-3.1-pro",
+    title: "Gemini 3.1 Pro: A smarter model for your most complex tasks",
+    canonicalUrl: "https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-3-1-pro/",
+    summary: "Gemini 3.1 Pro is available in preview for complex reasoning workloads.",
+    publishedAt: "2026-02-19T16:00:00.000Z",
+    feedCategories: ["Gemini models"],
+  }),
+  checksum: "google-blog-gemini-3.1-pro",
+});
+
+for (const event of googleBlogRelease) {
+  db.upsertEvent({
+    id: event.id,
+    vendor: event.vendor,
+    category: event.category,
+    title: event.title,
+    summary: event.summary,
+    canonical_url: event.canonicalUrl,
+    evidence_url: event.evidenceUrl,
+    evidence_excerpt: event.evidenceExcerpt,
+    published_at: event.publishedAt,
+    event_date: event.eventDate,
+    event_date_kind: event.eventDateKind,
+    date_precision: event.datePrecision,
+    products: event.products,
+    models: event.models,
+    tags: event.tags,
+    source_id: googleBlogSource.id,
+    raw_item_id: googleBlogRaw.rawItemId,
+    anchor: event.anchor,
+    source_priority: event.sourcePriority,
+    last_seen_at: new Date().toISOString(),
+  });
+}
+
+const googleChangelogRaw = db.upsertRawItem({
+  source_id: googleChangelogSource.id,
+  external_id: "google-changelog-gemini-3.1-pro",
+  title: "Released Gemini 3.1 Pro Preview",
+  canonical_url: "https://ai.google.dev/gemini-api/docs/models/gemini-3.1-pro-preview",
+  summary: "Released Gemini 3.1 Pro Preview, our latest iteration in the Gemini 3 series family.",
+  published_at: "2026-02-19T00:00:00.000Z",
+  fetched_at: new Date().toISOString(),
+  payload_json: JSON.stringify({
+    externalId: "google-changelog-gemini-3.1-pro",
+    title: "Released Gemini 3.1 Pro Preview",
+    canonicalUrl: "https://ai.google.dev/gemini-api/docs/models/gemini-3.1-pro-preview",
+    summary: "Released Gemini 3.1 Pro Preview, our latest iteration in the Gemini 3 series family.",
+    publishedAt: "2026-02-19T00:00:00.000Z",
+    sourceLabel: "Feature",
+  }),
+  checksum: "google-changelog-gemini-3.1-pro",
+});
+
+for (const event of normalizeSourceItems(googleChangelogSource, [
+  {
+    externalId: "google-changelog-gemini-3.1-pro",
+    title: "Released Gemini 3.1 Pro Preview",
+    canonicalUrl: "https://ai.google.dev/gemini-api/docs/models/gemini-3.1-pro-preview",
+    summary: "Released Gemini 3.1 Pro Preview, our latest iteration in the Gemini 3 series family.",
+    publishedAt: "2026-02-19T00:00:00.000Z",
+    sourceLabel: "Feature",
+  },
+])) {
+  db.upsertEvent({
+    id: event.id,
+    vendor: event.vendor,
+    category: event.category,
+    title: event.title,
+    summary: event.summary,
+    canonical_url: event.canonicalUrl,
+    evidence_url: event.evidenceUrl,
+    evidence_excerpt: event.evidenceExcerpt,
+    published_at: event.publishedAt,
+    event_date: event.eventDate,
+    event_date_kind: event.eventDateKind,
+    date_precision: event.datePrecision,
+    products: event.products,
+    models: event.models,
+    tags: event.tags,
+    source_id: googleChangelogSource.id,
+    raw_item_id: googleChangelogRaw.rawItemId,
+    anchor: event.anchor,
+    source_priority: event.sourcePriority,
+    last_seen_at: new Date().toISOString(),
+  });
+}
+
+const googleReleaseEvents = db.getEvents({
+  vendor: "google",
+  category: "model_release",
+  product: null,
+  model: null,
+  since: null,
+  until: null,
+  limit: 20,
+  cursor: null,
+}).events;
+
+assert.equal(googleReleaseEvents.length, 1);
+assert.equal(
+  googleReleaseEvents[0].canonical_url,
+  "https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-3-1-pro/"
+);
+assert.equal(googleReleaseEvents[0].source_id, googleBlogSource.id);
 
 const calendar = buildCalendar(normalized.map((event) => ({
   id: event.id,

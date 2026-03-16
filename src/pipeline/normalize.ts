@@ -165,6 +165,37 @@ const openAiChatGptFeatureUrlHints = [
   "/index/new-tools-for-chatgpt-enterprise",
 ];
 
+const googleSourcePriority: Record<string, number> = {
+  "google-gemini-release-notes-rss": 10,
+  "google-vertex-release-notes": 20,
+  "google-cloud-ai-release-notes": 30,
+  "google-ai-blog-rss": 40,
+};
+
+const googleAllowedProductRoots = new Set(["gemini", "veo", "imagen"]);
+
+const googleBlogAllowedPathRegex = /\/(?:models-and-research|technology\/ai|developers-tools)\//i;
+const googleBlogExcludedPathRegex =
+  /\/(?:products\/gemini-app|products\/workspace|products\/chrome|devices|platforms\/android|company-news|products\/gemini\/)/i;
+
+const googlePartnerModelRegex = /\b(anthropic|claude|llama|mistral|openai|grok|partner model)\b/i;
+const googleModelLaunchRegex =
+  /\b(released|release|launched|launch|introducing|available in preview|public preview|generally available|\bga\b|our latest|first .* model|most advanced|built for intelligence at scale)\b/i;
+const googleRolloutRegex =
+  /\b(available|availability|support|supports|supported|endpoint|tool|feature|extension|rollout|beta|preview|generally available|\bga\b|switched to|points to|integrated)\b/i;
+const googleFeatureSpecificRegex =
+  /\b(update|support|supports|supported|endpoint|tool|feature|extension|reference-to-video|native audio|computer use|video extension|switched to|points to|integrated|cli)\b/i;
+const googleReleaseNoiseRegex =
+  /\b(pricing|billing|rate limits?|token count|input token|output token|cost|lowering the cost|grounding with google search|copy tuned|upscaling|watermark|virtual try-on)\b/i;
+
+type GoogleNormalizationMetadata = {
+  category: EventCategory;
+  dedupeKey?: string;
+  sourcePriority: number;
+  products: string[];
+  models: string[];
+};
+
 const inferOpenAiRssCategory = (item: ParsedSourceItem): EventCategory => {
   const categories = normalizeFeedCategories(item.feedCategories);
   const title = item.title.toLowerCase();
@@ -179,6 +210,162 @@ const inferOpenAiRssCategory = (item: ParsedSourceItem): EventCategory => {
   if (openAiNonReleaseTitleRegex.test(title)) return "blog_update";
   if (openAiModelReleaseTitleRegex.test(title) && hasAllowedContextCategory) return "model_release";
   return "blog_update";
+};
+
+const normalizeGoogleEntityToken = (value: string) =>
+  value
+    .toLowerCase()
+    .replace(/[^a-z0-9.\s/-]+/g, " ")
+    .replace(/[\/_]+/g, " ")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/(^-|-$)/g, "")
+    .replace(/-(\d+)-(\d+)(?=-|$)/g, "-$1.$2")
+    .replace(/-preview(?:-\d{2}-\d{4})?(?=-|$)/g, "")
+    .replace(/-exp(?=-|$)/g, "")
+    .replace(/-latest(?=-|$)/g, "")
+    .replace(/-001(?=-|$)/g, "")
+    .replace(/-generate(?=-|$)/g, "")
+    .replace(/-(?:public|general(?:ly)?|available|ga)(?=-|$)/g, "")
+    .replace(/-+/g, "-")
+    .replace(/(^-|-$)/g, "");
+
+const isInterestingGoogleEntity = (value: string) => {
+  const base = value.split("-", 1)[0];
+  if (!googleAllowedProductRoots.has(base)) return false;
+  return /\d/.test(value) || /(embedding|flash|pro|image|live|tts|computer-use|fast|ultra|deep-think|deep-research)/.test(value);
+};
+
+const extractGoogleEntityKeys = (item: ParsedSourceItem, text: string) => {
+  const segments = [item.title, text];
+  try {
+    const url = new URL(item.canonicalUrl);
+    const pathSegments = decodeURIComponent(url.pathname)
+      .split("/")
+      .map((value) => value.trim())
+      .filter(Boolean);
+    segments.push(...pathSegments);
+    for (let index = 0; index < pathSegments.length - 1; index += 1) {
+      segments.push(`${pathSegments[index]} ${pathSegments[index + 1]}`);
+    }
+  } catch {
+    segments.push(item.canonicalUrl);
+  }
+  const matches: string[] = [];
+  const tokenRegex =
+    /\b(?:gemini|veo|imagen)(?:[-\s](?:\d+(?:\.\d+)?|flash(?:-lite)?|pro|ultra|nano|mini|lite|live|image(?:-preview)?|images|embedding(?:s)?|tts|preview|exp|latest|stable|fast|audio|video|computer-use|thinking|thinking-lite|deep-think|deep-research|customtools)){0,6}\b/gi;
+  for (const segment of segments) {
+    const normalizedSegment = segment.replace(/[()]/g, " ").replace(/\//g, " ");
+    let match: RegExpExecArray | null;
+    while ((match = tokenRegex.exec(normalizedSegment)) !== null) {
+      const normalized = normalizeGoogleEntityToken(match[0]);
+      if (normalized && isInterestingGoogleEntity(normalized)) {
+        matches.push(normalized);
+      }
+    }
+  }
+  return dedupe(matches, (value) => value);
+};
+
+const normalizeGoogleTitle = (value: string) =>
+  value
+    .toLowerCase()
+    .replace(/[^a-z0-9.\s-]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+const titleMentionsEntity = (title: string, entity: string) => {
+  const normalizedTitle = normalizeGoogleTitle(title);
+  const normalizedEntity = entity.replace(/-/g, " ").replace(/\s+/g, " ").trim();
+  return normalizedTitle.includes(normalizedEntity);
+};
+
+const googleDedupeStage = (text: string, category: EventCategory) => {
+  if (category === "deprecation") return "deprecation";
+  void text;
+  return "release";
+};
+
+const inferGoogleMetadata = (source: SourceRow, item: ParsedSourceItem, text: string): GoogleNormalizationMetadata | null => {
+  const canonicalUrl = normalizeCanonicalUrl(item.canonicalUrl);
+  const entities = extractGoogleEntityKeys(item, text).filter((value) => googleAllowedProductRoots.has(value.split("-", 1)[0]));
+  const products = dedupe(entities.map((value) => value.split("-", 1)[0]), (value) => value);
+  const models = dedupe(entities, (value) => value);
+  const priority = googleSourcePriority[source.id] ?? 0;
+  const lowerText = text.toLowerCase();
+
+  if (source.id === "google-gemini-release-notes-rss") {
+    return {
+      category: "release_note",
+      sourcePriority: priority,
+      products: products.length ? products : ["gemini"],
+      models,
+    };
+  }
+
+  if (!models.length || (googlePartnerModelRegex.test(text) && !products.length)) {
+    return null;
+  }
+
+  if (source.id === "google-ai-blog-rss") {
+    if (!googleBlogAllowedPathRegex.test(canonicalUrl) || googleBlogExcludedPathRegex.test(canonicalUrl)) {
+      return null;
+    }
+    const category = /\/developers-tools\//i.test(canonicalUrl) ? "tech_guide" : "model_release";
+    return {
+      category,
+      dedupeKey:
+        category === "model_release" ? `${models[0]}|${googleDedupeStage(text, category)}` : undefined,
+      sourcePriority: priority,
+      products,
+      models,
+    };
+  }
+
+  if (googlePartnerModelRegex.test(text) && !products.some((value) => googleAllowedProductRoots.has(value))) {
+    return null;
+  }
+
+  if (item.sourceLabel?.toLowerCase() === "deprecated" || /\b(deprecat|shut down|removed on|will be shut down)\b/i.test(text)) {
+    return {
+      category: "deprecation",
+      dedupeKey: `${models[0]}|${googleDedupeStage(text, "deprecation")}`,
+      sourcePriority: priority,
+      products,
+      models,
+    };
+  }
+
+  const primaryEntity = models[0];
+  const launchLike =
+    (googleModelLaunchRegex.test(text) || /\/models\//i.test(canonicalUrl) || (source.id === "google-ai-blog-rss" && titleMentionsEntity(item.title, primaryEntity))) &&
+    !googleFeatureSpecificRegex.test(item.title) &&
+    !googleReleaseNoiseRegex.test(text);
+  if (launchLike) {
+    return {
+      category: "model_release",
+      dedupeKey: `${primaryEntity}|${googleDedupeStage(text, "model_release")}`,
+      sourcePriority: priority,
+      products,
+      models,
+    };
+  }
+
+  if (googleRolloutRegex.test(lowerText) || item.sourceLabel?.toLowerCase() === "announcement") {
+    return {
+      category: "model_rollout",
+      sourcePriority: priority,
+      products,
+      models,
+    };
+  }
+
+  return {
+    category: "release_note",
+    sourcePriority: priority,
+    products,
+    models,
+  };
 };
 
 const inferCategory = (source: SourceRow, item: ParsedSourceItem, text: string, base: EventCategory): EventCategory => {
@@ -202,18 +389,24 @@ export const normalizeSourceItems = (source: SourceRow, items: ParsedSourceItem[
   const vendorProducts = extractTerms(`${source.vendor} ${source.name}`, knownProducts);
   for (const item of items) {
     const combined = `${item.title}\n${item.summary}`.trim();
+    const googleMetadata = source.vendor === "google" ? inferGoogleMetadata(source, item, combined) : null;
+    if (source.vendor === "google" && !googleMetadata) continue;
     const candidates = dedupe(extractDateCandidates(`${combined} ${item.externalId}`), (candidate) => `${candidate.date}-${candidate.kind}`);
     const dateRefs = candidates.length
       ? candidates.map((c) => c.date).filter((value, index, arr) => arr.indexOf(value) === index)
       : item.publishedAt
       ? [item.publishedAt]
       : [];
-    const category = inferCategory(source, item, combined, source.default_category);
-    const productHints = dedupe(extractTerms(combined, knownProducts.concat(vendorProducts)), (v) => v).sort();
-    const modelHints = dedupe(extractTerms(combined, knownModels), (v) => v).sort();
+    const category = googleMetadata?.category ?? inferCategory(source, item, combined, source.default_category);
+    const productHints = dedupe(
+      extractTerms(combined, knownProducts.concat(vendorProducts)).concat(googleMetadata?.products ?? []),
+      (v) => v
+    ).sort();
+    const modelHints = dedupe(extractTerms(combined, knownModels).concat(googleMetadata?.models ?? []), (v) => v).sort();
     const tags = dedupe(
       [category, source.vendor, source.name]
         .concat(item.feedCategories ?? [])
+        .concat(item.sourceLabel ? [item.sourceLabel] : [])
         .concat(category === "release_note" ? ["changelog"] : [])
         .map((value) => value),
       (value) => value
@@ -231,8 +424,13 @@ export const normalizeSourceItems = (source: SourceRow, items: ParsedSourceItem[
       const normalizedDate = normalizeDate(date) || { iso: new Date().toISOString().slice(0, 10), precision: "date" as DatePrecision };
       const evidenceExcerpt = truncate(item.summary.replace(/\s+/g, " "), 240);
       const canonicalUrl = item.canonicalUrl.trim();
+      const dedupeDate = normalizedDate.iso.slice(0, 10);
       const id = createHash("sha1")
-        .update(`${canonicalUrl}|${source.vendor}|${category}|${normalizedDate.iso}|${anchorBase}`)
+        .update(
+          googleMetadata?.dedupeKey
+            ? `${source.vendor}|${category}|${dedupeDate}|${googleMetadata.dedupeKey}`
+            : `${canonicalUrl}|${source.vendor}|${category}|${normalizedDate.iso}|${anchorBase}`
+        )
         .digest("hex");
 
       normalized.push({
@@ -252,6 +450,8 @@ export const normalizeSourceItems = (source: SourceRow, items: ParsedSourceItem[
         models: modelHints,
         tags,
         anchor: anchorBase,
+        dedupeKey: googleMetadata?.dedupeKey,
+        sourcePriority: googleMetadata?.sourcePriority,
       });
     }
   }

@@ -100,6 +100,7 @@ export class TimelineDatabase {
         id TEXT PRIMARY KEY,
         source_id TEXT NOT NULL,
         raw_item_id INTEGER NOT NULL,
+        source_priority INTEGER NOT NULL DEFAULT 0,
         vendor TEXT NOT NULL,
         category TEXT NOT NULL CHECK(category IN (${ALLOWED_CATEGORIES.map((c) => `'${c}'`).join(",")})),
         title TEXT NOT NULL,
@@ -133,6 +134,12 @@ export class TimelineDatabase {
     if (!hasLastRun) {
       this.db.exec("ALTER TABLE sources ADD COLUMN last_fetch_run_id INTEGER;");
     }
+
+    const eventColumns = this.db.prepare("PRAGMA table_info(events)").all() as { name: string }[];
+    const hasSourcePriority = eventColumns.some((row) => row.name === "source_priority");
+    if (!hasSourcePriority) {
+      this.db.exec("ALTER TABLE events ADD COLUMN source_priority INTEGER NOT NULL DEFAULT 0;");
+    }
   }
 
   get dbInstance() {
@@ -145,11 +152,14 @@ export class TimelineDatabase {
     name: string;
     url: string;
     parser: string;
+    enabled?: boolean;
     defaultCategory?: EventCategory;
     default_category?: EventCategory;
     cooldownSeconds?: number;
     cooldown_seconds?: number;
   }>) {
+    const existingStatement = this.db.prepare("SELECT url, parser FROM sources WHERE id = ?");
+    const deleteSourceStatement = this.db.prepare("DELETE FROM sources WHERE id = ?");
     const statement = this.db.prepare(`
       INSERT INTO sources (
         id, vendor, name, url, parser, enabled, default_category, cooldown_seconds, created_at, updated_at
@@ -170,6 +180,10 @@ export class TimelineDatabase {
     this.db.exec("BEGIN IMMEDIATE");
     try {
       for (const entry of entries) {
+        const existing = existingStatement.get(entry.id) as { url: string; parser: string } | undefined;
+        if (existing && (existing.url !== entry.url || existing.parser !== entry.parser)) {
+          deleteSourceStatement.run(entry.id);
+        }
         const defaultCategory: EventCategory = entry.defaultCategory ?? entry.default_category ?? "blog_update";
         const cooldownSeconds: number = entry.cooldownSeconds ?? entry.cooldown_seconds ?? 3600;
         statement.run({
@@ -178,7 +192,7 @@ export class TimelineDatabase {
           name: entry.name,
           url: entry.url,
           parser: entry.parser,
-          enabled: 1,
+          enabled: entry.enabled === false ? 0 : 1,
           default_category: defaultCategory,
           cooldown_seconds: cooldownSeconds,
           created_at: now,
@@ -419,28 +433,35 @@ export class TimelineDatabase {
   }
 
   upsertEvent(
-    event: Omit<EventRow, "raw_item_id" | "created_at" | "updated_at"> & { raw_item_id: number; anchor?: string }
+    event: Omit<EventRow, "raw_item_id" | "created_at" | "updated_at"> & {
+      raw_item_id: number;
+      anchor?: string;
+      source_priority?: number;
+    }
   ) {
     const now = parseDate();
-    const existing = this.db.prepare("SELECT id FROM events WHERE id = ?").get(event.id) as { id: string } | undefined;
+    const existing = this.db.prepare("SELECT id, source_priority FROM events WHERE id = ?").get(event.id) as
+      | { id: string; source_priority: number }
+      | undefined;
     const { anchor: _anchor, ...normalized } = {
       ...event,
       published_at: event.published_at ?? null,
       products: toJson(event.products),
       models: toJson(event.models),
       tags: toJson(event.tags),
+      source_priority: event.source_priority ?? 0,
     };
     const normalizedAnchor = _anchor ?? event.title;
     if (!existing) {
       this.db.prepare(
         `
         INSERT INTO events (
-          id, source_id, raw_item_id, vendor, category, title, summary, canonical_url, normalized_anchor,
+          id, source_id, raw_item_id, source_priority, vendor, category, title, summary, canonical_url, normalized_anchor,
           evidence_url, evidence_excerpt, published_at, event_date, event_date_kind, date_precision,
           products, models, tags, last_seen_at, created_at, updated_at
         )
         VALUES (
-          :id, :source_id, :raw_item_id, :vendor, :category, :title, :summary, :canonical_url, :normalized_anchor,
+          :id, :source_id, :raw_item_id, :source_priority, :vendor, :category, :title, :summary, :canonical_url, :normalized_anchor,
           :evidence_url, :evidence_excerpt, :published_at, :event_date, :event_date_kind, :date_precision,
           :products, :models, :tags, :last_seen_at, :created_at, :updated_at
         )
@@ -457,11 +478,31 @@ export class TimelineDatabase {
       return { inserted: true, updated: false };
     }
 
+    const shouldPromote = normalized.source_priority >= existing.source_priority;
+    if (!shouldPromote) {
+      this.db.prepare(
+        `
+        UPDATE events
+        SET last_seen_at = :last_seen_at,
+            updated_at = :updated_at
+        WHERE id = :id
+        `
+      ).run({
+        id: event.id,
+        last_seen_at: now,
+        updated_at: now,
+      });
+      return { inserted: false, updated: false };
+    }
+
     this.db.prepare(
       `
       UPDATE events
-      SET title = :title,
+      SET source_priority = :source_priority,
+          title = :title,
           summary = :summary,
+          canonical_url = :canonical_url,
+          normalized_anchor = :normalized_anchor,
           evidence_url = :evidence_url,
           evidence_excerpt = :evidence_excerpt,
           published_at = :published_at,
@@ -478,8 +519,21 @@ export class TimelineDatabase {
       WHERE id = :id
       `
     ).run({
-      ...normalized,
       id: event.id,
+      source_priority: normalized.source_priority,
+      title: normalized.title,
+      summary: normalized.summary,
+      canonical_url: normalized.canonical_url,
+      normalized_anchor: normalizedAnchor,
+      evidence_url: normalized.evidence_url,
+      evidence_excerpt: normalized.evidence_excerpt,
+      published_at: normalized.published_at,
+      event_date: normalized.event_date,
+      event_date_kind: normalized.event_date_kind,
+      date_precision: normalized.date_precision,
+      products: normalized.products,
+      models: normalized.models,
+      tags: normalized.tags,
       raw_item_id: event.raw_item_id,
       source_id: event.source_id,
       last_seen_at: now,
@@ -601,6 +655,7 @@ export class TimelineDatabase {
       name: string;
       url: string;
       parser: string;
+      enabled?: boolean;
       defaultCategory?: EventCategory;
       default_category?: EventCategory;
       cooldownSeconds?: number;

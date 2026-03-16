@@ -1,6 +1,11 @@
 import { createHash } from "node:crypto";
 import { config } from "../config.js";
-import { parseChangelogHtml, parseRssAtom } from "./parsers.js";
+import {
+  parseChangelogHtml,
+  parseGoogleGeminiApiHtml,
+  parseGoogleVertexReleaseNotesHtml,
+  parseRssAtom,
+} from "./parsers.js";
 import { type SourceRow, type ParsedSourceItem } from "../types.js";
 
 export interface FetchedSourceItem {
@@ -48,6 +53,7 @@ export const fetchSource = async (
   const start = Date.now();
   const headers: Record<string, string> = {
     "User-Agent": "llm-timeline/0.1 (+https://example.com)",
+    "Accept-Language": "en-US,en;q=0.9",
   };
   if (source.etag) headers["If-None-Match"] = source.etag;
   if (source.last_modified) headers["If-Modified-Since"] = source.last_modified;
@@ -115,10 +121,16 @@ const parseSourceBody = (parser: string, body: string, sourceUrl: string): Parse
   if (parser === "changelog_html" || parser === "docs_html") {
     return parseChangelogHtml(body, sourceUrl);
   }
+  if (parser === "google_gemini_api_html") {
+    return parseGoogleGeminiApiHtml(body, sourceUrl);
+  }
+  if (parser === "google_vertex_release_notes_html") {
+    return parseGoogleVertexReleaseNotesHtml(body, sourceUrl);
+  }
   return [];
 };
 
 export const hashSourceItem = (item: ParsedSourceItem) =>
   checksum(
-    `${item.externalId}:${item.title}:${item.summary}:${item.publishedAt ?? ""}:${(item.feedCategories ?? []).join("|")}`
+    `${item.externalId}:${item.title}:${item.summary}:${item.publishedAt ?? ""}:${(item.feedCategories ?? []).join("|")}:${item.sourceLabel ?? ""}`
   );

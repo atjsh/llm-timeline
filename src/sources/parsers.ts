@@ -13,7 +13,9 @@ const decodeHtmlEntities = (value: string) =>
 const unwrapCdata = (value: string) => value.replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, "$1");
 
 const stripTags = (value: string) =>
-  decodeHtmlEntities(unwrapCdata(value).replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim());
+  decodeHtmlEntities(
+    decodeHtmlEntities(unwrapCdata(value)).replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim()
+  );
 
 const xmlTag = (block: string, tag: string): string | undefined => {
   const match = new RegExp(`<${tag}\\b[^>]*>([\\s\\S]*?)<\\/${tag}>`, "i").exec(block);
@@ -43,6 +45,91 @@ const normalizeItemId = (seed: string, fallback: string) => {
   return `${fallback}:${hash}`;
 };
 
+const resolveUrl = (baseUrl: string, value: string) => {
+  try {
+    const url = new URL(value, baseUrl);
+    url.searchParams.delete("hl");
+    return url.toString();
+  } catch {
+    return value;
+  }
+};
+
+const firstLinkFrom = (value: string, baseUrl: string) => {
+  const links = [...value.matchAll(/href=\"([^\"]+)\"/gi)]
+    .map((match) => resolveUrl(baseUrl, decodeHtmlEntities(match[1] ?? "").trim()))
+    .filter(Boolean);
+  const preferred = links.find((link) => !/products#product-launch-stages/i.test(link));
+  return preferred ?? links[0];
+};
+
+const sectionIdFrom = (heading: string) => {
+  const match = /id=\"([^\"]+)\"/i.exec(heading);
+  return match?.[1]?.trim() || undefined;
+};
+
+const topLevelListItems = (value: string) => {
+  const items: string[] = [];
+  const tagRegex = /<\/?(ul|li)\b[^>]*>/gi;
+  let listDepth = 0;
+  let itemDepth = 0;
+  let currentStart: number | null = null;
+  let tag: RegExpExecArray | null;
+  while ((tag = tagRegex.exec(value)) !== null) {
+    const isClosing = tag[0].startsWith("</");
+    const tagName = tag[1].toLowerCase();
+    if (tagName === "ul") {
+      listDepth += isClosing ? -1 : 1;
+      continue;
+    }
+    if (!isClosing) {
+      itemDepth += 1;
+      if (listDepth === 1 && itemDepth === 1) {
+        currentStart = tagRegex.lastIndex;
+      }
+      continue;
+    }
+    if (listDepth === 1 && itemDepth === 1 && currentStart !== null) {
+      items.push(value.slice(currentStart, tag.index));
+      currentStart = null;
+    }
+    itemDepth = Math.max(0, itemDepth - 1);
+  }
+  return items;
+};
+
+const divBlocksByClass = (value: string, className: string) => {
+  const blocks: string[] = [];
+  const startRegex = new RegExp(`<div\\b[^>]*class=\"[^\"]*${className}[^\"]*\"[^>]*>`, "gi");
+  const tagRegex = /<\/?div\b[^>]*>/gi;
+  let startMatch: RegExpExecArray | null;
+  while ((startMatch = startRegex.exec(value)) !== null) {
+    tagRegex.lastIndex = startRegex.lastIndex;
+    let depth = 1;
+    let tag: RegExpExecArray | null;
+    while ((tag = tagRegex.exec(value)) !== null) {
+      depth += tag[0].startsWith("</") ? -1 : 1;
+      if (depth === 0) {
+        blocks.push(value.slice(startMatch.index, tagRegex.lastIndex));
+        startRegex.lastIndex = tagRegex.lastIndex;
+        break;
+      }
+    }
+  }
+  return blocks;
+};
+
+const titleFromText = (value: string) => {
+  const trimmed = value.trim();
+  if (!trimmed) return "Untitled";
+  const sentence = trimmed
+    .split(/(?<=[.!?])\s+(?=[A-Z0-9])/)
+    .map((part) => part.trim())
+    .find(Boolean);
+  if (!sentence) return trimmed.slice(0, 120);
+  return sentence.length <= 140 ? sentence : sentence.slice(0, 137).trimEnd() + "...";
+};
+
 const itemFrom = (input: {
   sourceUrl: string;
   sourceName: string;
@@ -53,6 +140,7 @@ const itemFrom = (input: {
   publishedAt?: string;
   hints?: string[];
   feedCategories?: string[];
+  sourceLabel?: string;
 }) => ({
   externalId: input.externalId ?? normalizeItemId(`${input.sourceUrl}:${input.title}`, input.sourceName),
   title: input.title ?? input.summary.slice(0, 80),
@@ -61,6 +149,7 @@ const itemFrom = (input: {
   publishedAt: parseDateMaybe(input.publishedAt),
   eventDateHints: input.hints,
   feedCategories: input.feedCategories,
+  sourceLabel: input.sourceLabel,
 });
 
 export const parseRssAtom = (xml: string, sourceUrl: string): ParsedSourceItem[] => {
@@ -148,6 +237,101 @@ export const parseChangelogHtml = (html: string, sourceUrl: string): ParsedSourc
         hints,
       })
     );
+  }
+  return parsed;
+};
+
+const parseDateSections = (html: string) => {
+  const matches = [...html.matchAll(/<h2\b[^>]*>[\s\S]*?<\/h2>/gi)];
+  return matches.map((match, index) => {
+    const heading = match[0];
+    const start = match.index ?? 0;
+    const end = index + 1 < matches.length ? matches[index + 1].index ?? html.length : html.length;
+    return {
+      heading,
+      sectionBody: html.slice(start + heading.length, end),
+      dateText: stripTags(heading),
+      sectionId: sectionIdFrom(heading),
+    };
+  });
+};
+
+const parseSectionPublishedAt = (dateText: string, sectionId?: string) => {
+  const direct = parseDateMaybe(dateText);
+  if (direct) return direct;
+  if (sectionId && /^\d{2}-\d{2}-\d{4}$/.test(sectionId)) {
+    const [month, day, year] = sectionId.split("-");
+    return parseDateMaybe(`${year}-${month}-${day}`);
+  }
+  if (sectionId) {
+    const fromId = parseDateMaybe(sectionId.replace(/_/g, " "));
+    if (fromId) return fromId;
+  }
+  return undefined;
+};
+
+export const parseGoogleGeminiApiHtml = (html: string, sourceUrl: string): ParsedSourceItem[] => {
+  const sections = parseDateSections(html);
+  const parsed: ParsedSourceItem[] = [];
+  for (const section of sections) {
+    const publishedAt = parseSectionPublishedAt(section.dateText, section.sectionId);
+    if (!publishedAt) continue;
+    const lists = [...section.sectionBody.matchAll(/<ul\b[^>]*>([\s\S]*?)<\/ul>/gi)];
+    if (!lists.length) continue;
+    const entries = topLevelListItems(lists[0][0] ?? "");
+    for (const [index, entry] of entries.entries()) {
+      const summary = stripTags(entry);
+      if (!summary) continue;
+      const canonicalUrl =
+        firstLinkFrom(entry, sourceUrl) ?? `${sourceUrl}#${section.sectionId ?? publishedAt}-${index + 1}`;
+      parsed.push(
+        itemFrom({
+          sourceUrl,
+          sourceName: sourceUrl,
+          externalId: normalizeItemId(`${section.sectionId ?? publishedAt}:${index + 1}:${summary}`, canonicalUrl),
+          title: titleFromText(summary),
+          canonicalUrl,
+          summary,
+          publishedAt,
+          hints: [publishedAt],
+          sourceLabel: /deprecat|shut down/i.test(summary) ? "Deprecated" : "Feature",
+        })
+      );
+    }
+  }
+  return parsed;
+};
+
+export const parseGoogleVertexReleaseNotesHtml = (html: string, sourceUrl: string): ParsedSourceItem[] => {
+  const sections = parseDateSections(html);
+  const parsed: ParsedSourceItem[] = [];
+  for (const section of sections) {
+    const publishedAt = parseSectionPublishedAt(section.dateText, section.sectionId);
+    if (!publishedAt) continue;
+    const notes = divBlocksByClass(section.sectionBody, "devsite-release-note");
+    for (const [index, note] of notes.entries()) {
+      const label = stripTags(/<span\b[^>]*devsite-label-release-[^>]*>([\s\S]*?)<\/span>/i.exec(note)?.[1] ?? "");
+      const body = note.replace(/<span\b[^>]*devsite-label-release-[^>]*>[\s\S]*?<\/span>/i, "");
+      const summary = stripTags(body);
+      if (!summary) continue;
+      const strongTitle = stripTags(/<strong\b[^>]*>([\s\S]*?)<\/strong>/i.exec(body)?.[1] ?? "");
+      const title = strongTitle || titleFromText(summary);
+      const canonicalUrl =
+        firstLinkFrom(body, sourceUrl) ?? `${sourceUrl}#${section.sectionId ?? publishedAt}-${index + 1}`;
+      parsed.push(
+        itemFrom({
+          sourceUrl,
+          sourceName: sourceUrl,
+          externalId: normalizeItemId(`${section.sectionId ?? publishedAt}:${index + 1}:${title}`, canonicalUrl),
+          title,
+          canonicalUrl,
+          summary,
+          publishedAt,
+          hints: [publishedAt],
+          sourceLabel: label || undefined,
+        })
+      );
+    }
   }
   return parsed;
 };
