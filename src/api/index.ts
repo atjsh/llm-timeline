@@ -4,6 +4,7 @@ import { TimelineDatabase } from "../db/sqlite.js";
 import { sourceManifest } from "../sources/manifest.js";
 import { config } from "../config.js";
 import { type SourceMetadata } from "../types.js";
+import { renderFeedsPage, type FeedsPageState } from "../html/feeds.js";
 
 const hydrateManifest = (db: TimelineDatabase) => {
   db.seedDataIfEmpty(
@@ -26,7 +27,69 @@ const clampLimit = (value: string | undefined, fallback: number) => {
   return Math.min(parsed, 200);
 };
 
+const normalizeQueryValue = (value: string | undefined) => {
+  const trimmed = value?.trim();
+  return trimmed ? trimmed : null;
+};
+
 const normalizeCursor = (value: string | undefined) => (value?.trim() ? value.trim() : null);
+
+const hasQueryKey = (query: Record<string, string | undefined>, key: string) =>
+  Object.prototype.hasOwnProperty.call(query, key);
+
+const normalizePageSelect = (value: string | undefined, fallback: string) => {
+  const trimmed = value?.trim();
+  return trimmed ? trimmed : fallback;
+};
+
+const buildApiHref = (
+  path: string,
+  filters: {
+    vendor: string | null;
+    category: string | null;
+    product: string | null;
+    model: string | null;
+    since: string | null;
+    until: string | null;
+    cursor: string | null;
+    limit: number;
+  },
+  options: { includeCursor?: boolean; includeLimit?: boolean } = {}
+) => {
+  const params = new URLSearchParams();
+  if (filters.vendor) params.set("vendor", filters.vendor);
+  if (filters.category) params.set("category", filters.category);
+  if (filters.product) params.set("product", filters.product);
+  if (filters.model) params.set("model", filters.model);
+  if (filters.since) params.set("since", filters.since);
+  if (filters.until) params.set("until", filters.until);
+  if (options.includeLimit) params.set("limit", String(filters.limit));
+  if (options.includeCursor && filters.cursor) params.set("cursor", filters.cursor);
+  const query = params.toString();
+  return query ? `${path}?${query}` : path;
+};
+
+const readFeedsPageState = (query: Record<string, string | undefined>): FeedsPageState => ({
+  vendor: normalizePageSelect(query.vendor, "all"),
+  category: hasQueryKey(query, "category") ? normalizePageSelect(query.category, "all") : "model_release",
+  product: query.product?.trim() ?? "",
+  model: query.model?.trim() ?? "",
+  since: query.since?.trim() ?? "",
+  until: query.until?.trim() ?? "",
+  limit: clampLimit(query.limit, 50),
+  cursor: normalizeCursor(query.cursor) ?? "",
+});
+
+const feedsStateToEventFilters = (state: FeedsPageState) => ({
+  vendor: state.vendor === "all" ? null : normalizeQueryValue(state.vendor),
+  category: state.category === "all" ? null : normalizeQueryValue(state.category),
+  product: normalizeQueryValue(state.product),
+  model: normalizeQueryValue(state.model),
+  since: normalizeQueryValue(state.since),
+  until: normalizeQueryValue(state.until),
+  cursor: normalizeCursor(state.cursor),
+  limit: state.limit,
+});
 
 export const createApp = (db: TimelineDatabase) => {
   hydrateManifest(db);
@@ -98,6 +161,27 @@ export const createApp = (db: TimelineDatabase) => {
     const event = db.getEventById(id);
     if (!event) return c.json({ error: "not found" }, 404);
     return c.json(event);
+  });
+
+  app.get("/feeds", (c) => {
+    const pageState = readFeedsPageState(c.req.query());
+    const filters = feedsStateToEventFilters(pageState);
+    const result = db.getEvents(filters);
+    const payload = renderFeedsPage({
+      events: result.events,
+      hasMore: result.hasMore,
+      nextCursor: result.nextCursor,
+      state: pageState,
+      eventsJsonHref: buildApiHref("/events", filters, { includeCursor: true, includeLimit: true }),
+      calendarHref: buildApiHref("/calendar.ics", filters),
+      sourcesHref: "/sources",
+    });
+    return c.body(payload, {
+      status: 200,
+      headers: {
+        "Content-Type": "text/html; charset=utf-8",
+      },
+    });
   });
 
   app.get("/calendar.ics", (c) => {

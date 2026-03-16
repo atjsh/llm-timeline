@@ -13,11 +13,13 @@ The stack is Node.js, Hono, and SQLite.
 - `GET /sources`
 - `GET /events`
 - `GET /events/:id`
+- `GET /feeds`
 - `GET /calendar.ics`
 
 Example filters:
 
 - `/events?vendor=openai&limit=20`
+- `/feeds?vendor=anthropic&category=model_release`
 - `/calendar.ics?vendor=anthropic`
 - `/calendar.ics?vendor=google&category=release_note`
 
