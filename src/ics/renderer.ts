@@ -38,7 +38,12 @@ export const buildCalendar = (events: EventRow[]) => {
   for (const event of events) {
     const uid = `${event.id}@llm-timeline.local`;
     const summary = escapeText(event.title || "(untitled)");
-    const description = escapeText([event.summary, event.evidence_url].filter(Boolean).join("\\n\\n"));
+    const primaryUrl = event.canonical_url || event.evidence_url;
+    const descriptionParts = [event.summary, primaryUrl];
+    if (event.evidence_url && event.evidence_url !== primaryUrl) {
+      descriptionParts.push(`Source feed: ${event.evidence_url}`);
+    }
+    const description = escapeText(descriptionParts.filter(Boolean).join("\\n\\n"));
     const category = escapeText(event.category);
     if (event.date_precision === "date") {
       const start = formatDateOnly(event.event_date);
@@ -50,7 +55,7 @@ export const buildCalendar = (events: EventRow[]) => {
       lines.push(`DTSTART;VALUE=DATE:${start}`);
       lines.push(`DTEND;VALUE=DATE:${end}`);
       lines.push(`DESCRIPTION:${description}`);
-      lines.push(`URL:${escapeText(event.evidence_url)}`);
+      lines.push(`URL:${escapeText(primaryUrl)}`);
       lines.push(`CATEGORIES:${category}`);
       lines.push("END:VEVENT");
       continue;
@@ -63,7 +68,7 @@ export const buildCalendar = (events: EventRow[]) => {
     lines.push(`DTSTART:${stamp}`);
     lines.push(`DTEND:${stamp}`);
     lines.push(`DESCRIPTION:${description}`);
-    lines.push(`URL:${escapeText(event.evidence_url)}`);
+    lines.push(`URL:${escapeText(primaryUrl)}`);
     lines.push(`CATEGORIES:${category}`);
     lines.push("END:VEVENT");
   }
