@@ -135,6 +135,14 @@ const openAiModelReleaseTitleRegex =
 const openAiNonReleaseTitleRegex =
   /\b(system card|technical report|partnership|agreement|acquire|acquisition|research partnership|forum|red teaming network)\b/i;
 
+const openAiDirectRetirementTitleRegex =
+  /^(?:retiring|deprecating)\b|^(?:retirement|deprecation)\s+of\b/i;
+
+const openAiRetirementEntityRegex =
+  /\b(gpt-[a-z0-9.-]+|gpt|o[0-9][a-z0-9.-]*|chatgpt|embedding(?:s)?|model(?:s)?)\b/i;
+
+const openAiRetirementUrlHints = ["/index/retiring-", "/index/deprecating-", "/index/retirement-of-", "/index/deprecation-of-"];
+
 const openAiChatGptFlagshipReleaseUrls = new Set([
   "https://openai.com/index/chatgpt",
   "https://openai.com/index/introducing-chatgpt-search",
@@ -232,8 +240,12 @@ const inferOpenAiRssCategory = (item: ParsedSourceItem): EventCategory => {
   const hasProductNewsCategory = categories.some((value) => value === "product" || value === "product news" || value === "release");
   const hasAllowedContextCategory =
     hasProductNewsCategory || categories.length === 0 || categories.includes("research");
+  const isDirectRetirementAnnouncement =
+    (openAiDirectRetirementTitleRegex.test(item.title) || openAiRetirementUrlHints.some((value) => canonicalUrl.includes(value))) &&
+    openAiRetirementEntityRegex.test(item.title);
 
   if (openAiChatGptFlagshipReleaseUrls.has(canonicalUrl)) return "model_release";
+  if (isDirectRetirementAnnouncement) return "deprecation";
   if (openAiChatGptTierLaunchUrls.has(canonicalUrl)) return "blog_update";
   if (openAiChatGptFeatureUrlHints.some((value) => canonicalUrl.includes(value))) return "blog_update";
   if (openAiNonReleaseTitleRegex.test(title)) return "blog_update";
@@ -513,7 +525,8 @@ const inferCategory = (source: SourceRow, item: ParsedSourceItem, text: string, 
   return base;
 };
 
-const isExplicitDeprecation = (item: ParsedSourceItem) => {
+const isExplicitDeprecation = (source: SourceRow, item: ParsedSourceItem) => {
+  if (source.id === "openai-blog-rss") return false;
   const normalizedUrl = normalizeCanonicalUrl(item.canonicalUrl);
   if (item.sourceLabel?.trim().toLowerCase() === "deprecated") return true;
   if (explicitDeprecationTitleRegex.test(item.title)) return true;
@@ -539,7 +552,7 @@ export const normalizeSourceItems = (source: SourceRow, items: ParsedSourceItem[
       ? [item.publishedAt]
       : [];
     const baseCategory = vendorMetadata?.category ?? inferCategory(source, item, combined, source.default_category);
-    const category = isExplicitDeprecation(item) ? "deprecation" : baseCategory;
+    const category = isExplicitDeprecation(source, item) ? "deprecation" : baseCategory;
     const extractedProducts =
       source.vendor === "anthropic"
         ? extractTerms(combined, anthropicDeveloperProducts)

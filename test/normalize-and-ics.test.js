@@ -125,6 +125,48 @@ const openAiChatGptFeature = normalizeSourceItems(openAiRssSource, [
 ]);
 assert.equal(openAiChatGptFeature[0].category, "blog_update");
 
+const openAiRetirementPost = normalizeSourceItems(openAiRssSource, [
+  {
+    externalId: "openai-retiring-gpt-4o-1",
+    title: "Retiring GPT-4o, GPT-4.1, GPT-4.1 mini, and OpenAI o4-mini in ChatGPT",
+    canonicalUrl: "https://openai.com/index/retiring-gpt-4o-and-older-models",
+    summary:
+      "On February 13, 2026, alongside the previously announced retirement of GPT-5 (Instant, Thinking, and Pro), we will retire GPT-4o, GPT-4.1, GPT-4.1 mini, and OpenAI o4-mini from ChatGPT. In the API, there are no changes at this time.",
+    publishedAt: "2026-02-13T00:00:00.000Z",
+    feedCategories: ["Product"],
+  },
+]);
+assert.equal(openAiRetirementPost.length, 1);
+assert.equal(openAiRetirementPost[0].category, "deprecation");
+assert.equal(openAiRetirementPost[0].eventDate, "2026-02-13");
+assert.equal(openAiRetirementPost[0].eventDateKind, "published");
+
+const openAiMixedDeprecationPost = normalizeSourceItems(openAiRssSource, [
+  {
+    externalId: "openai-gpt4-api-general-availability-1",
+    title: "GPT-4 API general availability and deprecation of older models in the Completions API",
+    canonicalUrl: "https://openai.com/index/gpt-4-api-general-availability",
+    summary: "OpenAI announces GPT-4 API availability and a deprecation path for older Completions API models.",
+    publishedAt: "2024-04-24T00:00:00.000Z",
+    feedCategories: ["Product"],
+  },
+]);
+assert.equal(openAiMixedDeprecationPost.length, 1);
+assert.equal(openAiMixedDeprecationPost[0].category, "blog_update");
+
+const openAiRetiredPersonPost = normalizeSourceItems(openAiRssSource, [
+  {
+    externalId: "openai-retired-general-1",
+    title: "OpenAI appoints Retired U.S. Army General Paul M. Nakasone to Board of Directors",
+    canonicalUrl: "https://openai.com/index/openai-appoints-retired-us-army-general",
+    summary: "OpenAI appoints a retired general to its board.",
+    publishedAt: "2024-06-13T14:00:00.000Z",
+    feedCategories: ["Company"],
+  },
+]);
+assert.equal(openAiRetiredPersonPost.length, 1);
+assert.equal(openAiRetiredPersonPost[0].category, "blog_update");
+
 const anthropicNewsSource = {
   ...source,
   id: "anthropic-news",
@@ -618,6 +660,78 @@ assert.equal(
 const rebuiltCalendar = buildCalendar(rebuiltChatGptEvents);
 assert.ok(rebuiltCalendar.includes("SUMMARY:Introducing ChatGPT"));
 assert.ok(rebuiltCalendar.includes("URL:https://openai.com/index/chatgpt"));
+
+const openAiRetirementDb = new TimelineDatabase(":memory:");
+openAiRetirementDb.seedDataIfEmpty([source, openAiRssSource]);
+
+const openAiRetirementRaw = openAiRetirementDb.upsertRawItem({
+  source_id: openAiRssSource.id,
+  external_id: "openai-retiring-gpt-4o-legacy",
+  title: "Retiring GPT-4o, GPT-4.1, GPT-4.1 mini, and OpenAI o4-mini in ChatGPT",
+  canonical_url: "https://openai.com/index/retiring-gpt-4o-and-older-models",
+  summary:
+    "On February 13, 2026, alongside the previously announced retirement of GPT-5 (Instant, Thinking, and Pro), we will retire GPT-4o, GPT-4.1, GPT-4.1 mini, and OpenAI o4-mini from ChatGPT. In the API, there are no changes at this time.",
+  published_at: "2026-02-13T00:00:00.000Z",
+  fetched_at: new Date().toISOString(),
+  payload_json: JSON.stringify({
+    externalId: "openai-retiring-gpt-4o-legacy",
+    title: "Retiring GPT-4o, GPT-4.1, GPT-4.1 mini, and OpenAI o4-mini in ChatGPT",
+    canonicalUrl: "https://openai.com/index/retiring-gpt-4o-and-older-models",
+    summary:
+      "On February 13, 2026, alongside the previously announced retirement of GPT-5 (Instant, Thinking, and Pro), we will retire GPT-4o, GPT-4.1, GPT-4.1 mini, and OpenAI o4-mini from ChatGPT. In the API, there are no changes at this time.",
+    publishedAt: "2026-02-13T00:00:00.000Z",
+    feedCategories: ["Product"],
+  }),
+  checksum: "openai-retiring-gpt-4o-legacy",
+});
+
+openAiRetirementDb.upsertEvent({
+  id: "legacy-openai-retiring-gpt-4o-blog-update",
+  vendor: "openai",
+  category: "blog_update",
+  title: "Retiring GPT-4o, GPT-4.1, GPT-4.1 mini, and OpenAI o4-mini in ChatGPT",
+  summary:
+    "On February 13, 2026, alongside the previously announced retirement of GPT-5 (Instant, Thinking, and Pro), we will retire GPT-4o, GPT-4.1, GPT-4.1 mini, and OpenAI o4-mini from ChatGPT. In the API, there are no changes at this time.",
+  canonical_url: "https://openai.com/index/retiring-gpt-4o-and-older-models",
+  evidence_url: "https://openai.com/news/rss.xml",
+  evidence_excerpt:
+    "On February 13, 2026, alongside the previously announced retirement of GPT-5 (Instant, Thinking, and Pro), we will retire GPT-4o, GPT-4.1, GPT-4.1 mini, and OpenAI o4-mini from ChatGPT. In the API, there are no changes at this time.",
+  published_at: "2026-02-13T00:00:00.000Z",
+  event_date: "2026-02-13",
+  event_date_kind: "published",
+  date_precision: "date",
+  products: ["chatgpt", "gpt", "gpt-4"],
+  models: ["gpt-4", "gpt-4.1", "gpt-4o"],
+  tags: ["blog_update", "openai", "OpenAI Blog RSS", "Product"],
+  source_id: openAiRssSource.id,
+  raw_item_id: openAiRetirementRaw.rawItemId,
+  anchor: "retiring-gpt-4o-published-2026-02-13",
+  last_seen_at: new Date().toISOString(),
+});
+
+const openAiRetirementRebuild = rebuildSourceEventsInDatabase(openAiRetirementDb, openAiRssSource.id);
+assert.equal(openAiRetirementRebuild.rawItems, 1);
+assert.equal(openAiRetirementRebuild.deletedCount, 1);
+
+const rebuiltOpenAiDeprecations = openAiRetirementDb.getEvents({
+  vendor: "openai",
+  category: "deprecation",
+  product: null,
+  model: null,
+  since: null,
+  until: null,
+  limit: 20,
+  cursor: null,
+}).events;
+
+assert.equal(
+  rebuiltOpenAiDeprecations.filter((event) => event.canonical_url === "https://openai.com/index/retiring-gpt-4o-and-older-models").length,
+  1
+);
+assert.equal(
+  rebuiltOpenAiDeprecations.find((event) => event.canonical_url === "https://openai.com/index/retiring-gpt-4o-and-older-models")?.category,
+  "deprecation"
+);
 
 const anthropicNewsRaw = db.upsertRawItem({
   source_id: anthropicNewsSource.id,
