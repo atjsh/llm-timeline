@@ -1135,7 +1135,7 @@ const renderStaticInlineScript = () => `
             bucket.ariaLabel.replace(/"/g, "&quot;") +
             '"><title>' +
             bucket.ariaLabel.replace(/</g, "&lt;").replace(/>/g, "&gt;") +
-            "</title><rect x=\"" +
+            "</title><rect x=\\\"" +
             x +
             '" y="' +
             y +

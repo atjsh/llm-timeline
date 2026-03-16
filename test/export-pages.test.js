@@ -156,6 +156,12 @@ try {
   assert.doesNotMatch(feedsHtml, /Snapshot entry/);
   assert.doesNotMatch(feedsHtml, /\/feeds\/items/);
   assert.doesNotMatch(feedsHtml, /JSON<\/a>/);
+  assert.doesNotMatch(feedsHtml, /rect x=""/);
+
+  const scriptMatch = feedsHtml.match(/<script>([\s\S]*?)<\/script>\s*<\/body>/);
+  assert.ok(scriptMatch, "expected inline feeds script");
+  assert.doesNotMatch(scriptMatch[1], /rect x=""/);
+  assert.doesNotThrow(() => new Function(scriptMatch[1]));
 
   const payload = JSON.parse(readFileSync(join(outDir, "assets", "events.json"), "utf8"));
   assert.equal(payload.events.length, 4);
