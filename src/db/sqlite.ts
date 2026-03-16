@@ -7,6 +7,7 @@ import {
   type EventRow,
   type FetchRun,
   type RawItem,
+  type StoredRawItem,
   type SourceMetadata,
   type SourceRow,
   type Vendor,
@@ -399,8 +400,22 @@ export class TimelineDatabase {
     return { rawItemId: existing.id, changed: false, hadContentUpdate: false };
   }
 
+  listRawItemsForSource(sourceId: string) {
+    return this.db
+      .prepare(
+        `
+        SELECT id, source_id, external_id, title, canonical_url, summary, published_at, fetched_at, payload_json, checksum, created_at, updated_at
+        FROM raw_items
+        WHERE source_id = ?
+        ORDER BY id ASC
+        `
+      )
+      .all(sourceId) as unknown as StoredRawItem[];
+  }
+
   deleteEventsForRawItem(rawItemId: number) {
-    this.db.prepare("DELETE FROM events WHERE raw_item_id = ?").run(rawItemId);
+    const result = this.db.prepare("DELETE FROM events WHERE raw_item_id = ?").run(rawItemId);
+    return Number(result.changes ?? 0);
   }
 
   upsertEvent(

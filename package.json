@@ -10,6 +10,7 @@
     "install:systemd": "bash scripts/install-systemd.sh",
     "cli:refresh": "node dist/cli.js refresh",
     "cli:backfill": "node dist/cli.js backfill",
+    "cli:rebuild": "node dist/cli.js rebuild",
     "test": "npm run build && node --test test/*.js"
   },
   "dependencies": {

@@ -1,16 +1,25 @@
-import { runIngestion } from "./pipeline/ingest.js";
+import { rebuildSourceEvents, runIngestion } from "./pipeline/ingest.js";
 
 const parseArgs = () => {
-  const [, , command, maybeSince] = process.argv;
+  const [, , command, maybeValue] = process.argv;
   if (command === "refresh") return { command: "refresh" as const };
   if (command === "backfill") {
     const explicit = process.argv.find((arg) => arg.startsWith("--since="));
     const since = explicit
       ? explicit.split("=", 2)[1]
-      : maybeSince && maybeSince !== "--since" && maybeSince !== undefined
-      ? maybeSince
+      : maybeValue && maybeValue !== "--since" && maybeValue !== undefined
+      ? maybeValue
       : undefined;
     return { command: "backfill" as const, since };
+  }
+  if (command === "rebuild") {
+    const explicit = process.argv.find((arg) => arg.startsWith("--source="));
+    const source = explicit
+      ? explicit.split("=", 2)[1]
+      : maybeValue && maybeValue !== "--source" && maybeValue !== undefined
+      ? maybeValue
+      : undefined;
+    return { command: "rebuild" as const, source };
   }
   if (command === "--help" || command === "-h") {
     return { command: "help" as const };
@@ -22,6 +31,7 @@ const usage = () => `
 Usage:
   node dist/cli.js refresh
   node dist/cli.js backfill --since=YYYY-MM-DD
+  node dist/cli.js rebuild --source=SOURCE_ID
 `;
 
 const run = async () => {
@@ -40,6 +50,13 @@ const run = async () => {
     const result = await runIngestion({ backfillSince: since });
     console.log(JSON.stringify({ ...result, since }, null, 2));
     return;
+  }
+  if (args.command === "rebuild") {
+    if (!args.source) {
+      throw new Error("Missing required --source=SOURCE_ID");
+    }
+    const result = await rebuildSourceEvents(args.source);
+    console.log(JSON.stringify(result, null, 2));
   }
 };
 

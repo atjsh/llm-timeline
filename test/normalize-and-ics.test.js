@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { TimelineDatabase } from "../dist/db/sqlite.js";
 import { normalizeSourceItems } from "../dist/pipeline/normalize.js";
+import { rebuildSourceEventsInDatabase } from "../dist/pipeline/ingest.js";
 import { buildCalendar } from "../dist/ics/renderer.js";
 
 const source = {
@@ -76,8 +77,56 @@ const openAiResearchRelease = normalizeSourceItems(openAiRssSource, [
 ]);
 assert.equal(openAiResearchRelease[0].category, "model_release");
 
+const openAiChatGptLaunch = normalizeSourceItems(openAiRssSource, [
+  {
+    externalId: "openai-chatgpt-1",
+    title: "Introducing ChatGPT",
+    canonicalUrl: "https://openai.com/index/chatgpt",
+    summary: "We’ve trained a model called ChatGPT which interacts in a conversational way.",
+    publishedAt: "2022-11-30T08:00:00.000Z",
+    feedCategories: ["Product"],
+  },
+]);
+assert.equal(openAiChatGptLaunch[0].category, "model_release");
+
+const openAiChatGptSearch = normalizeSourceItems(openAiRssSource, [
+  {
+    externalId: "openai-chatgpt-search-1",
+    title: "Introducing ChatGPT search",
+    canonicalUrl: "https://openai.com/index/introducing-chatgpt-search",
+    summary: "A new ChatGPT search experience.",
+    publishedAt: "2024-10-31T10:00:00.000Z",
+    feedCategories: ["Product"],
+  },
+]);
+assert.equal(openAiChatGptSearch[0].category, "model_release");
+
+const openAiChatGptTier = normalizeSourceItems(openAiRssSource, [
+  {
+    externalId: "openai-chatgpt-pro-1",
+    title: "Introducing ChatGPT Pro",
+    canonicalUrl: "https://openai.com/index/introducing-chatgpt-pro",
+    summary: "A new premium ChatGPT tier.",
+    publishedAt: "2024-12-05T10:30:00.000Z",
+    feedCategories: ["Product"],
+  },
+]);
+assert.equal(openAiChatGptTier[0].category, "blog_update");
+
+const openAiChatGptFeature = normalizeSourceItems(openAiRssSource, [
+  {
+    externalId: "openai-chatgpt-images-1",
+    title: "The new ChatGPT Images is here",
+    canonicalUrl: "https://openai.com/index/new-chatgpt-images-is-here",
+    summary: "A new images feature inside ChatGPT.",
+    publishedAt: "2025-12-16T00:00:00.000Z",
+    feedCategories: ["Product"],
+  },
+]);
+assert.equal(openAiChatGptFeature[0].category, "blog_update");
+
 const db = new TimelineDatabase(":memory:");
-db.seedDataIfEmpty([source]);
+db.seedDataIfEmpty([source, openAiRssSource]);
 const raw = db.upsertRawItem({
   source_id: source.id,
   external_id: item.externalId,
@@ -235,6 +284,75 @@ assert.equal(
   repairedList.events.find((event) => event.canonical_url === "https://example.com/stale-item")?.title,
   "Introducing GPT-5.4"
 );
+
+const chatGptRaw = db.upsertRawItem({
+  source_id: openAiRssSource.id,
+  external_id: "openai-chatgpt-legacy",
+  title: "Introducing ChatGPT",
+  canonical_url: "https://openai.com/index/chatgpt",
+  summary: "We’ve trained a model called ChatGPT which interacts in a conversational way.",
+  published_at: "2022-11-30T08:00:00.000Z",
+  fetched_at: new Date().toISOString(),
+  payload_json: JSON.stringify({
+    externalId: "openai-chatgpt-legacy",
+    title: "Introducing ChatGPT",
+    canonicalUrl: "https://openai.com/index/chatgpt",
+    summary: "We’ve trained a model called ChatGPT which interacts in a conversational way.",
+    publishedAt: "2022-11-30T08:00:00.000Z",
+    feedCategories: ["Product"],
+  }),
+  checksum: "chatgpt-legacy-1",
+});
+
+db.upsertEvent({
+  id: "legacy-openai-chatgpt-blog-update",
+  vendor: "openai",
+  category: "blog_update",
+  title: "Introducing ChatGPT",
+  summary: "We’ve trained a model called ChatGPT which interacts in a conversational way.",
+  canonical_url: "https://openai.com/index/chatgpt",
+  evidence_url: "https://openai.com/news/rss.xml",
+  evidence_excerpt: "We’ve trained a model called ChatGPT which interacts in a conversational way.",
+  published_at: "2022-11-30T08:00:00.000Z",
+  event_date: "2022-11-30T08:00:00.000Z",
+  event_date_kind: "published",
+  date_precision: "datetime",
+  products: ["chatgpt"],
+  models: [],
+  tags: ["blog_update", "openai", "OpenAI Blog RSS", "Product"],
+  source_id: openAiRssSource.id,
+  raw_item_id: chatGptRaw.rawItemId,
+  anchor: "introducing-chatgpt-published-2022-11-30t08-00-00-000z",
+  last_seen_at: new Date().toISOString(),
+});
+
+const rebuildResult = rebuildSourceEventsInDatabase(db, openAiRssSource.id);
+assert.equal(rebuildResult.rawItems, 1);
+assert.equal(rebuildResult.deletedCount, 1);
+
+const rebuiltChatGptEvents = db.getEvents({
+  vendor: "openai",
+  category: "model_release",
+  product: null,
+  model: null,
+  since: null,
+  until: null,
+  limit: 50,
+  cursor: null,
+}).events;
+
+assert.equal(
+  rebuiltChatGptEvents.filter((event) => event.canonical_url === "https://openai.com/index/chatgpt").length,
+  1
+);
+assert.equal(
+  rebuiltChatGptEvents.find((event) => event.canonical_url === "https://openai.com/index/chatgpt")?.category,
+  "model_release"
+);
+
+const rebuiltCalendar = buildCalendar(rebuiltChatGptEvents);
+assert.ok(rebuiltCalendar.includes("SUMMARY:Introducing ChatGPT"));
+assert.ok(rebuiltCalendar.includes("URL:https://openai.com/index/chatgpt"));
 
 const calendar = buildCalendar(normalized.map((event) => ({
   id: event.id,

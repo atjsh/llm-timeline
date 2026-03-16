@@ -62,6 +62,12 @@ Run backfill:
 npm run cli:backfill -- --since=2020-01-01
 ```
 
+Rebuild derived events for a stored source after classifier changes:
+
+```bash
+npm run cli:rebuild -- --source=openai-blog-rss
+```
+
 ## Tests
 
 ```bash

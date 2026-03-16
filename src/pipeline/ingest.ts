@@ -3,7 +3,7 @@ import { config } from "../config.js";
 import { normalizeSourceItems } from "./normalize.js";
 import { fetchSource, hashSourceItem } from "../sources/fetchers.js";
 import { sourceManifest } from "../sources/manifest.js";
-import type { SourceManifestEntry, RawParsedEvent, SourceRow } from "../types.js";
+import type { ParsedSourceItem, RawParsedEvent, SourceManifestEntry, SourceRow, StoredRawItem } from "../types.js";
 const parseDate = () => new Date().toISOString();
 
 const normalizeRows = (values: RawParsedEvent[]) =>
@@ -36,10 +36,84 @@ const hydrateSources = (manifest: SourceManifestEntry[]) => manifest.map((entry)
   cooldownSeconds: entry.cooldownSeconds ?? 3600,
 }));
 
+const seedSources = (db: TimelineDatabase) => {
+  db.seedDataIfEmpty(hydrateSources(sourceManifest));
+};
+
+const normalizeStringArray = (value: unknown) =>
+  Array.isArray(value) ? value.map((entry) => String(entry).trim()).filter(Boolean) : undefined;
+
+const parsedItemFromStoredRaw = (row: StoredRawItem): ParsedSourceItem => {
+  let payload: Record<string, unknown> = {};
+  try {
+    const parsed = JSON.parse(row.payload_json) as unknown;
+    if (parsed && typeof parsed === "object") {
+      payload = parsed as Record<string, unknown>;
+    }
+  } catch {
+    // Fall back to the normalized raw_items columns if stored payloads are malformed.
+  }
+
+  return {
+    externalId: typeof payload.externalId === "string" && payload.externalId.trim() ? payload.externalId : row.external_id,
+    title: typeof payload.title === "string" && payload.title.trim() ? payload.title : row.title,
+    canonicalUrl:
+      typeof payload.canonicalUrl === "string" && payload.canonicalUrl.trim() ? payload.canonicalUrl : row.canonical_url,
+    summary: typeof payload.summary === "string" ? payload.summary : row.summary,
+    publishedAt:
+      typeof payload.publishedAt === "string" && payload.publishedAt.trim() ? payload.publishedAt : row.published_at ?? undefined,
+    eventDateHints: normalizeStringArray(payload.eventDateHints),
+    feedCategories: normalizeStringArray(payload.feedCategories),
+  };
+};
+
+export const rebuildSourceEventsInDatabase = (db: TimelineDatabase, sourceId: string) => {
+  const source = db.getSource(sourceId);
+  if (!source) {
+    throw new Error(`Unknown source: ${sourceId}`);
+  }
+
+  const rawItems = db.listRawItemsForSource(sourceId);
+  let deletedCount = 0;
+  let insertedCount = 0;
+  let updatedCount = 0;
+
+  for (const rawItem of rawItems) {
+    deletedCount += db.deleteEventsForRawItem(rawItem.id);
+    const parsedItem = parsedItemFromStoredRaw(rawItem);
+    const events = normalizeSourceItems(source, [parsedItem]);
+    for (const event of events) {
+      const normalized = normalizeRows([event])[0];
+      const outcome = db.upsertEvent({
+        ...normalized,
+        source_id: source.id,
+        raw_item_id: rawItem.id,
+        anchor: event.anchor,
+      });
+      if (outcome.inserted) insertedCount += 1;
+      if (outcome.updated) updatedCount += 1;
+    }
+  }
+
+  return {
+    sourceId,
+    rawItems: rawItems.length,
+    deletedCount,
+    insertedCount,
+    updatedCount,
+  };
+};
+
+export const rebuildSourceEvents = async (sourceId: string) => {
+  const db = new TimelineDatabase(config.databasePath);
+  seedSources(db);
+  return rebuildSourceEventsInDatabase(db, sourceId);
+};
+
 export const runIngestion = async (options: { backfillSince?: string | null } = {}) => {
   const dbPath = config.databasePath;
   const db = new TimelineDatabase(dbPath);
-  db.seedDataIfEmpty(hydrateSources(sourceManifest));
+  seedSources(db);
   const sources = options.backfillSince ? db.getAllSources() : db.getDueSources();
 
   const start = Date.now();

@@ -117,19 +117,65 @@ const dedupe = <T>(items: T[], key: (value: T) => string): T[] => {
 
 const normalizeFeedCategories = (categories: string[] | undefined) => (categories ?? []).map((value) => value.toLowerCase().trim());
 
+const normalizeCanonicalUrl = (value: string) => {
+  const trimmed = value.trim();
+  if (!trimmed) return "";
+  try {
+    const url = new URL(trimmed);
+    return `${url.origin}${url.pathname.replace(/\/+$/, "")}`;
+  } catch {
+    return trimmed.replace(/\/+$/, "");
+  }
+};
+
 const openAiModelReleaseTitleRegex =
   /\b(hello gpt-[a-z0-9.-]+|introducing gpt-[a-z0-9.-]+|introducing gpt-oss-[a-z0-9.-]+|introducing o[0-9][a-z0-9.-]*|introducing sora(?:\s*\d+(?:\.\d+)?)?|new embedding models?|new and improved embedding model|new models and developer products announced at devday|function calling and other api updates)\b/i;
 
 const openAiNonReleaseTitleRegex =
   /\b(system card|technical report|partnership|agreement|acquire|acquisition|research partnership|forum|red teaming network)\b/i;
 
+const openAiChatGptFlagshipReleaseUrls = new Set([
+  "https://openai.com/index/chatgpt",
+  "https://openai.com/index/introducing-chatgpt-search",
+  "https://openai.com/index/introducing-chatgpt-agent",
+]);
+
+const openAiChatGptTierLaunchUrls = new Set([
+  "https://openai.com/index/chatgpt-plus",
+  "https://openai.com/index/introducing-chatgpt-pro",
+  "https://openai.com/index/introducing-chatgpt-team",
+  "https://openai.com/index/introducing-chatgpt-enterprise",
+  "https://openai.com/index/introducing-chatgpt-go",
+  "https://openai.com/global-affairs/introducing-chatgpt-gov",
+  "https://openai.com/index/introducing-chatgpt-edu",
+]);
+
+const openAiChatGptFeatureUrlHints = [
+  "/index/chatgpt-for-",
+  "/index/chatgpt-study-mode",
+  "/index/group-chats-in-chatgpt",
+  "/index/new-chatgpt-images-is-here",
+  "/index/introducing-apps-in-chatgpt",
+  "/index/chatgpt-shopping-research",
+  "/index/chatgpt-whatsapp-transition",
+  "/index/new-ways-to-learn-math-and-science-in-chatgpt",
+  "/index/developers-can-now-submit-apps-to-chatgpt",
+  "/index/buy-it-in-chatgpt",
+  "/index/improvements-to-data-analysis-in-chatgpt",
+  "/index/new-tools-for-chatgpt-enterprise",
+];
+
 const inferOpenAiRssCategory = (item: ParsedSourceItem): EventCategory => {
   const categories = normalizeFeedCategories(item.feedCategories);
   const title = item.title.toLowerCase();
+  const canonicalUrl = normalizeCanonicalUrl(item.canonicalUrl);
   const hasProductNewsCategory = categories.some((value) => value === "product" || value === "product news" || value === "release");
   const hasAllowedContextCategory =
     hasProductNewsCategory || categories.length === 0 || categories.includes("research");
 
+  if (openAiChatGptFlagshipReleaseUrls.has(canonicalUrl)) return "model_release";
+  if (openAiChatGptTierLaunchUrls.has(canonicalUrl)) return "blog_update";
+  if (openAiChatGptFeatureUrlHints.some((value) => canonicalUrl.includes(value))) return "blog_update";
   if (openAiNonReleaseTitleRegex.test(title)) return "blog_update";
   if (openAiModelReleaseTitleRegex.test(title) && hasAllowedContextCategory) return "model_release";
   return "blog_update";

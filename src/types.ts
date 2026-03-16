@@ -65,6 +65,12 @@ export interface RawItem {
   checksum: string;
 }
 
+export interface StoredRawItem extends RawItem {
+  id: number;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface ParsedSourceItem {
   externalId: string;
   title: string;
