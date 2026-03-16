@@ -1,36 +1,40 @@
-export type FeedsChartUnit = "day" | "week" | "month";
-
 export interface DailyEventCount {
   day: string;
   count: number;
 }
 
-export interface FeedsChartBucket {
-  key: string;
-  startDay: string;
-  endDay: string;
-  label: string;
-  shortLabel: string;
+export interface FeedsChartCell {
+  day: string;
   count: number;
+  level: 0 | 1 | 2 | 3 | 4;
   active: boolean;
+  inRange: boolean;
   ariaLabel: string;
 }
 
+export interface FeedsChartWeek {
+  startDay: string;
+  cells: FeedsChartCell[];
+}
+
+export interface FeedsChartMonthLabel {
+  key: string;
+  label: string;
+  column: number;
+}
+
 export interface FeedsChartModel {
-  unit: FeedsChartUnit;
-  buckets: FeedsChartBucket[];
+  weeks: FeedsChartWeek[];
+  monthLabels: FeedsChartMonthLabel[];
   totalCount: number;
   maxCount: number;
   selectionLabel: string | null;
+  firstDay: string;
+  lastDay: string;
+  activeDay: string | null;
 }
 
 const DAY_MS = 24 * 60 * 60 * 1000;
-
-const shortDayFormatter = new Intl.DateTimeFormat("en-US", {
-  month: "short",
-  day: "numeric",
-  timeZone: "UTC",
-});
 
 const fullDayFormatter = new Intl.DateTimeFormat("en-US", {
   month: "short",
@@ -39,15 +43,13 @@ const fullDayFormatter = new Intl.DateTimeFormat("en-US", {
   timeZone: "UTC",
 });
 
-const monthFormatter = new Intl.DateTimeFormat("en-US", {
+const shortMonthFormatter = new Intl.DateTimeFormat("en-US", {
   month: "short",
-  year: "numeric",
   timeZone: "UTC",
 });
 
-const monthShortFormatter = new Intl.DateTimeFormat("en-US", {
-  month: "short",
-  year: "numeric",
+const shortYearFormatter = new Intl.DateTimeFormat("en-US", {
+  year: "2-digit",
   timeZone: "UTC",
 });
 
@@ -62,40 +64,24 @@ const parseDay = (day: string) => Date.parse(`${day}T00:00:00.000Z`);
 
 const formatDayFromMs = (value: number) => new Date(value).toISOString().slice(0, 10);
 
-const formatShortDay = (day: string) => shortDayFormatter.format(new Date(`${day}T00:00:00.000Z`));
-
 const formatFullDay = (day: string) => fullDayFormatter.format(new Date(`${day}T00:00:00.000Z`));
 
-const formatMonthLabel = (day: string) => monthFormatter.format(new Date(`${day}T00:00:00.000Z`));
-
-const formatMonthShort = (day: string) => monthShortFormatter.format(new Date(`${day}T00:00:00.000Z`));
-
-const startOfWeek = (value: number) => {
-  const date = new Date(value);
-  const day = date.getUTCDay();
-  const mondayOffset = day === 0 ? -6 : 1 - day;
-  return value + mondayOffset * DAY_MS;
+const formatMonthAxisLabel = (day: string, previousYear: string | null) => {
+  const date = new Date(`${day}T00:00:00.000Z`);
+  const month = shortMonthFormatter.format(date);
+  const year = shortYearFormatter.format(date);
+  const yearKey = day.slice(0, 4);
+  return previousYear === yearKey ? month : `${month} '${year}`;
 };
 
-const startOfMonth = (value: number) => {
-  const date = new Date(value);
-  return Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), 1);
+const weekdayIndex = (value: number) => {
+  const day = new Date(value).getUTCDay();
+  return day === 0 ? 6 : day - 1;
 };
+
+const startOfWeek = (value: number) => value - weekdayIndex(value) * DAY_MS;
 
 const addDays = (value: number, days: number) => value + days * DAY_MS;
-
-const addWeeks = (value: number, weeks: number) => addDays(value, weeks * 7);
-
-const addMonths = (value: number, months: number) => {
-  const date = new Date(value);
-  return Date.UTC(date.getUTCFullYear(), date.getUTCMonth() + months, 1);
-};
-
-const bucketUnitForRange = (rangeDays: number): FeedsChartUnit => {
-  if (rangeDays <= 45) return "day";
-  if (rangeDays <= 240) return "week";
-  return "month";
-};
 
 const formatSelectionLabel = (sinceDay: string | null, untilDay: string | null) => {
   if (sinceDay && untilDay) {
@@ -107,23 +93,10 @@ const formatSelectionLabel = (sinceDay: string | null, untilDay: string | null) 
   return null;
 };
 
-const formatBucketLabel = (unit: FeedsChartUnit, startDay: string, endDay: string) => {
-  if (unit === "day") {
-    return {
-      label: formatFullDay(startDay),
-      shortLabel: formatShortDay(startDay),
-    };
-  }
-  if (unit === "week") {
-    return {
-      label: `${formatFullDay(startDay)} to ${formatFullDay(endDay)}`,
-      shortLabel: formatShortDay(startDay),
-    };
-  }
-  return {
-    label: formatMonthLabel(startDay),
-    shortLabel: formatMonthShort(startDay),
-  };
+const levelForCount = (count: number, maxCount: number): 0 | 1 | 2 | 3 | 4 => {
+  if (count <= 0) return 0;
+  if (maxCount <= 1) return 4;
+  return Math.min(4, Math.max(1, Math.ceil((count / maxCount) * 4))) as 1 | 2 | 3 | 4;
 };
 
 export const buildDailyCountsFromEvents = (events: Array<{ event_date: string }>): DailyEventCount[] => {
@@ -149,55 +122,63 @@ export const buildFeedsChartModel = (
   const lastDay = dailyCounts[dailyCounts.length - 1].day;
   const firstMs = parseDay(firstDay);
   const lastMs = parseDay(lastDay);
-  const rangeDays = Math.floor((lastMs - firstMs) / DAY_MS) + 1;
-  const unit = bucketUnitForRange(rangeDays);
-
+  const firstGridMs = startOfWeek(firstMs);
+  const lastGridMs = addDays(startOfWeek(lastMs), 6);
   const selectedSinceDay = toDayString(selection.since);
   const selectedUntilDay = toDayString(selection.until);
+  const activeDay =
+    selectedSinceDay && selectedUntilDay && selectedSinceDay === selectedUntilDay ? selectedSinceDay : null;
+  const totalCount = dailyCounts.reduce((sum, entry) => sum + entry.count, 0);
+  const maxCount = Math.max(...dailyCounts.map((entry) => entry.count), 1);
+  const weeks: FeedsChartWeek[] = [];
+  const monthLabels: FeedsChartMonthLabel[] = [];
+  let previousMonthKey: string | null = null;
+  let previousMonthYear: string | null = null;
 
-  let cursor = unit === "day" ? firstMs : unit === "week" ? startOfWeek(firstMs) : startOfMonth(firstMs);
-  const boundary = unit === "day" ? lastMs : unit === "week" ? startOfWeek(lastMs) : startOfMonth(lastMs);
-  const buckets: FeedsChartBucket[] = [];
+  for (let weekStart = firstGridMs, weekIndex = 0; weekStart <= lastGridMs; weekStart += DAY_MS * 7, weekIndex += 1) {
+    const cells: FeedsChartCell[] = [];
 
-  while (cursor <= boundary) {
-    const bucketStart = formatDayFromMs(cursor);
-    const rawEnd =
-      unit === "day"
-        ? cursor
-        : unit === "week"
-        ? addDays(cursor, 6)
-        : addDays(addMonths(cursor, 1), -1);
-    const bucketEnd = formatDayFromMs(rawEnd);
-    let count = 0;
-    for (const [day, value] of countsByDay.entries()) {
-      if (day >= bucketStart && day <= bucketEnd) {
-        count += value;
+    for (let dayOffset = 0; dayOffset < 7; dayOffset += 1) {
+      const currentMs = addDays(weekStart, dayOffset);
+      const day = formatDayFromMs(currentMs);
+      const inRange = day >= firstDay && day <= lastDay;
+      const count = inRange ? countsByDay.get(day) ?? 0 : 0;
+      const monthKey = day.slice(0, 7);
+
+      if (inRange && monthKey !== previousMonthKey) {
+        monthLabels.push({
+          key: monthKey,
+          label: formatMonthAxisLabel(day, previousMonthYear),
+          column: weekIndex,
+        });
+        previousMonthKey = monthKey;
+        previousMonthYear = day.slice(0, 4);
       }
+
+      cells.push({
+        day,
+        count,
+        level: inRange ? levelForCount(count, maxCount) : 0,
+        active: activeDay === day,
+        inRange,
+        ariaLabel: `${formatFullDay(day)}: ${count} event${count === 1 ? "" : "s"}`,
+      });
     }
-    const labels = formatBucketLabel(unit, bucketStart, bucketEnd);
-    const active = selectedSinceDay === bucketStart && selectedUntilDay === bucketEnd;
-    buckets.push({
-      key: `${bucketStart}:${bucketEnd}`,
-      startDay: bucketStart,
-      endDay: bucketEnd,
-      label: labels.label,
-      shortLabel: labels.shortLabel,
-      count,
-      active,
-      ariaLabel: `${labels.label}: ${count} event${count === 1 ? "" : "s"}`,
+
+    weeks.push({
+      startDay: formatDayFromMs(weekStart),
+      cells,
     });
-    cursor = unit === "day" ? addDays(cursor, 1) : unit === "week" ? addWeeks(cursor, 1) : addMonths(cursor, 1);
   }
 
-  const totalCount = buckets.reduce((sum, bucket) => sum + bucket.count, 0);
-  const maxCount = Math.max(...buckets.map((bucket) => bucket.count), 1);
-  const activeBucket = buckets.find((bucket) => bucket.active);
-
   return {
-    unit,
-    buckets,
+    weeks,
+    monthLabels,
     totalCount,
     maxCount,
-    selectionLabel: activeBucket?.label ?? formatSelectionLabel(selectedSinceDay, selectedUntilDay),
+    selectionLabel: activeDay ? formatFullDay(activeDay) : formatSelectionLabel(selectedSinceDay, selectedUntilDay),
+    firstDay,
+    lastDay,
+    activeDay,
   };
 };

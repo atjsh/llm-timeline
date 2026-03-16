@@ -375,44 +375,51 @@ const renderSummarySection = (state: FeedsPageState, count: number, hasMore: boo
       </section>
 `;
 
-const chartUnitLabels: Record<FeedsChartModel["unit"], string> = {
-  day: "day",
-  week: "week",
-  month: "month",
-};
+const heatmapWeekdayLabels = ["Mon", "", "Wed", "", "Fri", "", ""];
+
+const renderHeatmapCellsHtml = (chart: FeedsChartModel, state: FeedsPageState, basePath: string) =>
+  chart.weeks
+    .flatMap((week) =>
+      week.cells.map((cell) => {
+        const className = [
+          "heatmap__cell",
+          `heatmap__cell--level-${cell.level}`,
+          !cell.inRange ? "heatmap__cell--void" : "",
+          cell.active ? "heatmap__cell--active" : "",
+        ]
+          .filter(Boolean)
+          .join(" ");
+
+        if (!cell.inRange || cell.count <= 0) {
+          return `<span class="${className}"${cell.inRange ? ` aria-label="${escapeHtml(cell.ariaLabel)}" title="${escapeHtml(cell.ariaLabel)}"` : ' aria-hidden="true"'}></span>`;
+        }
+
+        const href = buildPageHrefFor(basePath, state, {
+          since: cell.day,
+          until: cell.day,
+          cursor: "",
+        });
+        return `<a href="${safeHref(href)}" class="${className}" data-chart-day="${escapeHtml(cell.day)}" aria-label="${escapeHtml(cell.ariaLabel)}" title="${escapeHtml(cell.ariaLabel)}"></a>`;
+      })
+    )
+    .join("");
 
 const renderChartSection = (
   chart: FeedsChartModel | null,
   state: FeedsPageState,
   options: { basePath: string }
 ) => {
-  if (!chart || !chart.buckets.length) return "";
-
-  const chartWidth = Math.max(660, chart.buckets.length * 38 + 56);
-  const chartHeight = 220;
-  const plotTop = 20;
-  const plotBottom = 160;
-  const plotHeight = plotBottom - plotTop;
-  const leftPad = 28;
-  const rightPad = 20;
-  const baselineY = plotBottom;
-  const slotWidth = (chartWidth - leftPad - rightPad) / chart.buckets.length;
-  const barWidth = Math.max(14, slotWidth * 0.62);
-  const labelStep = chart.buckets.length > 28 ? 4 : chart.buckets.length > 16 ? 2 : 1;
+  if (!chart || !chart.weeks.length) return "";
   const clearHref =
     state.since || state.until ? buildPageHrefFor(options.basePath, state, { since: "", until: "", cursor: "" }) : null;
-
-  const gridValues = [chart.maxCount, Math.max(1, Math.ceil(chart.maxCount / 2)), 0]
-    .filter((value, index, values) => values.indexOf(value) === index)
-    .sort((left, right) => right - left);
 
   return `
       <section class="chart-shell" data-chart-root>
         <div class="chart__header">
           <div>
-            <p class="chart__eyebrow">Release Rhythm</p>
-            <h2 class="chart__title">Release activity over time</h2>
-            <p class="chart__copy">Select a ${escapeHtml(chartUnitLabels[chart.unit])} to focus the timeline while keeping the broader release curve visible.</p>
+            <p class="chart__eyebrow">Release Lawn</p>
+            <h2 class="chart__title">Release activity by day</h2>
+            <p class="chart__copy">Darker squares mark busier release days. Select a day to focus the timeline while keeping the full history visible.</p>
           </div>
           <div class="chart__meta">
             <p class="chart__selection">${escapeHtml(chart.selectionLabel ? `Focused: ${chart.selectionLabel}` : `Showing all ${chart.totalCount} events across the current non-date filters.`)}</p>
@@ -420,63 +427,32 @@ const renderChartSection = (
           </div>
         </div>
         <div class="chart-scroll">
-          <svg
-            class="chart-svg"
-            viewBox="0 0 ${chartWidth} ${chartHeight}"
-            width="${chartWidth}"
-            height="${chartHeight}"
-            role="img"
-            aria-label="Histogram of event counts over time"
-          >
-            <rect x="0" y="0" width="${chartWidth}" height="${chartHeight}" rx="18" class="chart__backdrop"></rect>
-            ${gridValues
-              .map((value) => {
-                const y = plotTop + (1 - value / chart.maxCount) * plotHeight;
-                return `
-            <line x1="${leftPad}" y1="${y}" x2="${chartWidth - rightPad}" y2="${y}" class="chart__grid"></line>
-            <text x="8" y="${y + 4}" class="chart__axis">${value}</text>
-                `;
-              })
-              .join("")}
-            <line x1="${leftPad}" y1="${baselineY}" x2="${chartWidth - rightPad}" y2="${baselineY}" class="chart__baseline"></line>
-            ${chart.buckets
-              .map((bucket, index) => {
-                const slotX = leftPad + index * slotWidth;
-                const x = slotX + (slotWidth - barWidth) / 2;
-                const height = bucket.count > 0 ? Math.max(6, (bucket.count / chart.maxCount) * plotHeight) : 0;
-                const y = baselineY - height;
-                const labelY = chartHeight - 16;
-                const showLabel = index % labelStep === 0 || bucket.active;
-                const href = buildPageHrefFor(options.basePath, state, {
-                  since: bucket.startDay,
-                  until: bucket.endDay,
-                  cursor: "",
-                });
-                if (bucket.count <= 0) {
-                  return `
-            <g class="chart__bucket chart__bucket--empty" aria-hidden="true">
-              <rect x="${x}" y="${baselineY - 1}" width="${barWidth}" height="2" rx="1" class="chart-bar chart-bar--empty"></rect>
-              ${showLabel ? `<text x="${slotX + slotWidth / 2}" y="${labelY}" text-anchor="middle" class="chart__label">${escapeHtml(bucket.shortLabel)}</text>` : ""}
-            </g>
-                  `;
-                }
-                return `
-            <a
-              href="${safeHref(href)}"
-              class="chart__bucket${bucket.active ? " chart__bucket--active" : ""}"
-              data-chart-bucket
-              data-chart-start="${escapeHtml(bucket.startDay)}"
-              data-chart-end="${escapeHtml(bucket.endDay)}"
-              aria-label="${escapeHtml(bucket.ariaLabel)}"
-            >
-              <title>${escapeHtml(bucket.ariaLabel)}</title>
-              <rect x="${x}" y="${y}" width="${barWidth}" height="${height}" rx="8" class="chart-bar${bucket.active ? " chart-bar--active" : ""}"></rect>
-              ${showLabel ? `<text x="${slotX + slotWidth / 2}" y="${labelY}" text-anchor="middle" class="chart__label${bucket.active ? " chart__label--active" : ""}">${escapeHtml(bucket.shortLabel)}</text>` : ""}
-            </a>
-                `;
-              })
-              .join("")}
-          </svg>
+          <div class="heatmap" style="--heatmap-weeks:${chart.weeks.length}">
+            <div class="heatmap__corner" aria-hidden="true"></div>
+            <div class="heatmap__months">
+              ${chart.monthLabels
+                .map(
+                  (label) =>
+                    `<span class="heatmap__month" style="grid-column:${label.column + 1} / span 4">${escapeHtml(label.label)}</span>`
+                )
+                .join("")}
+            </div>
+            <div class="heatmap__weekdays" aria-hidden="true">
+              ${heatmapWeekdayLabels.map((label) => `<span>${escapeHtml(label)}</span>`).join("")}
+            </div>
+            <div class="heatmap__grid" role="img" aria-label="GitHub-style day heatmap of event counts over time">
+              ${renderHeatmapCellsHtml(chart, state, options.basePath)}
+            </div>
+            <div class="heatmap__legend" aria-hidden="true">
+              <span>Less</span>
+              <span class="heatmap__legend-cell heatmap__legend-cell--0"></span>
+              <span class="heatmap__legend-cell heatmap__legend-cell--1"></span>
+              <span class="heatmap__legend-cell heatmap__legend-cell--2"></span>
+              <span class="heatmap__legend-cell heatmap__legend-cell--3"></span>
+              <span class="heatmap__legend-cell heatmap__legend-cell--4"></span>
+              <span>More</span>
+            </div>
+          </div>
         </div>
       </section>
   `;
@@ -669,6 +645,7 @@ const renderStaticInlineScript = () => `
   const allowedVendors = ${JSON.stringify(ALLOWED_VENDORS)};
   const allowedCategories = ${JSON.stringify(ALLOWED_CATEGORIES)};
   const vendorLabels = ${JSON.stringify(vendorLabels)};
+  const heatmapWeekdayLabels = ${JSON.stringify(heatmapWeekdayLabels)};
   const defaultCategories = ["model_release"];
   const defaultLimit = Number(root.dataset.defaultLimit || "50");
   const dataHref = root.dataset.dataHref || "";
@@ -681,27 +658,28 @@ const renderStaticInlineScript = () => `
   let loading = false;
   let observer = null;
 
-  const shortDayFormatter = new Intl.DateTimeFormat("en-US", {
-    month: "short",
-    day: "numeric",
-    timeZone: "UTC",
-  });
   const fullDayFormatter = new Intl.DateTimeFormat("en-US", {
     month: "short",
     day: "numeric",
     year: "numeric",
     timeZone: "UTC",
   });
-  const monthFormatter = new Intl.DateTimeFormat("en-US", {
+  const shortMonthFormatter = new Intl.DateTimeFormat("en-US", {
     month: "short",
-    year: "numeric",
     timeZone: "UTC",
   });
-  const monthShortFormatter = new Intl.DateTimeFormat("en-US", {
-    month: "short",
-    year: "numeric",
+  const shortYearFormatter = new Intl.DateTimeFormat("en-US", {
+    year: "2-digit",
     timeZone: "UTC",
   });
+
+  const escapeHtml = (value) =>
+    String(value || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
 
   const humanizeToken = (value) =>
     String(value || "")
@@ -718,40 +696,24 @@ const renderStaticInlineScript = () => `
 
   const formatDayFromMs = (value) => new Date(value).toISOString().slice(0, 10);
 
-  const formatShortDay = (day) => shortDayFormatter.format(new Date(day + "T00:00:00.000Z"));
-
   const formatFullDay = (day) => fullDayFormatter.format(new Date(day + "T00:00:00.000Z"));
 
-  const formatMonthLabel = (day) => monthFormatter.format(new Date(day + "T00:00:00.000Z"));
-
-  const formatMonthShort = (day) => monthShortFormatter.format(new Date(day + "T00:00:00.000Z"));
-
-  const startOfWeek = (value) => {
-    const date = new Date(value);
-    const day = date.getUTCDay();
-    const mondayOffset = day === 0 ? -6 : 1 - day;
-    return value + mondayOffset * dayMs;
+  const formatMonthAxisLabel = (day, previousYear) => {
+    const date = new Date(day + "T00:00:00.000Z");
+    const month = shortMonthFormatter.format(date);
+    const year = shortYearFormatter.format(date);
+    const yearKey = day.slice(0, 4);
+    return previousYear === yearKey ? month : month + " '" + year;
   };
 
-  const startOfMonth = (value) => {
-    const date = new Date(value);
-    return Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), 1);
+  const weekdayIndex = (value) => {
+    const day = new Date(value).getUTCDay();
+    return day === 0 ? 6 : day - 1;
   };
+
+  const startOfWeek = (value) => value - weekdayIndex(value) * dayMs;
 
   const addDays = (value, days) => value + days * dayMs;
-
-  const addWeeks = (value, weeks) => addDays(value, weeks * 7);
-
-  const addMonths = (value, months) => {
-    const date = new Date(value);
-    return Date.UTC(date.getUTCFullYear(), date.getUTCMonth() + months, 1);
-  };
-
-  const bucketUnitForRange = (rangeDays) => {
-    if (rangeDays <= 45) return "day";
-    if (rangeDays <= 240) return "week";
-    return "month";
-  };
 
   const formatSelectionLabel = (sinceDay, untilDay) => {
     if (sinceDay && untilDay) {
@@ -763,23 +725,10 @@ const renderStaticInlineScript = () => `
     return "";
   };
 
-  const formatBucketLabels = (unit, startDay, endDay) => {
-    if (unit === "day") {
-      return {
-        label: formatFullDay(startDay),
-        shortLabel: formatShortDay(startDay),
-      };
-    }
-    if (unit === "week") {
-      return {
-        label: formatFullDay(startDay) + " to " + formatFullDay(endDay),
-        shortLabel: formatShortDay(startDay),
-      };
-    }
-    return {
-      label: formatMonthLabel(startDay),
-      shortLabel: formatMonthShort(startDay),
-    };
+  const levelForCount = (count, maxCount) => {
+    if (count <= 0) return 0;
+    if (maxCount <= 1) return 4;
+    return Math.min(4, Math.max(1, Math.ceil((count / maxCount) * 4)));
   };
 
   const readSelectedValues = (name, allowed) => {
@@ -960,208 +909,155 @@ const renderStaticInlineScript = () => `
     const dailyCounts = buildDailyCounts(events);
     if (!dailyCounts.length) return null;
 
+    const countsByDay = new Map(dailyCounts.map((entry) => [entry.day, entry.count]));
     const firstDay = dailyCounts[0].day;
     const lastDay = dailyCounts[dailyCounts.length - 1].day;
-    const firstMs = parseDay(firstDay);
-    const lastMs = parseDay(lastDay);
-    const rangeDays = Math.floor((lastMs - firstMs) / dayMs) + 1;
-    const unit = bucketUnitForRange(rangeDays);
+    const firstGridMs = startOfWeek(parseDay(firstDay));
+    const lastGridMs = addDays(startOfWeek(parseDay(lastDay)), 6);
     const selectedSince = toDayString(state.since);
     const selectedUntil = toDayString(state.until);
-    const countsByDay = new Map(dailyCounts.map((entry) => [entry.day, entry.count]));
-    const buckets = [];
-    let cursor = unit === "day" ? firstMs : unit === "week" ? startOfWeek(firstMs) : startOfMonth(firstMs);
-    const boundary = unit === "day" ? lastMs : unit === "week" ? startOfWeek(lastMs) : startOfMonth(lastMs);
+    const activeDay = selectedSince && selectedUntil && selectedSince === selectedUntil ? selectedSince : "";
+    const totalCount = dailyCounts.reduce((sum, entry) => sum + entry.count, 0);
+    const maxCount = Math.max.apply(null, dailyCounts.map((entry) => entry.count).concat([1]));
+    const weeks = [];
+    const monthLabels = [];
+    let previousMonthKey = "";
+    let previousYear = "";
 
-    while (cursor <= boundary) {
-      const startDay = formatDayFromMs(cursor);
-      const rawEnd = unit === "day" ? cursor : unit === "week" ? addDays(cursor, 6) : addDays(addMonths(cursor, 1), -1);
-      const endDay = formatDayFromMs(rawEnd);
-      let count = 0;
-      for (const [day, value] of countsByDay.entries()) {
-        if (day >= startDay && day <= endDay) count += value;
+    for (let weekStart = firstGridMs, weekIndex = 0; weekStart <= lastGridMs; weekStart += dayMs * 7, weekIndex += 1) {
+      const cells = [];
+      for (let dayOffset = 0; dayOffset < 7; dayOffset += 1) {
+        const currentMs = addDays(weekStart, dayOffset);
+        const day = formatDayFromMs(currentMs);
+        const inRange = day >= firstDay && day <= lastDay;
+        const count = inRange ? countsByDay.get(day) || 0 : 0;
+        const monthKey = day.slice(0, 7);
+
+        if (inRange && monthKey !== previousMonthKey) {
+          monthLabels.push({
+            key: monthKey,
+            label: formatMonthAxisLabel(day, previousYear || null),
+            column: weekIndex,
+          });
+          previousMonthKey = monthKey;
+          previousYear = day.slice(0, 4);
+        }
+
+        cells.push({
+          day,
+          count,
+          level: inRange ? levelForCount(count, maxCount) : 0,
+          active: activeDay === day,
+          inRange,
+          ariaLabel: formatFullDay(day) + ": " + count + " event" + (count === 1 ? "" : "s"),
+        });
       }
-      const labels = formatBucketLabels(unit, startDay, endDay);
-      buckets.push({
-        key: startDay + ":" + endDay,
-        startDay,
-        endDay,
-        label: labels.label,
-        shortLabel: labels.shortLabel,
-        count,
-        active: selectedSince === startDay && selectedUntil === endDay,
-        ariaLabel: labels.label + ": " + count + " event" + (count === 1 ? "" : "s"),
+      weeks.push({
+        startDay: formatDayFromMs(weekStart),
+        cells,
       });
-      cursor = unit === "day" ? addDays(cursor, 1) : unit === "week" ? addWeeks(cursor, 1) : addMonths(cursor, 1);
     }
 
-    const totalCount = buckets.reduce((sum, bucket) => sum + bucket.count, 0);
-    const maxCount = Math.max.apply(
-      null,
-      buckets.map((bucket) => bucket.count).concat([1])
-    );
-    const activeBucket = buckets.find((bucket) => bucket.active);
     return {
-      unit,
-      buckets,
+      weeks,
+      monthLabels,
       totalCount,
       maxCount,
-      selectionLabel: activeBucket ? activeBucket.label : formatSelectionLabel(selectedSince, selectedUntil),
+      selectionLabel: activeDay ? formatFullDay(activeDay) : formatSelectionLabel(selectedSince, selectedUntil),
     };
   };
 
   const buildChartHtml = (chart, state) => {
-    if (!chart || !chart.buckets.length) return "";
-    const chartWidth = Math.max(660, chart.buckets.length * 38 + 56);
-    const chartHeight = 220;
-    const plotTop = 20;
-    const plotBottom = 160;
-    const plotHeight = plotBottom - plotTop;
-    const leftPad = 28;
-    const rightPad = 20;
-    const slotWidth = (chartWidth - leftPad - rightPad) / chart.buckets.length;
-    const barWidth = Math.max(14, slotWidth * 0.62);
-    const labelStep = chart.buckets.length > 28 ? 4 : chart.buckets.length > 16 ? 2 : 1;
-    const unitLabel = chart.unit === "day" ? "day" : chart.unit === "week" ? "week" : "month";
-    const clearHref =
-      state.since || state.until
-        ? "./?" + buildStateSearch({ ...state, since: "", until: "" })
-        : "";
-    const gridValues = Array.from(new Set([chart.maxCount, Math.max(1, Math.ceil(chart.maxCount / 2)), 0])).sort(
-      (left, right) => right - left
-    );
+    if (!chart || !chart.weeks.length) return "";
+    const clearHref = state.since || state.until ? "./?" + buildStateSearch({ ...state, since: "", until: "" }) : "";
+    const cells = [];
+
+    for (const week of chart.weeks) {
+      for (const cell of week.cells) {
+        const className = [
+          "heatmap__cell",
+          "heatmap__cell--level-" + cell.level,
+          !cell.inRange ? "heatmap__cell--void" : "",
+          cell.active ? "heatmap__cell--active" : "",
+        ]
+          .filter(Boolean)
+          .join(" ");
+
+        if (!cell.inRange || cell.count <= 0) {
+          cells.push(
+            '<span class="' +
+              className +
+              '"' +
+              (cell.inRange
+                ? ' aria-label="' + escapeHtml(cell.ariaLabel) + '" title="' + escapeHtml(cell.ariaLabel) + '"'
+                : ' aria-hidden="true"') +
+              "></span>"
+          );
+          continue;
+        }
+
+        cells.push(
+          '<a href="./?' +
+            escapeHtml(
+              buildStateSearch({
+                ...state,
+                since: cell.day,
+                until: cell.day,
+              })
+            ) +
+            '" class="' +
+            className +
+            '" data-chart-day="' +
+            escapeHtml(cell.day) +
+            '" aria-label="' +
+            escapeHtml(cell.ariaLabel) +
+            '" title="' +
+            escapeHtml(cell.ariaLabel) +
+            '"></a>'
+        );
+      }
+    }
+
     return [
       '<div class="chart__header">',
       "<div>",
-      '<p class="chart__eyebrow">Release Rhythm</p>',
-      '<h2 class="chart__title">Release activity over time</h2>',
-      '<p class="chart__copy">Select a ' + unitLabel + " to focus the timeline while keeping the broader release curve visible.</p>",
+      '<p class="chart__eyebrow">Release Lawn</p>',
+      '<h2 class="chart__title">Release activity by day</h2>',
+      '<p class="chart__copy">Darker squares mark busier release days. Select a day to focus the timeline while keeping the full history visible.</p>',
       "</div>",
       '<div class="chart__meta">',
       '<p class="chart__selection">' +
         (chart.selectionLabel
-          ? "Focused: " + chart.selectionLabel
+          ? "Focused: " + escapeHtml(chart.selectionLabel)
           : "Showing all " + chart.totalCount + " events across the current non-date filters.") +
         "</p>",
-      clearHref ? '<a class="chart__clear" href="' + clearHref + '" data-chart-clear>Clear date focus</a>' : "",
+      clearHref ? '<a class="chart__clear" href="' + escapeHtml(clearHref) + '" data-chart-clear>Clear date focus</a>' : "",
       "</div>",
       "</div>",
       '<div class="chart-scroll">',
-      '<svg class="chart-svg" viewBox="0 0 ' +
-        chartWidth +
-        " " +
-        chartHeight +
-        '" width="' +
-        chartWidth +
-        '" height="' +
-        chartHeight +
-        '" role="img" aria-label="Histogram of event counts over time">',
-      '<rect x="0" y="0" width="' + chartWidth + '" height="' + chartHeight + '" rx="18" class="chart__backdrop"></rect>',
-      gridValues
-        .map((value) => {
-          const y = plotTop + (1 - value / chart.maxCount) * plotHeight;
+      '<div class="heatmap" style="--heatmap-weeks:' + chart.weeks.length + '">',
+      '<div class="heatmap__corner" aria-hidden="true"></div>',
+      '<div class="heatmap__months">',
+      chart.monthLabels
+        .map((label) => {
           return (
-            '<line x1="' +
-            leftPad +
-            '" y1="' +
-            y +
-            '" x2="' +
-            (chartWidth - rightPad) +
-            '" y2="' +
-            y +
-            '" class="chart__grid"></line><text x="8" y="' +
-            (y + 4) +
-            '" class="chart__axis">' +
-            value +
-            "</text>"
+            '<span class="heatmap__month" style="grid-column:' +
+            (label.column + 1) +
+            ' / span 4">' +
+            escapeHtml(label.label) +
+            "</span>"
           );
         })
         .join(""),
-      '<line x1="' +
-        leftPad +
-        '" y1="' +
-        plotBottom +
-        '" x2="' +
-        (chartWidth - rightPad) +
-        '" y2="' +
-        plotBottom +
-        '" class="chart__baseline"></line>',
-      chart.buckets
-        .map((bucket, index) => {
-          const slotX = leftPad + index * slotWidth;
-          const x = slotX + (slotWidth - barWidth) / 2;
-          const height = bucket.count > 0 ? Math.max(6, (bucket.count / chart.maxCount) * plotHeight) : 0;
-          const y = plotBottom - height;
-          const labelY = chartHeight - 16;
-          const showLabel = index % labelStep === 0 || bucket.active;
-          if (bucket.count <= 0) {
-            return (
-              '<g class="chart__bucket chart__bucket--empty" aria-hidden="true"><rect x="' +
-              x +
-              '" y="' +
-              (plotBottom - 1) +
-              '" width="' +
-              barWidth +
-              '" height="2" rx="1" class="chart-bar chart-bar--empty"></rect>' +
-              (showLabel
-                ? '<text x="' +
-                  (slotX + slotWidth / 2) +
-                  '" y="' +
-                  labelY +
-                  '" text-anchor="middle" class="chart__label">' +
-                  bucket.shortLabel +
-                  "</text>"
-                : "") +
-              "</g>"
-            );
-          }
-          const href =
-            "./?" +
-            buildStateSearch({
-              ...state,
-              since: bucket.startDay,
-              until: bucket.endDay,
-            });
-          return (
-            '<a href="' +
-            href +
-            '" class="chart__bucket' +
-            (bucket.active ? " chart__bucket--active" : "") +
-            '" data-chart-bucket data-chart-start="' +
-            bucket.startDay +
-            '" data-chart-end="' +
-            bucket.endDay +
-            '" aria-label="' +
-            bucket.ariaLabel.replace(/"/g, "&quot;") +
-            '"><title>' +
-            bucket.ariaLabel.replace(/</g, "&lt;").replace(/>/g, "&gt;") +
-            "</title><rect x=\\\"" +
-            x +
-            '" y="' +
-            y +
-            '" width="' +
-            barWidth +
-            '" height="' +
-            height +
-            '" rx="8" class="chart-bar' +
-            (bucket.active ? " chart-bar--active" : "") +
-            '"></rect>' +
-            (showLabel
-              ? '<text x="' +
-                (slotX + slotWidth / 2) +
-                '" y="' +
-                labelY +
-                '" text-anchor="middle" class="chart__label' +
-                (bucket.active ? " chart__label--active" : "") +
-                '">' +
-                bucket.shortLabel +
-                "</text>"
-              : "") +
-            "</a>"
-          );
-        })
-        .join(""),
-      "</svg>",
+      "</div>",
+      '<div class="heatmap__weekdays" aria-hidden="true">',
+      heatmapWeekdayLabels.map((label) => "<span>" + escapeHtml(label) + "</span>").join(""),
+      "</div>",
+      '<div class="heatmap__grid" role="img" aria-label="GitHub-style day heatmap of event counts over time">',
+      cells.join(""),
+      "</div>",
+      '<div class="heatmap__legend" aria-hidden="true"><span>Less</span><span class="heatmap__legend-cell heatmap__legend-cell--0"></span><span class="heatmap__legend-cell heatmap__legend-cell--1"></span><span class="heatmap__legend-cell heatmap__legend-cell--2"></span><span class="heatmap__legend-cell heatmap__legend-cell--3"></span><span class="heatmap__legend-cell heatmap__legend-cell--4"></span><span>More</span></div>',
+      "</div>",
       "</div>",
     ].join("");
   };
@@ -1179,7 +1075,7 @@ const renderStaticInlineScript = () => `
       return;
     }
     if (!loading && !hasMore && allEvents !== null) {
-      setStatus("You've reached the end of the timeline.");
+      setStatus("You have reached the end of the timeline.");
       return;
     }
     if (!loading && hasMore) {
@@ -1253,18 +1149,19 @@ const renderStaticInlineScript = () => `
   });
 
   chartRoot.addEventListener("click", (event) => {
-    const target = event.target instanceof Element ? event.target.closest("[data-chart-bucket], [data-chart-clear]") : null;
+    const target = event.target instanceof Element ? event.target.closest("[data-chart-day], [data-chart-clear]") : null;
     if (!(target instanceof HTMLAnchorElement)) return;
     event.preventDefault();
     if (target.hasAttribute("data-chart-clear")) {
       applyState({ ...currentState, since: "", until: "" }, true);
       return;
     }
+    const day = target.dataset.chartDay || "";
     applyState(
       {
         ...currentState,
-        since: target.dataset.chartStart || "",
-        until: target.dataset.chartEnd || "",
+        since: day,
+        until: day,
       },
       true
     );
@@ -1329,7 +1226,7 @@ const renderStaticInlineScript = () => `
     })
     .catch(() => {
       loader.hidden = false;
-      setStatus("Couldn't load the static snapshot data.");
+      setStatus("Could not load the static snapshot data.");
       button.hidden = true;
       sentinel.hidden = true;
     });
@@ -1621,58 +1518,152 @@ const styles = `
     padding-bottom: 6px;
   }
 
-  .chart-svg {
-    display: block;
-    min-width: 100%;
+  .heatmap {
+    --heatmap-cell: 13px;
+    display: grid;
+    grid-template-columns: auto max-content;
+    grid-template-rows: auto auto auto;
+    gap: 8px 10px;
+    align-items: start;
+    min-width: max-content;
   }
 
-  .chart__backdrop {
-    fill: rgba(255, 255, 255, 0.84);
+  .heatmap__corner {
+    min-height: 18px;
   }
 
-  .chart__grid,
-  .chart__baseline {
-    stroke: rgba(111, 103, 95, 0.18);
-    stroke-width: 1;
+  .heatmap__months {
+    display: grid;
+    grid-template-columns: repeat(var(--heatmap-weeks), var(--heatmap-cell));
+    gap: 4px;
+    min-height: 18px;
+    align-items: end;
   }
 
-  .chart__axis,
-  .chart__label {
-    fill: rgba(111, 103, 95, 0.92);
+  .heatmap__month {
+    color: rgba(111, 103, 95, 0.92);
+    font: 600 11px/1 "Helvetica Neue", Arial, sans-serif;
+    white-space: nowrap;
+  }
+
+  .heatmap__weekdays {
+    display: grid;
+    grid-template-rows: repeat(7, var(--heatmap-cell));
+    gap: 4px;
+  }
+
+  .heatmap__weekdays span {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    min-height: var(--heatmap-cell);
+    color: rgba(111, 103, 95, 0.92);
     font: 500 11px/1 "Helvetica Neue", Arial, sans-serif;
   }
 
-  .chart__label--active {
-    fill: var(--ink);
-    font-weight: 700;
+  .heatmap__grid {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: var(--heatmap-cell);
+    grid-template-rows: repeat(7, var(--heatmap-cell));
+    gap: 4px;
+    min-width: max-content;
   }
 
-  .chart-bar {
-    fill: rgba(157, 91, 59, 0.4);
-    transition: fill 120ms ease, opacity 120ms ease;
+  .heatmap__cell {
+    display: block;
+    width: var(--heatmap-cell);
+    height: var(--heatmap-cell);
+    border-radius: 3px;
+    border: 1px solid transparent;
+    transition: transform 120ms ease, background-color 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
   }
 
-  .chart-bar--active {
-    fill: var(--accent);
+  .heatmap__cell--void {
+    visibility: hidden;
   }
 
-  .chart-bar--empty {
-    fill: rgba(111, 103, 95, 0.18);
+  .heatmap__cell--level-0 {
+    background: rgba(111, 103, 95, 0.12);
+    border-color: rgba(111, 103, 95, 0.08);
   }
 
-  .chart__bucket {
+  .heatmap__cell--level-1 {
+    background: #eadbca;
+    border-color: #dfccb9;
+  }
+
+  .heatmap__cell--level-2 {
+    background: #d6b08d;
+    border-color: #cb9a74;
+  }
+
+  .heatmap__cell--level-3 {
+    background: #c77c50;
+    border-color: #b96d43;
+  }
+
+  .heatmap__cell--level-4 {
+    background: #9d5b3b;
+    border-color: #8e4f31;
+  }
+
+  a.heatmap__cell {
     cursor: pointer;
   }
 
-  .chart__bucket:hover .chart-bar,
-  .chart__bucket:focus .chart-bar {
-    fill: rgba(157, 91, 59, 0.65);
+  a.heatmap__cell:hover,
+  a.heatmap__cell:focus-visible {
+    transform: translateY(-1px);
+    box-shadow: 0 0 0 2px rgba(157, 91, 59, 0.22);
+    outline: 0;
   }
 
-  .chart__bucket--active .chart-bar,
-  .chart__bucket--active:hover .chart-bar,
-  .chart__bucket--active:focus .chart-bar {
-    fill: var(--accent);
+  .heatmap__cell--active {
+    border-color: rgba(31, 26, 22, 0.88);
+    box-shadow: 0 0 0 2px rgba(31, 26, 22, 0.22);
+  }
+
+  .heatmap__legend {
+    grid-column: 2;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: rgba(111, 103, 95, 0.92);
+    font: 500 0.76rem/1 "Helvetica Neue", Arial, sans-serif;
+  }
+
+  .heatmap__legend-cell {
+    display: inline-block;
+    width: var(--heatmap-cell);
+    height: var(--heatmap-cell);
+    border-radius: 3px;
+    border: 1px solid transparent;
+  }
+
+  .heatmap__legend-cell--0 {
+    background: rgba(111, 103, 95, 0.12);
+    border-color: rgba(111, 103, 95, 0.08);
+  }
+
+  .heatmap__legend-cell--1 {
+    background: #eadbca;
+    border-color: #dfccb9;
+  }
+
+  .heatmap__legend-cell--2 {
+    background: #d6b08d;
+    border-color: #cb9a74;
+  }
+
+  .heatmap__legend-cell--3 {
+    background: #c77c50;
+    border-color: #b96d43;
+  }
+
+  .heatmap__legend-cell--4 {
+    background: #9d5b3b;
+    border-color: #8e4f31;
   }
 
   .summary {
@@ -1897,6 +1888,10 @@ const styles = `
   @media (min-width: 720px) {
     .page {
       padding: 36px 24px 72px;
+    }
+
+    .heatmap {
+      --heatmap-cell: 14px;
     }
 
     .controls__grid {
