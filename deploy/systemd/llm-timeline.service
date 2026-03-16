@@ -1,0 +1,18 @@
+[Unit]
+Description=LLM Timeline API
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=__SERVICE_USER__
+Group=__SERVICE_GROUP__
+WorkingDirectory=__REPO_ROOT__
+Environment=NODE_ENV=production
+EnvironmentFile=-/etc/llm-timeline/llm-timeline.env
+ExecStart=/bin/bash __REPO_ROOT__/scripts/systemd-start.sh
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,14 @@
+node_modules/
+dist/
+data/
+
+.DS_Store
+*.log
+*.db
+*.db-*
+*.sqlite
+*.sqlite-*
+
+.env
+.env.*
+.npmrc

@@ -1,0 +1,23 @@
+{
+  "name": "llm-timeline",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/index.js",
+    "dev": "node --enable-source-maps dist/index.js",
+    "install:systemd": "bash scripts/install-systemd.sh",
+    "cli:refresh": "node dist/cli.js refresh",
+    "cli:backfill": "node dist/cli.js backfill",
+    "test": "npm run build && node --test test/*.js"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.13.5",
+    "hono": "^4.7.4"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.2",
+    "@types/node": "^24.2.0"
+  }
+}
