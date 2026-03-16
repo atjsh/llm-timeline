@@ -127,13 +127,16 @@ try {
   assert.match(rootHtml, /\.\/feeds\//);
 
   const feedsHtml = readFileSync(join(outDir, "feeds", "index.html"), "utf8");
-  assert.match(feedsHtml, /Static Snapshot/);
+  assert.match(feedsHtml, /LLM timeline/);
+  assert.match(feedsHtml, /Exported [A-Z][a-z]{2} \d{1,2}, \d{4}/);
   assert.match(feedsHtml, /data-data-href="\.\.\/assets\/events\.json"/);
   assert.match(feedsHtml, /data-feeds-form/);
   assert.match(feedsHtml, /OpenAI Alpha/);
   assert.doesNotMatch(feedsHtml, /Current JSON/);
   assert.doesNotMatch(feedsHtml, /Current ICS/);
   assert.doesNotMatch(feedsHtml, /Source Status/);
+  assert.doesNotMatch(feedsHtml, /Static Snapshot/);
+  assert.doesNotMatch(feedsHtml, /Snapshot entry/);
   assert.doesNotMatch(feedsHtml, /\/feeds\/items/);
   assert.doesNotMatch(feedsHtml, /JSON<\/a>/);
 

@@ -177,7 +177,6 @@ export const exportPages = ({ db, outDir = "docs" }: ExportPagesOptions): Export
       hasMore: defaultEvents.length > initialEvents.length,
       state: defaultState,
       dataHref: "../assets/events.json",
-      homeHref: "../",
       exportedAt,
     }),
     "utf8"

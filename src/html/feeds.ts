@@ -45,7 +45,6 @@ export interface StaticFeedsPageInput {
   hasMore: boolean;
   state: FeedsPageState;
   dataHref: string;
-  homeHref: string;
   exportedAt: string;
 }
 
@@ -1386,13 +1385,8 @@ export const renderStaticFeedsPage = (input: StaticFeedsPageInput) => {
   <body>
     <main class="page">
       <section class="hero">
-        <p class="hero__eyebrow">Static Snapshot</p>
-        <h1>${pageTitle}</h1>
-        <p>GitHub Pages-friendly snapshot generated from the local SQLite events table. Filters and load-more run in the browser; source links still open the original vendor announcement pages.</p>
-        <p>Exported ${formatUtcDate(input.exportedAt)}. Use the controls below to browse mixed-provider launches, deprecations, and release notes from a static bundle.</p>
-        <div class="hero__links">
-          <a href="${safeHref(input.homeHref)}">Snapshot entry</a>
-        </div>
+        <h1>LLM timeline</h1>
+        <p>Exported ${formatUtcDate(input.exportedAt)}</p>
       </section>
 
       ${renderForm(state, { action: "./", resetHref: "./", formAttribute: 'data-feeds-form' })}
