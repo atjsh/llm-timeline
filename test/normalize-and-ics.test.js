@@ -34,6 +34,48 @@ const normalized = normalizeSourceItems(source, [item]);
 assert.equal(normalized.length, 2);
 assert.notEqual(normalized[0].id, normalized[1].id);
 
+const openAiRssSource = {
+  ...source,
+  id: "openai-blog-rss",
+  name: "OpenAI Blog RSS",
+};
+
+const openAiRelease = normalizeSourceItems(openAiRssSource, [
+  {
+    externalId: "openai-release-1",
+    title: "Introducing GPT-5.4",
+    canonicalUrl: "https://example.com/gpt-5-4",
+    summary: "OpenAI launches a new frontier model.",
+    publishedAt: "2026-03-05T10:00:00.000Z",
+    feedCategories: ["Product"],
+  },
+]);
+assert.equal(openAiRelease[0].category, "model_release");
+
+const openAiCompanyPost = normalizeSourceItems(openAiRssSource, [
+  {
+    externalId: "openai-company-1",
+    title: "OpenAI and Amazon announce strategic partnership",
+    canonicalUrl: "https://example.com/amazon-partnership",
+    summary: "Infrastructure and enterprise collaboration update.",
+    publishedAt: "2026-02-27T05:30:00.000Z",
+    feedCategories: ["Company"],
+  },
+]);
+assert.equal(openAiCompanyPost[0].category, "blog_update");
+
+const openAiResearchRelease = normalizeSourceItems(openAiRssSource, [
+  {
+    externalId: "openai-research-1",
+    title: "Hello GPT-4o",
+    canonicalUrl: "https://example.com/hello-gpt-4o",
+    summary: "We are announcing a new flagship model.",
+    publishedAt: "2024-05-13T10:05:00.000Z",
+    feedCategories: ["Research"],
+  },
+]);
+assert.equal(openAiResearchRelease[0].category, "model_release");
+
 const db = new TimelineDatabase(":memory:");
 db.seedDataIfEmpty([source]);
 const raw = db.upsertRawItem({

@@ -21,6 +21,16 @@ const xmlTag = (block: string, tag: string): string | undefined => {
   return stripTags(match[1]).trim();
 };
 
+const xmlTags = (block: string, tag: string): string[] =>
+  [...block.matchAll(new RegExp(`<${tag}\\b[^>]*>([\\s\\S]*?)<\\/${tag}>`, "gi"))]
+    .map((match) => stripTags(match[1] ?? "").trim())
+    .filter(Boolean);
+
+const xmlCategoryTerms = (block: string): string[] =>
+  [...block.matchAll(/<category\b[^>]*term=\"([^\"]+)\"[^>]*\/?>/gi)]
+    .map((match) => decodeHtmlEntities(match[1] ?? "").trim())
+    .filter(Boolean);
+
 const parseDateMaybe = (value?: string) => {
   if (!value) return undefined;
   const parsed = Date.parse(value);
@@ -42,6 +52,7 @@ const itemFrom = (input: {
   summary: string;
   publishedAt?: string;
   hints?: string[];
+  feedCategories?: string[];
 }) => ({
   externalId: input.externalId ?? normalizeItemId(`${input.sourceUrl}:${input.title}`, input.sourceName),
   title: input.title ?? input.summary.slice(0, 80),
@@ -49,6 +60,7 @@ const itemFrom = (input: {
   summary: input.summary,
   publishedAt: parseDateMaybe(input.publishedAt),
   eventDateHints: input.hints,
+  feedCategories: input.feedCategories,
 });
 
 export const parseRssAtom = (xml: string, sourceUrl: string): ParsedSourceItem[] => {
@@ -65,6 +77,7 @@ export const parseRssAtom = (xml: string, sourceUrl: string): ParsedSourceItem[]
       (linkAttr?.[1] ?? (linkMatch?.[1] ? stripTags(linkMatch[1]) : "")) || sourceUrl;
     const pubDate = xmlTag(block, "pubDate") || xmlTag(block, "updated") || xmlTag(block, "published");
     const summary = xmlTag(block, "description") || xmlTag(block, "summary") || xmlTag(block, "content") || "";
+    const feedCategories = [...new Set([...xmlTags(block, "category"), ...xmlCategoryTerms(block)])];
     results.push(
       itemFrom({
         sourceUrl,
@@ -74,6 +87,7 @@ export const parseRssAtom = (xml: string, sourceUrl: string): ParsedSourceItem[]
         canonicalUrl: link,
         summary,
         publishedAt: pubDate || undefined,
+        feedCategories,
       })
     );
   }

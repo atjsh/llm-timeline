@@ -45,8 +45,27 @@ const changelog = parseChangelogHtml(html, sourceUrl);
 assert.equal(result.length, 1);
 assert.equal(result[0].title, "New Model Launch");
 assert.equal(result[0].canonicalUrl, "https://example.com/new-model");
+assert.deepEqual(result[0].feedCategories, []);
 assert.equal(cdataResult.length, 1);
 assert.equal(cdataResult[0].title, "Introducing GPT-5.4");
 assert.equal(cdataResult[0].summary, "OpenAI launches a new model family.");
+assert.deepEqual(cdataResult[0].feedCategories, []);
 assert.equal(changelog.length, 1);
 assert.ok(changelog[0].title.includes("January 11, 2024"));
+
+const rssWithCategory = `
+  <rss>
+    <channel>
+      <item>
+        <title><![CDATA[Introducing GPT-5.4]]></title>
+        <link>https://example.com/gpt-5-4</link>
+        <pubDate>Thu, 05 Mar 2026 10:00:00 GMT</pubDate>
+        <description><![CDATA[OpenAI launches a new model family.]]></description>
+        <category><![CDATA[Product]]></category>
+      </item>
+    </channel>
+  </rss>
+`;
+
+const categoryResult = parseRssAtom(rssWithCategory, sourceUrl);
+assert.deepEqual(categoryResult[0].feedCategories, ["Product"]);

@@ -119,4 +119,6 @@ const parseSourceBody = (parser: string, body: string, sourceUrl: string): Parse
 };
 
 export const hashSourceItem = (item: ParsedSourceItem) =>
-  checksum(`${item.externalId}:${item.title}:${item.summary}:${item.publishedAt ?? ""}`);
+  checksum(
+    `${item.externalId}:${item.title}:${item.summary}:${item.publishedAt ?? ""}:${(item.feedCategories ?? []).join("|")}`
+  );

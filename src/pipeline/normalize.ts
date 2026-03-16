@@ -115,7 +115,30 @@ const dedupe = <T>(items: T[], key: (value: T) => string): T[] => {
   return [...map.values()];
 };
 
-const inferCategory = (source: SourceRow, text: string, base: EventCategory): EventCategory => {
+const normalizeFeedCategories = (categories: string[] | undefined) => (categories ?? []).map((value) => value.toLowerCase().trim());
+
+const openAiModelReleaseTitleRegex =
+  /\b(hello gpt-[a-z0-9.-]+|introducing gpt-[a-z0-9.-]+|introducing gpt-oss-[a-z0-9.-]+|introducing o[0-9][a-z0-9.-]*|introducing sora(?:\s*\d+(?:\.\d+)?)?|new embedding models?|new and improved embedding model|new models and developer products announced at devday|function calling and other api updates)\b/i;
+
+const openAiNonReleaseTitleRegex =
+  /\b(system card|technical report|partnership|agreement|acquire|acquisition|research partnership|forum|red teaming network)\b/i;
+
+const inferOpenAiRssCategory = (item: ParsedSourceItem): EventCategory => {
+  const categories = normalizeFeedCategories(item.feedCategories);
+  const title = item.title.toLowerCase();
+  const hasProductNewsCategory = categories.some((value) => value === "product" || value === "product news" || value === "release");
+  const hasAllowedContextCategory =
+    hasProductNewsCategory || categories.length === 0 || categories.includes("research");
+
+  if (openAiNonReleaseTitleRegex.test(title)) return "blog_update";
+  if (openAiModelReleaseTitleRegex.test(title) && hasAllowedContextCategory) return "model_release";
+  return "blog_update";
+};
+
+const inferCategory = (source: SourceRow, item: ParsedSourceItem, text: string, base: EventCategory): EventCategory => {
+  if (source.id === "openai-blog-rss") {
+    return inferOpenAiRssCategory(item);
+  }
   const lower = text.toLowerCase();
   if (lower.includes("deprecat")) return "deprecation";
   if (lower.includes("rollout") || lower.includes("roll out") || lower.includes("launch") || lower.includes("available")) return "model_rollout";
@@ -139,11 +162,12 @@ export const normalizeSourceItems = (source: SourceRow, items: ParsedSourceItem[
       : item.publishedAt
       ? [item.publishedAt]
       : [];
-    const category = inferCategory(source, combined, source.default_category);
+    const category = inferCategory(source, item, combined, source.default_category);
     const productHints = dedupe(extractTerms(combined, knownProducts.concat(vendorProducts)), (v) => v).sort();
     const modelHints = dedupe(extractTerms(combined, knownModels), (v) => v).sort();
     const tags = dedupe(
       [category, source.vendor, source.name]
+        .concat(item.feedCategories ?? [])
         .concat(category === "release_note" ? ["changelog"] : [])
         .map((value) => value),
       (value) => value

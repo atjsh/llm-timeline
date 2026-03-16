@@ -72,6 +72,7 @@ export interface ParsedSourceItem {
   summary: string;
   publishedAt?: string;
   eventDateHints?: string[];
+  feedCategories?: string[];
 }
 
 export interface RawParsedEvent {
