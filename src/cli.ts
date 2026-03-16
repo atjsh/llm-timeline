@@ -1,4 +1,7 @@
 import { rebuildSourceEvents, runIngestion } from "./pipeline/ingest.js";
+import { TimelineDatabase } from "./db/sqlite.js";
+import { config } from "./config.js";
+import { exportPages } from "./static/export-pages.js";
 
 const parseArgs = () => {
   const [, , command, maybeValue] = process.argv;
@@ -29,6 +32,15 @@ const parseArgs = () => {
       : undefined;
     return { command: "rebuild" as const, source };
   }
+  if (command === "export-pages") {
+    const explicit = process.argv.find((arg) => arg.startsWith("--out-dir="));
+    const outDir = explicit
+      ? explicit.split("=", 2)[1]
+      : maybeValue && maybeValue !== "--out-dir" && maybeValue !== undefined
+      ? maybeValue
+      : undefined;
+    return { command: "export-pages" as const, outDir };
+  }
   if (command === "--help" || command === "-h") {
     return { command: "help" as const };
   }
@@ -40,6 +52,7 @@ Usage:
   node dist/cli.js refresh [--vendor=openai|anthropic|google]
   node dist/cli.js backfill --since=YYYY-MM-DD
   node dist/cli.js rebuild --source=SOURCE_ID
+  node dist/cli.js export-pages [--out-dir=docs]
 `;
 
 const run = async () => {
@@ -64,6 +77,12 @@ const run = async () => {
       throw new Error("Missing required --source=SOURCE_ID");
     }
     const result = await rebuildSourceEvents(args.source);
+    console.log(JSON.stringify(result, null, 2));
+    return;
+  }
+  if (args.command === "export-pages") {
+    const db = new TimelineDatabase(config.databasePath);
+    const result = exportPages({ db, outDir: args.outDir });
     console.log(JSON.stringify(result, null, 2));
   }
 };

@@ -11,6 +11,7 @@
     "cli:refresh": "node dist/cli.js refresh",
     "cli:backfill": "node dist/cli.js backfill",
     "cli:rebuild": "node dist/cli.js rebuild",
+    "export:pages": "node dist/cli.js export-pages",
     "test": "npm run build && node --test test/*.js"
   },
   "dependencies": {

@@ -7,6 +7,10 @@ Read-only TypeScript service that ingests curated official AI release sources an
 
 The stack is Node.js, Hono, and SQLite.
 
+Public static snapshot:
+
+- `https://atjsh.github.io/llm-timeline/`
+
 ## Endpoints
 
 - `GET /healthz`
@@ -24,6 +28,24 @@ Example filters:
 - `/calendar.ics?vendor=google&category=release_note`
 
 The `/feeds` page is a server-rendered timeline preview and progressively loads older events as you scroll.
+
+## Static export for GitHub Pages
+
+Generate a static snapshot into `docs/`:
+
+```bash
+npm run build
+npm run export:pages
+```
+
+This writes:
+
+- `docs/index.html`
+- `docs/feeds/index.html`
+- `docs/assets/events.json`
+- `docs/.nojekyll`
+
+The Pages snapshot is read-only and filters in the browser against the exported JSON. It intentionally does not expose the live JSON/ICS quick links from the server version.
 
 ## Local development
 
@@ -76,6 +98,12 @@ Rebuild derived events for a stored source after classifier changes:
 
 ```bash
 npm run cli:rebuild -- --source=openai-blog-rss
+```
+
+Export the current SQLite snapshot for GitHub Pages:
+
+```bash
+npm run export:pages
 ```
 
 ## Tests

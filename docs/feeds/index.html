@@ -1,0 +1,1960 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>LLM Feeds</title>
+    <style>
+  :root {
+    color-scheme: light;
+    --bg: #f3efe6;
+    --panel: #fffdf8;
+    --ink: #1f1a16;
+    --muted: #6f675f;
+    --line: #d6cdbf;
+    --accent: #9d5b3b;
+    --openai: #0f766e;
+    --anthropic: #9a3412;
+    --google: #1d4ed8;
+    --shadow: 0 18px 48px rgba(41, 29, 20, 0.08);
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Georgia", "Times New Roman", serif;
+    background:
+      radial-gradient(circle at top left, rgba(157, 91, 59, 0.14), transparent 30%),
+      linear-gradient(180deg, #f7f3ea 0%, var(--bg) 100%);
+    color: var(--ink);
+  }
+
+  a {
+    color: inherit;
+  }
+
+  .page {
+    max-width: 1040px;
+    margin: 0 auto;
+    padding: 24px 16px 56px;
+  }
+
+  .hero {
+    background: rgba(255, 253, 248, 0.88);
+    border: 1px solid rgba(214, 205, 191, 0.9);
+    border-radius: 24px;
+    padding: 24px;
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(12px);
+  }
+
+  .hero__eyebrow {
+    margin: 0 0 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font: 600 0.75rem/1.2 "Helvetica Neue", Arial, sans-serif;
+    color: var(--accent);
+  }
+
+  .hero h1 {
+    margin: 0;
+    font-size: clamp(2rem, 4vw, 3.6rem);
+    line-height: 0.95;
+  }
+
+  .hero p {
+    margin: 14px 0 0;
+    max-width: 52rem;
+    color: var(--muted);
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+
+  .hero__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 20px;
+  }
+
+  .hero__links a,
+  .controls__actions a,
+  .controls__actions button,
+  .pagination a,
+  .feed-loader__button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 42px;
+    border-radius: 999px;
+    padding: 0 16px;
+    font: 600 0.94rem/1 "Helvetica Neue", Arial, sans-serif;
+    text-decoration: none;
+    transition: transform 120ms ease, background-color 120ms ease;
+  }
+
+  .hero__links a,
+  .pagination a,
+  .feed-loader__button {
+    background: rgba(157, 91, 59, 0.12);
+    border: 1px solid rgba(157, 91, 59, 0.24);
+  }
+
+  .hero__links a:hover,
+  .controls__actions a:hover,
+  .controls__actions button:hover,
+  .pagination a:hover,
+  .feed-loader__button:hover {
+    transform: translateY(-1px);
+  }
+
+  .controls,
+  .summary,
+  .timeline-shell {
+    margin-top: 20px;
+    background: rgba(255, 253, 248, 0.9);
+    border: 1px solid rgba(214, 205, 191, 0.9);
+    border-radius: 24px;
+    box-shadow: var(--shadow);
+  }
+
+  .controls {
+    padding: 20px;
+  }
+
+  .controls__grid {
+    display: grid;
+    gap: 14px;
+  }
+
+  .controls label {
+    display: grid;
+    gap: 8px;
+    font: 600 0.84rem/1.2 "Helvetica Neue", Arial, sans-serif;
+    color: var(--muted);
+    letter-spacing: 0.01em;
+    min-width: 0;
+  }
+
+  .controls input,
+  .controls select {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    min-height: 44px;
+    border-radius: 14px;
+    border: 1px solid var(--line);
+    background: #fff;
+    padding: 0 14px;
+    color: var(--ink);
+    font: 500 0.98rem/1.2 "Helvetica Neue", Arial, sans-serif;
+  }
+
+  .controls input[type="date"] {
+    display: block;
+    inline-size: 100%;
+    min-inline-size: 0;
+    padding-right: 12px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .checkbox-fieldset {
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  .checkbox-fieldset__legend {
+    margin: 0 0 8px;
+    padding: 0;
+    font: 600 0.84rem/1.2 "Helvetica Neue", Arial, sans-serif;
+    color: var(--muted);
+    letter-spacing: 0.01em;
+  }
+
+  .checkbox-grid {
+    display: grid;
+    gap: 10px;
+  }
+
+  .checkbox-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 44px;
+    padding: 10px 12px;
+    border-radius: 14px;
+    border: 1px solid var(--line);
+    background: rgba(255, 255, 255, 0.92);
+    color: var(--ink);
+    cursor: pointer;
+  }
+
+  .checkbox-option input {
+    width: 18px;
+    height: 18px;
+    min-height: 18px;
+    margin: 0;
+    flex: 0 0 auto;
+  }
+
+  .checkbox-option span {
+    min-width: 0;
+    font: 500 0.94rem/1.3 "Helvetica Neue", Arial, sans-serif;
+  }
+
+  .controls__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 16px;
+  }
+
+  .controls__actions button {
+    border: 0;
+    background: var(--ink);
+    color: #fff;
+    cursor: pointer;
+  }
+
+  .controls__actions a {
+    border: 1px solid var(--line);
+    background: rgba(255, 255, 255, 0.92);
+  }
+
+  .summary {
+    padding: 18px 20px;
+  }
+
+  .summary__heading {
+    margin: 0 0 10px;
+    font: 700 1rem/1.4 "Helvetica Neue", Arial, sans-serif;
+  }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .chip {
+    display: inline-flex;
+    gap: 6px;
+    border-radius: 999px;
+    padding: 7px 12px;
+    background: rgba(31, 26, 22, 0.06);
+    color: var(--ink);
+    font: 500 0.84rem/1 "Helvetica Neue", Arial, sans-serif;
+  }
+
+  .chip strong {
+    color: var(--muted);
+    font-weight: 700;
+  }
+
+  .timeline-shell {
+    padding: 8px 20px 20px;
+  }
+
+  .timeline {
+    list-style: none;
+    margin: 0;
+    padding: 8px 0 0;
+    position: relative;
+  }
+
+  .timeline::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 20px;
+    width: 2px;
+    background: linear-gradient(180deg, rgba(157, 91, 59, 0.25), rgba(157, 91, 59, 0.05));
+  }
+
+  .timeline__item {
+    position: relative;
+    display: grid;
+    gap: 12px;
+    padding: 12px 0 18px 42px;
+  }
+
+  .timeline__item::before {
+    content: "";
+    position: absolute;
+    left: 12px;
+    top: 20px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--panel);
+    border: 4px solid var(--accent);
+    box-shadow: 0 0 0 3px rgba(157, 91, 59, 0.14);
+  }
+
+  .timeline__date {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+
+  .timeline__day {
+    font: 700 0.96rem/1.2 "Helvetica Neue", Arial, sans-serif;
+  }
+
+  .timeline__kind {
+    color: var(--muted);
+    font: 500 0.78rem/1.2 "Helvetica Neue", Arial, sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .event-card {
+    background: rgba(255, 255, 255, 0.88);
+    border: 1px solid rgba(214, 205, 191, 0.95);
+    border-radius: 20px;
+    padding: 18px;
+    min-width: 0;
+  }
+
+  .event-card__badges,
+  .event-card__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    min-height: 28px;
+    border-radius: 999px;
+    padding: 0 10px;
+    font: 700 0.76rem/1 "Helvetica Neue", Arial, sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .badge--vendor {
+    color: #fff;
+  }
+
+  .badge--openai {
+    background: var(--openai);
+  }
+
+  .badge--anthropic {
+    background: var(--anthropic);
+  }
+
+  .badge--google {
+    background: var(--google);
+  }
+
+  .badge--category {
+    background: rgba(31, 26, 22, 0.08);
+    color: var(--ink);
+  }
+
+  .event-card__title {
+    margin: 12px 0 10px;
+    font-size: clamp(1.12rem, 2vw, 1.42rem);
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  .event-card__summary,
+  .event-card__meta,
+  .feed-loader__status {
+    margin: 0;
+    color: var(--muted);
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  .event-card__meta {
+    margin-top: 10px;
+    font: 500 0.9rem/1.5 "Helvetica Neue", Arial, sans-serif;
+  }
+
+  .event-card__links {
+    margin-top: 14px;
+    font: 700 0.84rem/1 "Helvetica Neue", Arial, sans-serif;
+  }
+
+  .event-card__links a {
+    text-decoration: underline;
+    text-underline-offset: 0.18em;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  .empty-state {
+    margin: 0;
+    padding: 28px 8px 16px;
+    color: var(--muted);
+    font-size: 1rem;
+    line-height: 1.7;
+  }
+
+  .feed-loader,
+  .pagination {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding-top: 18px;
+  }
+
+  .feed-loader {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .feed-loader__controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .feed-loader__button {
+    cursor: pointer;
+    color: var(--ink);
+  }
+
+  .feed-loader__button[disabled] {
+    opacity: 0.6;
+    cursor: progress;
+    transform: none;
+  }
+
+  .feed-loader__sentinel {
+    width: 100%;
+    height: 1px;
+  }
+
+  .pagination--fallback {
+    padding-top: 8px;
+  }
+
+  @media (min-width: 720px) {
+    .page {
+      padding: 36px 24px 72px;
+    }
+
+    .controls__grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .checkbox-fieldset {
+      grid-column: span 2;
+    }
+
+    .checkbox-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .timeline::before {
+      left: 130px;
+    }
+
+    .timeline__item {
+      grid-template-columns: 100px minmax(0, 1fr);
+      gap: 24px;
+      padding: 12px 0 22px;
+    }
+
+    .timeline__item::before {
+      left: 121px;
+    }
+
+    .timeline__date {
+      padding-top: 8px;
+      text-align: right;
+    }
+  }
+</style>
+  </head>
+  <body>
+    <main class="page">
+      <section class="hero">
+        <p class="hero__eyebrow">Static Snapshot</p>
+        <h1>LLM Feeds</h1>
+        <p>GitHub Pages-friendly snapshot generated from the local SQLite events table. Filters and load-more run in the browser; source links still open the original vendor announcement pages.</p>
+        <p>Exported Mar 16, 2026. Use the controls below to browse mixed-provider launches, deprecations, and release notes from a static bundle.</p>
+        <div class="hero__links">
+          <a href="../">Snapshot entry</a>
+        </div>
+      </section>
+
+      
+      <section class="controls">
+        <form method="get" action="./" data-feeds-form>
+          <div class="controls__grid">
+            <fieldset class="checkbox-fieldset">
+              <legend class="checkbox-fieldset__legend">Vendor</legend>
+              <input type="hidden" name="vendor" value="all" />
+              <div class="checkbox-grid">
+                
+                <label class="checkbox-option" for="vendor-openai">
+                  <input id="vendor-openai" type="checkbox" name="vendor" value="openai" />
+                  <span>OpenAI</span>
+                </label>
+      
+                <label class="checkbox-option" for="vendor-anthropic">
+                  <input id="vendor-anthropic" type="checkbox" name="vendor" value="anthropic" />
+                  <span>Anthropic</span>
+                </label>
+      
+                <label class="checkbox-option" for="vendor-google">
+                  <input id="vendor-google" type="checkbox" name="vendor" value="google" />
+                  <span>Google</span>
+                </label>
+      
+              </div>
+            </fieldset>
+            <fieldset class="checkbox-fieldset">
+              <legend class="checkbox-fieldset__legend">Category</legend>
+              <input type="hidden" name="category" value="all" />
+              <div class="checkbox-grid">
+                
+                <label class="checkbox-option" for="category-model_release">
+                  <input id="category-model_release" type="checkbox" name="category" value="model_release" checked />
+                  <span>Model Release</span>
+                </label>
+      
+                <label class="checkbox-option" for="category-model_rollout">
+                  <input id="category-model_rollout" type="checkbox" name="category" value="model_rollout" />
+                  <span>Model Rollout</span>
+                </label>
+      
+                <label class="checkbox-option" for="category-deprecation">
+                  <input id="category-deprecation" type="checkbox" name="category" value="deprecation" />
+                  <span>Deprecation</span>
+                </label>
+      
+                <label class="checkbox-option" for="category-release_note">
+                  <input id="category-release_note" type="checkbox" name="category" value="release_note" />
+                  <span>Release Note</span>
+                </label>
+      
+                <label class="checkbox-option" for="category-tech_guide">
+                  <input id="category-tech_guide" type="checkbox" name="category" value="tech_guide" />
+                  <span>Tech Guide</span>
+                </label>
+      
+                <label class="checkbox-option" for="category-blog_update">
+                  <input id="category-blog_update" type="checkbox" name="category" value="blog_update" />
+                  <span>Blog Update</span>
+                </label>
+      
+              </div>
+            </fieldset>
+            <label>
+              Product
+              <input type="text" name="product" value="" placeholder="e.g. chatgpt" />
+            </label>
+            <label>
+              Model
+              <input type="text" name="model" value="" placeholder="e.g. claude-opus-4.6" />
+            </label>
+            <label>
+              Since
+              <input type="date" name="since" value="" />
+            </label>
+            <label>
+              Until
+              <input type="date" name="until" value="" />
+            </label>
+            <label>
+              Per page
+              <select name="limit"><option value="25">25</option><option value="50" selected>50</option><option value="100">100</option></select>
+            </label>
+          </div>
+          <div class="controls__actions">
+            <button type="submit">Apply filters</button>
+            <a href="./" data-reset-link>Reset</a>
+            
+          </div>
+        </form>
+      </section>
+  
+      
+      <section class="summary">
+        <p class="summary__heading" data-summary-heading>Showing 50 events with older pages available.</p>
+        <div class="chips" data-filter-chips>
+          <span class="chip"><strong>Vendor:</strong><span>All</span></span><span class="chip"><strong>Category:</strong><span>Model Release</span></span><span class="chip"><strong>Per page:</strong><span>50</span></span>
+        </div>
+      </section>
+
+      <section
+        class="timeline-shell"
+        data-static-feeds
+        data-data-href="../assets/events.json"
+        data-default-limit="50"
+        data-initial-count="50"
+        data-initial-has-more="true"
+      >
+        <ol class="timeline" data-timeline>
+    <li class="timeline__item">
+      <div class="timeline__date">
+        <div class="timeline__day">Mar 10, 2026</div>
+        <div class="timeline__kind">Published</div>
+      </div>
+      <article class="event-card">
+        <div class="event-card__badges">
+          <span class="badge badge--vendor badge--google">Google</span>
+          <span class="badge badge--category">Model Release</span>
+        </div>
+        <h2 class="event-card__title">Released gemini-embedding-2-preview , our first multimodal embedding model.</h2>
+        <p class="event-card__summary">Released gemini-embedding-2-preview , our first multimodal embedding model. It supports text, image, video, audio, and PDF inputs, mapping all modalities into a unified embedding space. To learn more, see Embeddings .</p>
+        <p class="event-card__meta">Products: gemini · Models: gemini-embedding-2</p>
+        <div class="event-card__links">
+          <a href="https://ai.google.dev/gemini-api/docs/embeddings" target="_blank" rel="noreferrer">Source</a>
+          
+        </div>
+      </article>
+    </li>
+  
+    <li class="timeline__item">
+      <div class="timeline__date">
+        <div class="timeline__day">Mar 5, 2026</div>
+        <div class="timeline__kind">Published</div>
+      </div>
+      <article class="event-card">
+        <div class="event-card__badges">
+          <span class="badge badge--vendor badge--openai">OpenAI</span>
+          <span class="badge badge--category">Model Release</span>
+        </div>
+        <h2 class="event-card__title">Introducing GPT-5.4</h2>
+        <p class="event-card__summary">Introducing GPT-5.4, OpenAI’s most most capable and efficient frontier model for professional work, with state-of-the-art coding, computer use, tool search, and 1M-token context.</p>
+        <p class="event-card__meta">Products: gpt</p>
+        <div class="event-card__links">
+          <a href="https://openai.com/index/introducing-gpt-5-4" target="_blank" rel="noreferrer">Source</a>
+          
+        </div>
+      </article>
+    </li>
+  
+    <li class="timeline__item">
+      <div class="timeline__date">
+        <div class="timeline__day">Mar 3, 2026</div>
+        <div class="timeline__kind">Published</div>
+      </div>
+      <article class="event-card">
+        <div class="event-card__badges">
+          <span class="badge badge--vendor badge--google">Google</span>
+          <span class="badge badge--category">Model Release</span>
+        </div>
+        <h2 class="event-card__title">Gemini 3.1 Flash-Lite: Built for intelligence at scale</h2>
+        <p class="event-card__summary">Gemini 3.1 Flash-Lite is our fastest and most cost-efficient Gemini 3 series model yet.</p>
+        <p class="event-card__meta">Products: gemini · Models: gemini-3, gemini-3.1-flash-lite</p>
+        <div class="event-card__links">
+          <a href="https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-3-1-flash-lite/" target="_blank" rel="noreferrer">Source</a>
+          
+        </div>
+      </article>
+    </li>
+  
+    <li class="timeline__item">
+      <div class="timeline__date">
+        <div class="timeline__day">Feb 26, 2026</div>
+        <div class="timeline__kind">Published</div>
+      </div>
+      <article class="event-card">
+        <div class="event-card__badges">
+          <span class="badge badge--vendor badge--google">Google</span>
+          <span class="badge badge--category">Model Release</span>
+        </div>
+        <h2 class="event-card__title">Launched Nano Banana 2, Gemini 3.1 Flash Image Preview , a high-efficiency model optimized for speed and high-volume use cases.</h2>
+        <p class="event-card__summary">Launched Nano Banana 2, Gemini 3.1 Flash Image Preview , a high-efficiency model optimized for speed and high-volume use cases.</p>
+        <p class="event-card__meta">Products: gemini · Models: gemini-3.1-flash-image</p>
+        <div class="event-card__links">
+          <a href="https://ai.google.dev/gemini-api/docs/models/gemini-3.1-flash-image-preview" target="_blank" rel="noreferrer">Source</a>
+          
+        </div>
+      </article>
+    </li>
+  
+    <li class="timeline__item">
+      <div class="timeline__date">
+        <div class="timeline__day">Feb 19, 2026</div>
+        <div class="timeline__kind">Published</div>
+      </div>
+      <article class="event-card">
+        <div class="event-card__badges">
+          <span class="badge badge--vendor badge--google">Google</span>
+          <span class="badge badge--category">Model Release</span>
+        </div>
+        <h2 class="event-card__title">Gemini 3.1 Pro: A smarter model for your most complex tasks</h2>
+        <p class="event-card__summary">3.1 Pro is designed for tasks where a simple answer isn’t enough.</p>
+        <p class="event-card__meta">Products: gemini · Models: gemini-3.1-pro</p>
+        <div class="event-card__links">
+          <a href="https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-3-1-pro/" target="_blank" rel="noreferrer">Source</a>
+          
+        </div>
+      </article>
+    </li>
+  
+    <li class="timeline__item">
+      <div class="timeline__date">
+        <div class="timeline__day">Feb 17, 2026</div>
+        <div class="timeline__kind">Published</div>
+      </div>
+      <article class="event-card">
+        <div class="event-card__badges">
+          <span class="badge badge--vendor badge--anthropic">Anthropic</span>
+          <span class="badge badge--category">Model Release</span>
+        </div>
+        <h2 class="event-card__title">Introducing Claude Sonnet 4.6</h2>
+        <p class="event-card__summary">Claude Sonnet 4.6 is our most capable Sonnet model yet . It’s a full upgrade of the model’s skills across coding, computer use, long-context reasoning, agent planning, knowledge work, and design. Sonnet 4.6 also features a 1M token conte...</p>
+        <p class="event-card__meta">Products: claude · Models: claude-sonnet-4.6</p>
+        <div class="event-card__links">
+          <a href="https://www.anthropic.com/news/claude-sonnet-4-6" target="_blank" rel="noreferrer">Source</a>
+          
+        </div>
+      </article>
+    </li>
+  
+    <li class="timeline__item">
+      <div class="timeline__date">
+        <div class="timeline__day">Feb 12, 2026</div>
+        <div class="timeline__kind">Published</div>
+      </div>
+      <article class="event-card">
+        <div class="event-card__badges">
+          <span class="badge badge--vendor badge--google">Google</span>
+          <span class="badge badge--category">Model Release</span>
+        </div>
+        <h2 class="event-card__title">Gemini 3 Deep Think: Advancing science, research and engineering</h2>
+        <p class="event-card__summary">We’re releasing a major upgrade to Gemini 3 Deep Think, our specialized reasoning mode.</p>
+        <p class="event-card__meta">Products: gemini · Models: gemini-3, gemini-3-deep-think</p>
+        <div class="event-card__links">
+          <a href="https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-3-deep-think/" target="_blank" rel="noreferrer">Source</a>
+          
+        </div>
+      </article>
+    </li>
+  
+    <li class="timeline__item">
+      <div class="timeline__date">
+        <div class="timeline__day">Feb 12, 2026</div>
+        <div class="timeline__kind">Published</div>
+      </div>
+      <article class="event-card">
+        <div class="event-card__badges">
+          <span class="badge badge--vendor badge--openai">OpenAI</span>
+          <span class="badge badge--category">Model Release</span>
+        </div>
+        <h2 class="event-card__title">Introducing GPT-5.3-Codex-Spark</h2>
+        <p class="event-card__summary">Introducing GPT-5.3-Codex-Spark—our first real-time coding model. 15x faster generation, 128k context, now in research preview for ChatGPT Pro users.</p>
+        <p class="event-card__meta">Products: chatgpt, gpt</p>
+        <div class="event-card__links">
+          <a href="https://openai.com/index/introducing-gpt-5-3-codex-spark" target="_blank" rel="noreferrer">Source</a>
+          
+        </div>
+      </article>
+    </li>
+  
+    <li class="timeline__item">
+      <div class="timeline__date">
+        <div class="timeline__day">Feb 5, 2026</div>
+        <div class="timeline__kind">Published</div>
+      </div>
+      <article class="event-card">
+        <div class="event-card__badges">
+          <span class="badge badge--vendor badge--openai">OpenAI</span>
+          <span class="badge badge--category">Model Release</span>
+        </div>
+        <h2 class="event-card__title">Introducing GPT-5.3-Codex</h2>
+        <p class="event-card__summary">GPT-5.3-Codex is a Codex-native agent that pairs frontier coding performance with general reasoning to support long-horizon, real-world technical work.</p>
+        <p class="event-card__meta">Products: gpt</p>
+        <div class="event-card__links">
+          <a href="https://openai.com/index/introducing-gpt-5-3-codex" target="_blank" rel="noreferrer">Source</a>
+          
+        </div>
+      </article>
+    </li>
+  
+    <li class="timeline__item">
+      <div class="timeline__date">
+        <div class="timeline__day">Feb 5, 2026</div>
+        <div class="timeline__kind">Published</div>
+      </div>
+      <article class="event-card">
+        <div class="event-card__badges">
+          <span class="badge badge--vendor badge--anthropic">Anthropic</span>
+          <span class="badge badge--category">Model Release</span>
+        </div>
+        <h2 class="event-card__title">Introducing Claude Opus 4.6</h2>
+        <p class="event-card__summary">We’re upgrading our smartest model. The new Claude Opus 4.6 improves on its predecessor’s coding skills. It plans more carefully, sustains agentic tasks for longer, can operate more reliably in larger codebases, and has better code revie...</p>
+        <p class="event-card__meta">Products: claude, claude code · Models: claude-opus-4.6</p>
+        <div class="event-card__links">
+          <a href="https://www.anthropic.com/news/claude-opus-4-6" target="_blank" rel="noreferrer">Source</a>
+          
+        </div>
+      </article>
+    </li>
+  
+    <li class="timeline__item">
+      <div class="timeline__date">
+        <div class="timeline__day">Dec 18, 2025</div>
+        <div class="timeline__kind">Published</div>
+      </div>
+      <article class="event-card">
+        <div class="event-card__badges">
+          <span class="badge badge--vendor badge--openai">OpenAI</span>
+          <span class="badge badge--category">Model Release</span>
+        </div>
+        <h2 class="event-card__title">Introducing GPT-5.2-Codex</h2>
+        <p class="event-card__summary">GPT-5.2-Codex is OpenAI’s most advanced coding model, offering long-horizon reasoning, large-scale code transformations, and enhanced cybersecurity capabilities.</p>
+        <p class="event-card__meta">Products: gpt</p>
+        <div class="event-card__links">
+          <a href="https://openai.com/index/gpt-5-2-codex" target="_blank" rel="noreferrer">Source</a>
+          
+        </div>
+      </article>
+    </li>
+  
+    <li class="timeline__item">
+      <div class="timeline__date">
+        <div class="timeline__day">Dec 18, 2025</div>
+        <div class="timeline__kind">Published</div>
+      </div>
+      <article class="event-card">
+        <div class="event-card__badges">
+          <span class="badge badge--vendor badge--openai">OpenAI</span>
+          <span class="badge badge--category">Model Release</span>
+        </div>
+        <h2 class="event-card__title">Introducing GPT-5.2-Codex</h2>
+        <p class="event-card__summary">GPT-5.2-Codex is OpenAI’s most advanced coding model, offering long-horizon reasoning, large-scale code transformations, and enhanced cybersecurity capabilities.</p>
+        <p class="event-card__meta">Products: gpt</p>
+        <div class="event-card__links">
+          <a href="https://openai.com/index/introducing-gpt-5-2-codex" target="_blank" rel="noreferrer">Source</a>
+          
+        </div>
+      </article>
+    </li>
+  
+    <li class="timeline__item">
+      <div class="timeline__date">
+        <div class="timeline__day">Dec 17, 2025</div>
+        <div class="timeline__kind">Published</div>
+      </div>
+      <article class="event-card">
+        <div class="event-card__badges">
+          <span class="badge badge--vendor badge--google">Google</span>
+          <span class="badge badge--category">Model Release</span>
+        </div>
+        <h2 class="event-card__title">Gemini 3 Flash</h2>
+        <p class="event-card__summary">Gemini 3 Flash Gemini 3 Flash is now available in public preview. This model is designed to tackle the most challenging agentic problems with strong coding and state-of-the-art reasoning capabilities, and is our best model for complex mu...</p>
+        <p class="event-card__meta">Products: gemini · Models: gemini-3-flash</p>
+        <div class="event-card__links">
+          <a href="https://docs.cloud.google.com/vertex-ai/generative-ai/models/gemini/3-flash" target="_blank" rel="noreferrer">Source</a>
+          
+        </div>
+      </article>
+    </li>
+  
+    <li class="timeline__item">
+      <div class="timeline__date">
+        <div class="timeline__day">Dec 11, 2025</div>
+        <div class="timeline__kind">Published</div>
+      </div>
+      <article class="event-card">
+        <div class="event-card__badges">
+          <span class="badge badge--vendor badge--openai">OpenAI</span>
+          <span class="badge badge--category">Model Release</span>
+        </div>
+        <h2 class="event-card__title">Introducing GPT-5.2</h2>
+        <p class="event-card__summary">GPT-5.2 is our most advanced frontier model for everyday professional work, with state-of-the-art reasoning, long-context understanding, coding, and vision. Use it in ChatGPT and the OpenAI API to power faster, more reliable agentic work...</p>
+        <p class="event-card__meta">Products: chatgpt, gpt</p>
+        <div class="event-card__links">
+          <a href="https://openai.com/index/introducing-gpt-5-2" target="_blank" rel="noreferrer">Source</a>
+          
+        </div>
+      </article>
+    </li>
+  
+    <li class="timeline__item">
+      <div class="timeline__date">
+        <div class="timeline__day">Dec 10, 2025</div>
+        <div class="timeline__kind">Published</div>
+      </div>
+      <article class="event-card">
+        <div class="event-card__badges">
+          <span class="badge badge--vendor badge--google">Google</span>
+          <span class="badge badge--category">Model Release</span>
+        </div>
+        <h2 class="event-card__title">Launched enhancements to our text-to-speech models , Gemini 2.5 Flash TTS preview (optimized for low latency) and Gemini 2.5 Pro TTS prev...</h2>
+        <p class="event-card__summary">Launched enhancements to our text-to-speech models , Gemini 2.5 Flash TTS preview (optimized for low latency) and Gemini 2.5 Pro TTS preview (optimized for quality), including enhanced expressivity, precision pacing, and seamless dialogue.</p>
+        <p class="event-card__meta">Products: gemini · Models: gemini-2.5-flash-tts, gemini-2.5-pro-tts</p>
+        <div class="event-card__links">
+          <a href="https://ai.google.dev/gemini-api/docs/speech-generation" target="_blank" rel="noreferrer">Source</a>
+          
+        </div>
+      </article>
+    </li>
+  
+    <li class="timeline__item">
+      <div class="timeline__date">
+        <div class="timeline__day">Nov 24, 2025</div>
+        <div class="timeline__kind">Published</div>
+      </div>
+      <article class="event-card">
+        <div class="event-card__badges">
+          <span class="badge badge--vendor badge--anthropic">Anthropic</span>
+          <span class="badge badge--category">Model Release</span>
+        </div>
+        <h2 class="event-card__title">Introducing Claude Opus 4.5</h2>
+        <p class="event-card__summary">Our newest model, Claude Opus 4.5, is available today. It’s intelligent, efficient, and the best model in the world for coding, agents, and computer use. It’s also meaningfully better at everyday tasks like deep research and working with...</p>
+        <p class="event-card__meta">Products: claude, claude code · Models: claude-opus-4.5</p>
+        <div class="event-card__links">
+          <a href="https://www.anthropic.com/news/claude-opus-4-5" target="_blank" rel="noreferrer">Source</a>
+          
+        </div>
+      </article>
+    </li>
+  
+    <li class="timeline__item">
+      <div class="timeline__date">
+        <div class="timeline__day">Nov 20, 2025</div>
+        <div class="timeline__kind">Published</div>
+      </div>
+      <article class="event-card">
+        <div class="event-card__badges">
+          <span class="badge badge--vendor badge--google">Google</span>
+          <span class="badge badge--category">Model Release</span>
+        </div>
+        <h2 class="event-card__title">Released Gemini 3 Pro Image Preview, gemini-3-pro-image-preview , the next iteration to the Nano Banana model.</h2>
+        <p class="event-card__summary">Released Gemini 3 Pro Image Preview, gemini-3-pro-image-preview , the next iteration to the Nano Banana model. Read the Image generation page for more details.</p>
+        <p class="event-card__meta">Products: gemini · Models: gemini-3-pro-image</p>
+        <div class="event-card__links">
+          <a href="https://ai.google.dev/gemini-api/docs/image-generation" target="_blank" rel="noreferrer">Source</a>
+          
+        </div>
+      </article>
+    </li>
+  
+    <li class="timeline__item">
+      <div class="timeline__date">
+        <div class="timeline__day">Nov 17, 2025</div>
+        <div class="timeline__kind">Published</div>
+      </div>
+      <article class="event-card">
+        <div class="event-card__badges">
+          <span class="badge badge--vendor badge--google">Google</span>
+          <span class="badge badge--category">Model Release</span>
+        </div>
+        <h2 class="event-card__title">Veo video generation</h2>
+        <p class="event-card__summary">Veo video generation Veo 3.1 is Generally Available, and introduces the following models: Veo 3.1 Veo 3.1 Fast For more information, see the following: Generate videos with Veo on Vertex AI Generate Veo videos from text prompts Generate ...</p>
+        <p class="event-card__meta">Products: veo, vertex ai · Models: veo-3.1, veo-3.1-fast</p>
+        <div class="event-card__links">
+          <a href="https://cloud.google.com/vertex-ai/generative-ai/docs/models/veo/3-1-generate#3.1-generate-001" target="_blank" rel="noreferrer">Source</a>
+          
+        </div>
+      </article>
+    </li>
+  
+    <li class="timeline__item">
+      <div class="timeline__date">
+        <div class="timeline__day">Nov 13, 2025</div>
+        <div class="timeline__kind">Published</div>
+      </div>
+      <article class="event-card">
+        <div class="event-card__badges">
+          <span class="badge badge--vendor badge--openai">OpenAI</span>
+          <span class="badge badge--category">Model Release</span>
+        </div>
+        <h2 class="event-card__title">Introducing GPT-5.1 for developers</h2>
+        <p class="event-card__summary">GPT-5.1 is now available in the API, bringing faster adaptive reasoning, extended prompt caching, improved coding performance, and new apply_patch and shell tools.</p>
+        <p class="event-card__meta">Products: gpt</p>
+        <div class="event-card__links">
+          <a href="https://openai.com/index/gpt-5-1-for-developers" target="_blank" rel="noreferrer">Source</a>
+          
+        </div>
+      </article>
+    </li>
+  
+    <li class="timeline__item">
+      <div class="timeline__date">
+        <div class="timeline__day">Oct 29, 2025</div>
+        <div class="timeline__kind">Published</div>
+      </div>
+      <article class="event-card">
+        <div class="event-card__badges">
+          <span class="badge badge--vendor badge--openai">OpenAI</span>
+          <span class="badge badge--category">Model Release</span>
+        </div>
+        <h2 class="event-card__title">Introducing gpt-oss-safeguard</h2>
+        <p class="event-card__summary">OpenAI introduces gpt-oss-safeguard—open-weight reasoning models for safety classification that let developers apply and iterate on custom policies.</p>
+        <p class="event-card__meta">Products: gpt</p>
+        <div class="event-card__links">
+          <a href="https://openai.com/index/introducing-gpt-oss-safeguard" target="_blank" rel="noreferrer">Source</a>
+          
+        </div>
+      </article>
+    </li>
+  
+    <li class="timeline__item">
+      <div class="timeline__date">
+        <div class="timeline__day">Oct 15, 2025</div>
+        <div class="timeline__kind">Published</div>
+      </div>
+      <article class="event-card">
+        <div class="event-card__badges">
+          <span class="badge badge--vendor badge--anthropic">Anthropic</span>
+          <span class="badge badge--category">Model Release</span>
+        </div>
+        <h2 class="event-card__title">Introducing Claude Haiku 4.5</h2>
+        <p class="event-card__summary">Claude Haiku 4.5, our latest small model, is available today to all users. What was recently at the frontier is now cheaper and faster. Five months ago, Claude Sonnet 4 was a state-of-the-art model. Today, Claude Haiku 4.5 gives you simi...</p>
+        <p class="event-card__meta">Products: claude, claude code · Models: claude-haiku-4.5</p>
+        <div class="event-card__links">
+          <a href="https://www.anthropic.com/news/claude-haiku-4-5" target="_blank" rel="noreferrer">Source</a>
+          
+        </div>
+      </article>
+    </li>
+  
+    <li class="timeline__item">
+      <div class="timeline__date">
+        <div class="timeline__day">Oct 15, 2025</div>
+        <div class="timeline__kind">Published</div>
+      </div>
+      <article class="event-card">
+        <div class="event-card__badges">
+          <span class="badge badge--vendor badge--google">Google</span>
+          <span class="badge badge--category">Model Release</span>
+        </div>
+        <h2 class="event-card__title">Veo video generation</h2>
+        <p class="event-card__summary">Veo video generation Veo 3.1 is available in Preview, and introduces the following models: Veo 3.1 preview Veo 3.1 Fast preview . For more information, see the following: Generate videos with Veo on Vertex AI Generate Veo videos from tex...</p>
+        <p class="event-card__meta">Products: veo, vertex ai · Models: veo-3.1, veo-3.1-fast</p>
+        <div class="event-card__links">
+          <a href="https://cloud.google.com/vertex-ai/generative-ai/docs/models/veo/3-1-generate-preview" target="_blank" rel="noreferrer">Source</a>
+          
+        </div>
+      </article>
+    </li>
+  
+    <li class="timeline__item">
+      <div class="timeline__date">
+        <div class="timeline__day">Oct 15, 2025</div>
+        <div class="timeline__kind">Published</div>
+      </div>
+      <article class="event-card">
+        <div class="event-card__badges">
+          <span class="badge badge--vendor badge--google">Google</span>
+          <span class="badge badge--category">Model Release</span>
+        </div>
+        <h2 class="event-card__title">Veo video generation</h2>
+        <p class="event-card__summary">Veo video generation Veo 2 supports adding and removing objects from videos in Preview. For more information about Veo 2, see Veo 2 Preview For more information about adding and removing objects, see the following: Insert objects into Ve...</p>
+        <p class="event-card__meta">Products: veo · Models: veo-2, veo-2.0</p>
+        <div class="event-card__links">
+          <a href="https://docs.cloud.google.com/vertex-ai/generative-ai/docs/models/veo/2-0-generate-preview" target="_blank" rel="noreferrer">Source</a>
+          
+        </div>
+      </article>
+    </li>
+  
+    <li class="timeline__item">
+      <div class="timeline__date">
+        <div class="timeline__day">Oct 2, 2025</div>
+        <div class="timeline__kind">Published</div>
+      </div>
+      <article class="event-card">
+        <div class="event-card__badges">
+          <span class="badge badge--vendor badge--google">Google</span>
+          <span class="badge badge--category">Model Release</span>
+        </div>
+        <h2 class="event-card__title">Launched Gemini 2.5 Flash Image GA: Image Generation with Gemini</h2>
+        <p class="event-card__summary">Launched Gemini 2.5 Flash Image GA: Image Generation with Gemini</p>
+        <p class="event-card__meta">Products: gemini · Models: gemini-2.5-flash-image</p>
+        <div class="event-card__links">
+          <a href="https://ai.google.dev/gemini-api/docs/image-generation" target="_blank" rel="noreferrer">Source</a>
+          
+        </div>
+      </article>
+    </li>
+  
+    <li class="timeline__item">
+      <div class="timeline__date">
+        <div class="timeline__day">Sep 29, 2025</div>
+        <div class="timeline__kind">Published</div>
+      </div>
+      <article class="event-card">
+        <div class="event-card__badges">
+          <span class="badge badge--vendor badge--anthropic">Anthropic</span>
+          <span class="badge badge--category">Model Release</span>
+        </div>
+        <h2 class="event-card__title">Introducing Claude Sonnet 4.5</h2>
+        <p class="event-card__summary">Claude Sonnet 4.5 is the best coding model in the world. It&#39;s the strongest model for building complex agents. It’s the best model at using computers. And it shows substantial gains in reasoning and math. Code is everywhere. It runs ever...</p>
+        <p class="event-card__meta">Products: claude, claude code · Models: claude-sonnet-4.5</p>
+        <div class="event-card__links">
+          <a href="https://www.anthropic.com/news/claude-sonnet-4-5" target="_blank" rel="noreferrer">Source</a>
+          
+        </div>
+      </article>
+    </li>
+  
+    <li class="timeline__item">
+      <div class="timeline__date">
+        <div class="timeline__day">Sep 25, 2025</div>
+        <div class="timeline__kind">Published</div>
+      </div>
+      <article class="event-card">
+        <div class="event-card__badges">
+          <span class="badge badge--vendor badge--google">Google</span>
+          <span class="badge badge--category">Model Release</span>
+        </div>
+        <h2 class="event-card__title">Gemini 2.5 Flash</h2>
+        <p class="event-card__summary">New preview models for Gemini 2.5 Flash and 2.5 Flash-Lite are now available. These models are available at the following versioned endpoints: gemini-2.5-flash-preview-09-2025 gemini-2.5-flash-lite-preview-09-2025</p>
+        <p class="event-card__meta">Products: gemini · Models: gemini-2.5-flash, gemini-2.5-flash-09.2025, gemini-2.5-flash-lite-09.2025</p>
+        <div class="event-card__links">
+          <a href="https://docs.cloud.google.com/vertex-ai/generative-ai/docs/models/gemini/2-5-flash#2.5-flash-preview" target="_blank" rel="noreferrer">Source</a>
+          
+        </div>
+      </article>
+    </li>
+  
+    <li class="timeline__item">
+      <div class="timeline__date">
+        <div class="timeline__day">Sep 8, 2025</div>
+        <div class="timeline__kind">Published</div>
+      </div>
+      <article class="event-card">
+        <div class="event-card__badges">
+          <span class="badge badge--vendor badge--google">Google</span>
+          <span class="badge badge--category">Model Release</span>
+        </div>
+        <h2 class="event-card__title">Veo video generation</h2>
+        <p class="event-card__summary">Veo video generation Veo 3 support for short-duration videos is generally available . You can use Veo 3 to create 4, 6, or 8 second videos. For more information, see the following: Generate videos with Veo on Vertex AI from text prompts ...</p>
+        <p class="event-card__meta">Products: veo, vertex ai · Models: veo-3</p>
+        <div class="event-card__links">
+          <a href="https://docs.cloud.google.com/vertex-ai/generative-ai/docs/video/generate-videos-from-text" target="_blank" rel="noreferrer">Source</a>
+          
+        </div>
+      </article>
+    </li>
+  
+    <li class="timeline__item">
+      <div class="timeline__date">
+        <div class="timeline__day">Aug 28, 2025</div>
+        <div class="timeline__kind">Published</div>
+      </div>
+      <article class="event-card">
+        <div class="event-card__badges">
+          <span class="badge badge--vendor badge--openai">OpenAI</span>
+          <span class="badge badge--category">Model Release</span>
+        </div>
+        <h2 class="event-card__title">Introducing gpt-realtime and Realtime API updates</h2>
+        <p class="event-card__summary">We’re releasing a more advanced speech-to-speech model and new API capabilities including MCP server support, image input, and SIP phone calling support.</p>
+        <p class="event-card__meta">Products: gpt</p>
+        <div class="event-card__links">
+          <a href="https://openai.com/index/introducing-gpt-realtime" target="_blank" rel="noreferrer">Source</a>
+          
+        </div>
+      </article>
+    </li>
+  
+    <li class="timeline__item">
+      <div class="timeline__date">
+        <div class="timeline__day">Aug 26, 2025</div>
+        <div class="timeline__kind">Published</div>
+      </div>
+      <article class="event-card">
+        <div class="event-card__badges">
+          <span class="badge badge--vendor badge--google">Google</span>
+          <span class="badge badge--category">Model Release</span>
+        </div>
+        <h2 class="event-card__title">Gemini 2.5 Flash Image Preview</h2>
+        <p class="event-card__summary">Gemini 2.5 Flash Image Preview Gemini 2.5 Flash Image ( gemini-2.5-flash-image-preview ) is available in Preview . Gemini 2.5 Flash Image Preview supports additional image generation and editing features such as image generation from mul...</p>
+        <p class="event-card__meta">Products: gemini · Models: gemini-2.5-flash, gemini-2.5-flash-image</p>
+        <div class="event-card__links">
+          <a href="https://docs.cloud.google.com/vertex-ai/generative-ai/docs/models/gemini/2-5-flash#image-generation" target="_blank" rel="noreferrer">Source</a>
+          
+        </div>
+      </article>
+    </li>
+  
+    <li class="timeline__item">
+      <div class="timeline__date">
+        <div class="timeline__day">Aug 26, 2025</div>
+        <div class="timeline__kind">Published</div>
+      </div>
+      <article class="event-card">
+        <div class="event-card__badges">
+          <span class="badge badge--vendor badge--google">Google</span>
+          <span class="badge badge--category">Model Release</span>
+        </div>
+        <h2 class="event-card__title">Launched Gemini 2.5 Image Preview , our latest native image generation model.</h2>
+        <p class="event-card__summary">Launched Gemini 2.5 Image Preview , our latest native image generation model.</p>
+        <p class="event-card__meta">Products: gemini · Models: gemini-2.5-image</p>
+        <div class="event-card__links">
+          <a href="https://ai.google.dev/gemini-api/docs/models#gemini-2.5-flash-image-preview" target="_blank" rel="noreferrer">Source</a>
+          
+        </div>
+      </article>
+    </li>
+  
+    <li class="timeline__item">
+      <div class="timeline__date">
+        <div class="timeline__day">Aug 14, 2025</div>
+        <div class="timeline__kind">Published</div>
+      </div>
+      <article class="event-card">
+        <div class="event-card__badges">
+          <span class="badge badge--vendor badge--google">Google</span>
+          <span class="badge badge--category">Model Release</span>
+        </div>
+        <h2 class="event-card__title">Released Imagen 4 Ultra, Standard and Fast models as generally available (GA).</h2>
+        <p class="event-card__summary">Released Imagen 4 Ultra, Standard and Fast models as generally available (GA). To learn more, see the Imagen page.</p>
+        <p class="event-card__meta">Products: imagen · Models: imagen, imagen-4-ultra</p>
+        <div class="event-card__links">
+          <a href="https://ai.google.dev/gemini-api/docs/imagen" target="_blank" rel="noreferrer">Source</a>
+          
+        </div>
+      </article>
+    </li>
+  
+    <li class="timeline__item">
+      <div class="timeline__date">
+        <div class="timeline__day">Aug 14, 2025</div>
+        <div class="timeline__kind">Published</div>
+      </div>
+      <article class="event-card">
+        <div class="event-card__badges">
+          <span class="badge badge--vendor badge--google">Google</span>
+          <span class="badge badge--category">Model Release</span>
+        </div>
+        <h2 class="event-card__title">Imagen</h2>
+        <p class="event-card__summary">Imagen Imagen 4 is Generally Available. Imagen 4 introduces the following models: Imagen 4 Generate Imagen 4 Fast Generate Imagen 4 Ultra Generate For more information, see Generate images using text prompts and Image generation API .</p>
+        <p class="event-card__meta">Products: imagen · Models: imagen, imagen-4, imagen-4-fast</p>
+        <div class="event-card__links">
+          <a href="https://docs.cloud.google.com/vertex-ai/generative-ai/docs/models/imagen/4-0-generate-001" target="_blank" rel="noreferrer">Source</a>
+          
+        </div>
+      </article>
+    </li>
+  
+    <li class="timeline__item">
+      <div class="timeline__date">
+        <div class="timeline__day">Aug 8, 2025</div>
+        <div class="timeline__kind">Published</div>
+      </div>
+      <article class="event-card">
+        <div class="event-card__badges">
+          <span class="badge badge--vendor badge--google">Google</span>
+          <span class="badge badge--category">Model Release</span>
+        </div>
+        <h2 class="event-card__title">Gemini 2.5 Flash-Lite</h2>
+        <p class="event-card__summary">Gemini 2.5 Flash-Lite and Gemini 2.5 Pro now support supervised fine-tuning. For more information, see About supervised fine-tuning for Gemini models .</p>
+        <p class="event-card__meta">Products: gemini · Models: gemini-2.5-flash-lite, gemini-2.5-pro</p>
+        <div class="event-card__links">
+          <a href="https://docs.cloud.google.com/vertex-ai/generative-ai/docs/models/gemini-supervised-tuning" target="_blank" rel="noreferrer">Source</a>
+          
+        </div>
+      </article>
+    </li>
+  
+    <li class="timeline__item">
+      <div class="timeline__date">
+        <div class="timeline__day">Aug 7, 2025</div>
+        <div class="timeline__kind">Published</div>
+      </div>
+      <article class="event-card">
+        <div class="event-card__badges">
+          <span class="badge badge--vendor badge--openai">OpenAI</span>
+          <span class="badge badge--category">Model Release</span>
+        </div>
+        <h2 class="event-card__title">Introducing GPT-5 for developers</h2>
+        <p class="event-card__summary">Introducing GPT-5 in our API platform—offering high reasoning performance, new controls for devs, and best-in-class results on real coding tasks.</p>
+        <p class="event-card__meta">Products: gpt</p>
+        <div class="event-card__links">
+          <a href="https://openai.com/index/introducing-gpt-5-for-developers" target="_blank" rel="noreferrer">Source</a>
+          
+        </div>
+      </article>
+    </li>
+  
+    <li class="timeline__item">
+      <div class="timeline__date">
+        <div class="timeline__day">Aug 7, 2025</div>
+        <div class="timeline__kind">Published</div>
+      </div>
+      <article class="event-card">
+        <div class="event-card__badges">
+          <span class="badge badge--vendor badge--openai">OpenAI</span>
+          <span class="badge badge--category">Model Release</span>
+        </div>
+        <h2 class="event-card__title">Introducing GPT-5</h2>
+        <p class="event-card__summary">We are introducing GPT‑5, our best AI system yet. GPT‑5 is a significant leap in intelligence over all our previous models, featuring state-of-the-art performance across coding, math, writing, health, visual perception, and more.</p>
+        <p class="event-card__meta">Products: gpt</p>
+        <div class="event-card__links">
+          <a href="https://openai.com/index/introducing-gpt-5" target="_blank" rel="noreferrer">Source</a>
+          
+        </div>
+      </article>
+    </li>
+  
+    <li class="timeline__item">
+      <div class="timeline__date">
+        <div class="timeline__day">Aug 5, 2025</div>
+        <div class="timeline__kind">Published</div>
+      </div>
+      <article class="event-card">
+        <div class="event-card__badges">
+          <span class="badge badge--vendor badge--anthropic">Anthropic</span>
+          <span class="badge badge--category">Model Release</span>
+        </div>
+        <h2 class="event-card__title">We&#39;ve launched Claude Opus 4.1 , an incremental update to Claude Opus 4 with enhanced capabilities and performance improvements. * Learn...</h2>
+        <p class="event-card__summary">We&#39;ve launched Claude Opus 4.1 , an incremental update to Claude Opus 4 with enhanced capabilities and performance improvements. * Learn more in Models overview .</p>
+        <p class="event-card__meta">Products: claude · Models: claude-opus-4, claude-opus-4.1</p>
+        <div class="event-card__links">
+          <a href="https://www.anthropic.com/news/claude-opus-4-1" target="_blank" rel="noreferrer">Source</a>
+          
+        </div>
+      </article>
+    </li>
+  
+    <li class="timeline__item">
+      <div class="timeline__date">
+        <div class="timeline__day">Aug 5, 2025</div>
+        <div class="timeline__kind">Published</div>
+      </div>
+      <article class="event-card">
+        <div class="event-card__badges">
+          <span class="badge badge--vendor badge--openai">OpenAI</span>
+          <span class="badge badge--category">Model Release</span>
+        </div>
+        <h2 class="event-card__title">Introducing gpt-oss</h2>
+        <p class="event-card__summary">We’re releasing gpt-oss-120b and gpt-oss-20b—two state-of-the-art open-weight language models that deliver strong real-world performance at low cost. Available under the flexible Apache 2.0 license, these models outperform similarly size...</p>
+        <p class="event-card__meta">Products: gpt</p>
+        <div class="event-card__links">
+          <a href="https://openai.com/index/introducing-gpt-oss" target="_blank" rel="noreferrer">Source</a>
+          
+        </div>
+      </article>
+    </li>
+  
+    <li class="timeline__item">
+      <div class="timeline__date">
+        <div class="timeline__day">Jul 31, 2025</div>
+        <div class="timeline__kind">Published</div>
+      </div>
+      <article class="event-card">
+        <div class="event-card__badges">
+          <span class="badge badge--vendor badge--google">Google</span>
+          <span class="badge badge--category">Model Release</span>
+        </div>
+        <h2 class="event-card__title">Launched image-to-video generation for the Veo 3 Preview model.</h2>
+        <p class="event-card__summary">Launched image-to-video generation for the Veo 3 Preview model.</p>
+        <p class="event-card__meta">Products: veo · Models: veo-3</p>
+        <div class="event-card__links">
+          <a href="https://ai.google.dev/gemini-api/docs/changelog?hl=en#07-31-2025-1" target="_blank" rel="noreferrer">Source</a>
+          
+        </div>
+      </article>
+    </li>
+  
+    <li class="timeline__item">
+      <div class="timeline__date">
+        <div class="timeline__day">Jul 31, 2025</div>
+        <div class="timeline__kind">Published</div>
+      </div>
+      <article class="event-card">
+        <div class="event-card__badges">
+          <span class="badge badge--vendor badge--google">Google</span>
+          <span class="badge badge--category">Model Release</span>
+        </div>
+        <h2 class="event-card__title">Released Veo 3 Fast Preview model.</h2>
+        <p class="event-card__summary">Released Veo 3 Fast Preview model.</p>
+        <p class="event-card__meta">Products: veo · Models: veo-3-fast</p>
+        <div class="event-card__links">
+          <a href="https://ai.google.dev/gemini-api/docs/changelog?hl=en#07-31-2025-2" target="_blank" rel="noreferrer">Source</a>
+          
+        </div>
+      </article>
+    </li>
+  
+    <li class="timeline__item">
+      <div class="timeline__date">
+        <div class="timeline__day">Jul 29, 2025</div>
+        <div class="timeline__kind">Published</div>
+      </div>
+      <article class="event-card">
+        <div class="event-card__badges">
+          <span class="badge badge--vendor badge--google">Google</span>
+          <span class="badge badge--category">Model Release</span>
+        </div>
+        <h2 class="event-card__title">Veo video generation</h2>
+        <p class="event-card__summary">Veo video generation Veo 3 and Veo 3 Fast are now generally available. For more information, see Generate videos using text prompts .</p>
+        <p class="event-card__meta">Products: veo · Models: veo-3, veo-3-fast</p>
+        <div class="event-card__links">
+          <a href="https://docs.cloud.google.com/vertex-ai/generative-ai/docs/video/generate-videos-from-text" target="_blank" rel="noreferrer">Source</a>
+          
+        </div>
+      </article>
+    </li>
+  
+    <li class="timeline__item">
+      <div class="timeline__date">
+        <div class="timeline__day">Jul 22, 2025</div>
+        <div class="timeline__kind">Published</div>
+      </div>
+      <article class="event-card">
+        <div class="event-card__badges">
+          <span class="badge badge--vendor badge--google">Google</span>
+          <span class="badge badge--category">Model Release</span>
+        </div>
+        <h2 class="event-card__title">Gemini 2.5 Flash-Lite</h2>
+        <p class="event-card__summary">Gemini 2.5 Flash-Lite is now generally available and accessible using the API and Vertex AI Studio. This GA release includes support for explicit caching and batch prediction , as well as expanded region support. See Gemini 2.5 Flash-Lit...</p>
+        <p class="event-card__meta">Products: ai studio, gemini, vertex ai · Models: gemini-2.5-flash-lite</p>
+        <div class="event-card__links">
+          <a href="https://docs.cloud.google.com/vertex-ai/generative-ai/docs/multimodal/batch-prediction-gemini" target="_blank" rel="noreferrer">Source</a>
+          
+        </div>
+      </article>
+    </li>
+  
+    <li class="timeline__item">
+      <div class="timeline__date">
+        <div class="timeline__day">Jul 17, 2025</div>
+        <div class="timeline__kind">Published</div>
+      </div>
+      <article class="event-card">
+        <div class="event-card__badges">
+          <span class="badge badge--vendor badge--openai">OpenAI</span>
+          <span class="badge badge--category">Model Release</span>
+        </div>
+        <h2 class="event-card__title">Introducing ChatGPT agent</h2>
+        <p class="event-card__summary">Introducing ChatGPT agent: it thinks and acts, using tools to complete tasks like research, bookings, and slideshows—all with your guidance.</p>
+        <p class="event-card__meta">Products: chatgpt, gpt</p>
+        <div class="event-card__links">
+          <a href="https://openai.com/index/introducing-chatgpt-agent" target="_blank" rel="noreferrer">Source</a>
+          
+        </div>
+      </article>
+    </li>
+  
+    <li class="timeline__item">
+      <div class="timeline__date">
+        <div class="timeline__day">Jul 7, 2025</div>
+        <div class="timeline__kind">Published</div>
+      </div>
+      <article class="event-card">
+        <div class="event-card__badges">
+          <span class="badge badge--vendor badge--google">Google</span>
+          <span class="badge badge--category">Model Release</span>
+        </div>
+        <h2 class="event-card__title">Imagen 4</h2>
+        <p class="event-card__summary">Imagen 4 &#39;s public preview models are updated to the following: imagen-4.0-generate-preview-06-06 imagen-4.0-fast-generate-preview-06-06 imagen-4.0-ultra-generate-preview-06-06 For more information about each model, see Preview Imagen mo...</p>
+        <p class="event-card__meta">Products: imagen · Models: imagen, imagen-4, imagen-4.0</p>
+        <div class="event-card__links">
+          <a href="https://docs.cloud.google.com/vertex-ai/generative-ai/docs/models#preview-imagen-models" target="_blank" rel="noreferrer">Source</a>
+          
+        </div>
+      </article>
+    </li>
+  
+    <li class="timeline__item">
+      <div class="timeline__date">
+        <div class="timeline__day">Jun 26, 2025</div>
+        <div class="timeline__kind">Published</div>
+      </div>
+      <article class="event-card">
+        <div class="event-card__badges">
+          <span class="badge badge--vendor badge--google">Google</span>
+          <span class="badge badge--category">Model Release</span>
+        </div>
+        <h2 class="event-card__title">Released gemini-2.5-pro-preview-06-05 , a new version of our most powerful model, now with adaptive thinking.</h2>
+        <p class="event-card__summary">Released gemini-2.5-pro-preview-06-05 , a new version of our most powerful model, now with adaptive thinking. To learn more, see Gemini 2.5 Pro Preview and Thinking . gemini-2.5-pro-preview-05-06 will be redirected to gemini-2.5-pro on J...</p>
+        <p class="event-card__meta">Products: gemini · Models: gemini-2.5-pro, gemini-2.5-pro-05.06, gemini-2.5-pro-06.05</p>
+        <div class="event-card__links">
+          <a href="https://ai.google.dev/gemini-api/docs/models#gemini-2.5-pro-preview-06-05" target="_blank" rel="noreferrer">Source</a>
+          
+        </div>
+      </article>
+    </li>
+  
+    <li class="timeline__item">
+      <div class="timeline__date">
+        <div class="timeline__day">Jun 26, 2025</div>
+        <div class="timeline__kind">Published</div>
+      </div>
+      <article class="event-card">
+        <div class="event-card__badges">
+          <span class="badge badge--vendor badge--google">Google</span>
+          <span class="badge badge--category">Model Release</span>
+        </div>
+        <h2 class="event-card__title">Released gemini-2.5-pro , the stable version of our most powerful model, now with adaptive thinking.</h2>
+        <p class="event-card__summary">Released gemini-2.5-pro , the stable version of our most powerful model, now with adaptive thinking. To learn more, see Gemini 2.5 Pro and Thinking . gemini-2.5-pro-preview-05-06 will be redirected to gemini-2.5-pro on June 26, 2025.</p>
+        <p class="event-card__meta">Products: gemini · Models: gemini-2.5-pro, gemini-2.5-pro-05.06</p>
+        <div class="event-card__links">
+          <a href="https://ai.google.dev/gemini-api/docs/models#gemini-2.5-pro" target="_blank" rel="noreferrer">Source</a>
+          
+        </div>
+      </article>
+    </li>
+  
+    <li class="timeline__item">
+      <div class="timeline__date">
+        <div class="timeline__day">Jun 24, 2025</div>
+        <div class="timeline__kind">Published</div>
+      </div>
+      <article class="event-card">
+        <div class="event-card__badges">
+          <span class="badge badge--vendor badge--google">Google</span>
+          <span class="badge badge--category">Model Release</span>
+        </div>
+        <h2 class="event-card__title">Released Imagen 4 Ultra and Standard Preview models.</h2>
+        <p class="event-card__summary">Released Imagen 4 Ultra and Standard Preview models. To learn more, see the Image generation page.</p>
+        <p class="event-card__meta">Products: imagen · Models: imagen-4-ultra</p>
+        <div class="event-card__links">
+          <a href="https://ai.google.dev/gemini-api/docs/image-generation" target="_blank" rel="noreferrer">Source</a>
+          
+        </div>
+      </article>
+    </li>
+  
+    <li class="timeline__item">
+      <div class="timeline__date">
+        <div class="timeline__day">Jun 23, 2025</div>
+        <div class="timeline__kind">Published</div>
+      </div>
+      <article class="event-card">
+        <div class="event-card__badges">
+          <span class="badge badge--vendor badge--google">Google</span>
+          <span class="badge badge--category">Model Release</span>
+        </div>
+        <h2 class="event-card__title">Veo 2</h2>
+        <p class="event-card__summary">Veo 2 support for advanced video controls is Generally Available. In addition to a providing a first frame of a video, you can specify the last frame of a video or a video to extend in length. For more information, see Veo on Vertex AI A...</p>
+        <p class="event-card__meta">Products: veo, vertex ai · Models: veo-2</p>
+        <div class="event-card__links">
+          <a href="https://docs.cloud.google.com/vertex-ai/generative-ai/docs/model-reference/veo-video-generation" target="_blank" rel="noreferrer">Source</a>
+          
+        </div>
+      </article>
+    </li>
+  
+    <li class="timeline__item">
+      <div class="timeline__date">
+        <div class="timeline__day">Jun 19, 2025</div>
+        <div class="timeline__kind">Effective</div>
+      </div>
+      <article class="event-card">
+        <div class="event-card__badges">
+          <span class="badge badge--vendor badge--google">Google</span>
+          <span class="badge badge--category">Model Release</span>
+        </div>
+        <h2 class="event-card__title">Updated preview endpoints:</h2>
+        <p class="event-card__summary">Updated preview endpoints: Effective June 19, 2025 , gemini-2.5-flash-preview-04-17 endpoint will serve the Gemini 2.5 Flash model version released on 05-20, which has been promoted to GA. Similarly, the gemini-2.5-pro-preview-05-06 and ...</p>
+        <p class="event-card__meta">Products: gemini · Models: gemini-2.5-flash, gemini-2.5-flash-04.17, gemini-2.5-pro</p>
+        <div class="event-card__links">
+          <a href="https://docs.cloud.google.com/vertex-ai/generative-ai/docs/release-notes?hl=en#June_17_2025-7" target="_blank" rel="noreferrer">Source</a>
+          
+        </div>
+      </article>
+    </li>
+  
+    <li class="timeline__item">
+      <div class="timeline__date">
+        <div class="timeline__day">Jun 17, 2025</div>
+        <div class="timeline__kind">Published</div>
+      </div>
+      <article class="event-card">
+        <div class="event-card__badges">
+          <span class="badge badge--vendor badge--google">Google</span>
+          <span class="badge badge--category">Model Release</span>
+        </div>
+        <h2 class="event-card__title">Gemini 2.5 Flash</h2>
+        <p class="event-card__summary">Gemini 2.5 Flash and Gemini 2.5 Pro are now generally available and accessible using the API and Vertex AI Studio. See Gemini 2.5 Flash and Gemini 2.5 Pro for more information.</p>
+        <p class="event-card__meta">Products: ai studio, gemini, vertex ai · Models: gemini-2.5-flash, gemini-2.5-pro</p>
+        <div class="event-card__links">
+          <a href="https://docs.cloud.google.com/vertex-ai/generative-ai/docs/models/gemini/2-5-flash" target="_blank" rel="noreferrer">Source</a>
+          
+        </div>
+      </article>
+    </li>
+  
+    <li class="timeline__item">
+      <div class="timeline__date">
+        <div class="timeline__day">Jun 17, 2025</div>
+        <div class="timeline__kind">Published</div>
+      </div>
+      <article class="event-card">
+        <div class="event-card__badges">
+          <span class="badge badge--vendor badge--google">Google</span>
+          <span class="badge badge--category">Model Release</span>
+        </div>
+        <h2 class="event-card__title">Gemini 2.5 Flash-Lite</h2>
+        <p class="event-card__summary">Gemini 2.5 Flash-Lite is now available as a preview offering in both the API and Vertex AI Studio. See Gemini 2.5 Flash-Lite for more information.</p>
+        <p class="event-card__meta">Products: ai studio, gemini, vertex ai · Models: gemini-2.5-flash-lite</p>
+        <div class="event-card__links">
+          <a href="https://docs.cloud.google.com/vertex-ai/generative-ai/docs/models/gemini/2-5-flash-lite" target="_blank" rel="noreferrer">Source</a>
+          
+        </div>
+      </article>
+    </li>
+  </ol>
+        <p class="empty-state" data-empty-state hidden>No events matched the current filters. Try widening the date range, switching category, or clearing product/model filters.</p>
+        <div class="feed-loader" data-static-loader hidden>
+          <div class="feed-loader__controls">
+            <button type="button" class="feed-loader__button" data-load-more>Load more</button>
+            <p class="feed-loader__status" data-loader-status aria-live="polite">Loading snapshot...</p>
+          </div>
+          <div class="feed-loader__sentinel" data-loader-sentinel aria-hidden="true"></div>
+        </div>
+        <noscript>
+          <p class="feed-loader__status">This static snapshot supports filtering and loading older pages with JavaScript enabled.</p>
+        </noscript>
+      </section>
+    </main>
+    <script>
+(() => {
+  const root = document.querySelector("[data-static-feeds]");
+  const form = document.querySelector("[data-feeds-form]");
+  const summary = document.querySelector("[data-summary-heading]");
+  const chips = document.querySelector("[data-filter-chips]");
+  const timeline = document.querySelector("[data-timeline]");
+  const emptyState = document.querySelector("[data-empty-state]");
+  const loader = document.querySelector("[data-static-loader]");
+  const resetLink = document.querySelector("[data-reset-link]");
+  if (
+    !(root instanceof HTMLElement) ||
+    !(form instanceof HTMLFormElement) ||
+    !(summary instanceof HTMLElement) ||
+    !(chips instanceof HTMLElement) ||
+    !(timeline instanceof HTMLElement) ||
+    !(emptyState instanceof HTMLElement) ||
+    !(loader instanceof HTMLElement)
+  ) {
+    return;
+  }
+
+  const button = loader.querySelector("[data-load-more]");
+  const status = loader.querySelector("[data-loader-status]");
+  const sentinel = loader.querySelector("[data-loader-sentinel]");
+  if (!(button instanceof HTMLButtonElement) || !(status instanceof HTMLElement) || !(sentinel instanceof HTMLElement)) {
+    return;
+  }
+
+  const allowedVendors = ["openai","anthropic","google"];
+  const allowedCategories = ["model_release","model_rollout","deprecation","release_note","tech_guide","blog_update"];
+  const vendorLabels = {"openai":"OpenAI","anthropic":"Anthropic","google":"Google"};
+  const defaultCategories = ["model_release"];
+  const defaultLimit = Number(root.dataset.defaultLimit || "50");
+  const dataHref = root.dataset.dataHref || "";
+  let allEvents = null;
+  let filteredEvents = [];
+  let visibleCount = 0;
+  let currentState = null;
+  let loading = false;
+  let observer = null;
+
+  const humanizeToken = (value) =>
+    String(value || "")
+      .replace(/_/g, " ")
+      .replace(/\b\w/g, (match) => match.toUpperCase());
+
+  const readSelectedValues = (name, allowed) => {
+    const selected = [];
+    const seen = new Set();
+    for (const input of form.querySelectorAll('input[type="checkbox"][name="' + name + '"]')) {
+      if (!(input instanceof HTMLInputElement) || !input.checked) continue;
+      const value = input.value.trim();
+      if (!allowed.includes(value) || seen.has(value)) continue;
+      seen.add(value);
+      selected.push(value);
+    }
+    return selected;
+  };
+
+  const clampLimit = (value) => {
+    const parsed = Number(value);
+    if (!Number.isFinite(parsed) || parsed <= 0) return defaultLimit;
+    return Math.min(parsed, 200);
+  };
+
+  const readMultiFromSearch = (params, key, allowed) => {
+    const selected = [];
+    const seen = new Set();
+    for (const rawValue of params.getAll(key)) {
+      for (const part of rawValue.split(",")) {
+        const candidate = part.trim();
+        if (!candidate || candidate === "all" || !allowed.includes(candidate) || seen.has(candidate)) continue;
+        seen.add(candidate);
+        selected.push(candidate);
+      }
+    }
+    return selected;
+  };
+
+  const readStateFromSearch = () => {
+    const params = new URLSearchParams(window.location.search);
+    const hasCategoryParam = params.has("category");
+    return {
+      vendors: readMultiFromSearch(params, "vendor", allowedVendors),
+      categories: hasCategoryParam ? readMultiFromSearch(params, "category", allowedCategories) : defaultCategories.slice(),
+      product: (params.get("product") || "").trim(),
+      model: (params.get("model") || "").trim(),
+      since: (params.get("since") || "").trim(),
+      until: (params.get("until") || "").trim(),
+      limit: clampLimit(params.get("limit") || defaultLimit),
+    };
+  };
+
+  const readStateFromForm = () => {
+    const productInput = form.querySelector('input[name="product"]');
+    const modelInput = form.querySelector('input[name="model"]');
+    const sinceInput = form.querySelector('input[name="since"]');
+    const untilInput = form.querySelector('input[name="until"]');
+    const limitInput = form.querySelector('select[name="limit"]');
+    return {
+      vendors: readSelectedValues("vendor", allowedVendors),
+      categories: readSelectedValues("category", allowedCategories),
+      product: productInput instanceof HTMLInputElement ? productInput.value.trim() : "",
+      model: modelInput instanceof HTMLInputElement ? modelInput.value.trim() : "",
+      since: sinceInput instanceof HTMLInputElement ? sinceInput.value.trim() : "",
+      until: untilInput instanceof HTMLInputElement ? untilInput.value.trim() : "",
+      limit: clampLimit(limitInput instanceof HTMLSelectElement ? limitInput.value : defaultLimit),
+    };
+  };
+
+  const syncForm = (state) => {
+    for (const input of form.querySelectorAll('input[type="checkbox"][name="vendor"]')) {
+      if (input instanceof HTMLInputElement) {
+        input.checked = state.vendors.includes(input.value);
+      }
+    }
+    for (const input of form.querySelectorAll('input[type="checkbox"][name="category"]')) {
+      if (input instanceof HTMLInputElement) {
+        input.checked = state.categories.includes(input.value);
+      }
+    }
+    const productInput = form.querySelector('input[name="product"]');
+    if (productInput instanceof HTMLInputElement) productInput.value = state.product;
+    const modelInput = form.querySelector('input[name="model"]');
+    if (modelInput instanceof HTMLInputElement) modelInput.value = state.model;
+    const sinceInput = form.querySelector('input[name="since"]');
+    if (sinceInput instanceof HTMLInputElement) sinceInput.value = state.since;
+    const untilInput = form.querySelector('input[name="until"]');
+    if (untilInput instanceof HTMLInputElement) untilInput.value = state.until;
+    const limitInput = form.querySelector('select[name="limit"]');
+    if (limitInput instanceof HTMLSelectElement) limitInput.value = String(state.limit);
+  };
+
+  const buildStateSearch = (state) => {
+    const params = new URLSearchParams();
+    for (const vendor of state.vendors) params.append("vendor", vendor);
+    if (state.categories.length) {
+      for (const category of state.categories) params.append("category", category);
+    } else {
+      params.append("category", "all");
+    }
+    if (state.product) params.set("product", state.product);
+    if (state.model) params.set("model", state.model);
+    if (state.since) params.set("since", state.since);
+    if (state.until) params.set("until", state.until);
+    params.set("limit", String(state.limit));
+    return params.toString();
+  };
+
+  const summaryText = (count, hasMore) => {
+    return "Showing " + count + " event" + (count === 1 ? "" : "s") + (hasMore ? " with older pages available." : ".");
+  };
+
+  const setStatus = (message) => {
+    status.textContent = message;
+  };
+
+  const setChips = (state) => {
+    chips.textContent = "";
+    const values = [];
+    if (state.vendors.length) {
+      for (const vendor of state.vendors) {
+        values.push({ label: "Vendor", value: vendorLabels[vendor] || humanizeToken(vendor) });
+      }
+    } else {
+      values.push({ label: "Vendor", value: "All" });
+    }
+    if (state.categories.length) {
+      for (const category of state.categories) {
+        values.push({ label: "Category", value: humanizeToken(category) });
+      }
+    } else {
+      values.push({ label: "Category", value: "All" });
+    }
+    if (state.product) values.push({ label: "Product", value: state.product });
+    if (state.model) values.push({ label: "Model", value: state.model });
+    if (state.since) values.push({ label: "Since", value: state.since });
+    if (state.until) values.push({ label: "Until", value: state.until });
+    values.push({ label: "Per page", value: String(state.limit) });
+
+    for (const chipValue of values) {
+      const chip = document.createElement("span");
+      chip.className = "chip";
+      const label = document.createElement("strong");
+      label.textContent = chipValue.label + ":";
+      const value = document.createElement("span");
+      value.textContent = chipValue.value;
+      chip.append(label, value);
+      chips.append(chip);
+    }
+  };
+
+  const matchesState = (event, state) => {
+    if (state.vendors.length && !state.vendors.includes(event.vendor)) return false;
+    if (state.categories.length && !state.categories.includes(event.category)) return false;
+    if (state.product && (!Array.isArray(event.products) || !event.products.includes(state.product))) return false;
+    if (state.model && (!Array.isArray(event.models) || !event.models.includes(state.model))) return false;
+    if (state.since && String(event.event_date || "") < state.since) return false;
+    if (state.until && String(event.event_date || "") > state.until) return false;
+    return true;
+  };
+
+  const updateControls = () => {
+    const hasMore = visibleCount < filteredEvents.length;
+    summary.textContent = summaryText(Math.min(visibleCount, filteredEvents.length), hasMore);
+    setChips(currentState);
+    loader.hidden = allEvents === null;
+    button.disabled = loading || !hasMore;
+    button.hidden = !hasMore;
+    sentinel.hidden = !hasMore;
+    if (filteredEvents.length === 0 && !loading && allEvents !== null) {
+      setStatus("No events matched the current filters.");
+      return;
+    }
+    if (!loading && !hasMore && allEvents !== null) {
+      setStatus("You've reached the end of the timeline.");
+      return;
+    }
+    if (!loading && hasMore) {
+      setStatus("Scroll for older events or tap Load more.");
+    }
+  };
+
+  const renderVisibleEvents = (append) => {
+    if (!allEvents) return;
+    const nextVisible = Math.min(filteredEvents.length, visibleCount + currentState.limit);
+    const slice = filteredEvents.slice(append ? visibleCount : 0, nextVisible);
+    const html = slice.map((event) => String(event.html || "")).join("");
+    if (!append) {
+      timeline.innerHTML = html;
+    } else if (html) {
+      timeline.insertAdjacentHTML("beforeend", html);
+    }
+    visibleCount = nextVisible;
+    timeline.hidden = filteredEvents.length === 0;
+    emptyState.hidden = filteredEvents.length !== 0;
+  };
+
+  const applyState = (state, pushHistory) => {
+    currentState = state;
+    syncForm(state);
+    if (!allEvents) {
+      setChips(state);
+      summary.textContent = summaryText(Number(root.dataset.initialCount || "0"), root.dataset.initialHasMore === "true");
+      return;
+    }
+    filteredEvents = allEvents.filter((event) => matchesState(event, state));
+    visibleCount = 0;
+    renderVisibleEvents(false);
+    updateControls();
+    if (pushHistory) {
+      const nextSearch = buildStateSearch(state);
+      const nextUrl = nextSearch ? "./?" + nextSearch : "./";
+      window.history.pushState(null, "", nextUrl);
+    }
+  };
+
+  const loadMore = (trigger) => {
+    if (loading || !allEvents || visibleCount >= filteredEvents.length) {
+      return;
+    }
+    loading = true;
+    updateControls();
+    setStatus(trigger === "manual" ? "Loading more events..." : "Loading older events...");
+    renderVisibleEvents(true);
+    loading = false;
+    updateControls();
+  };
+
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    applyState(readStateFromForm(), true);
+  });
+
+  if (resetLink instanceof HTMLAnchorElement) {
+    resetLink.addEventListener("click", (event) => {
+      event.preventDefault();
+      applyState({
+        vendors: [],
+        categories: defaultCategories.slice(),
+        product: "",
+        model: "",
+        since: "",
+        until: "",
+        limit: defaultLimit,
+      }, true);
+    });
+  }
+
+  button.addEventListener("click", () => {
+    loadMore("manual");
+  });
+
+  window.addEventListener("popstate", () => {
+    applyState(readStateFromSearch(), false);
+  });
+
+  if ("IntersectionObserver" in window) {
+    observer = new IntersectionObserver((entries) => {
+      if (entries.some((entry) => entry.isIntersecting)) {
+        loadMore("auto");
+      }
+    }, {
+      rootMargin: "480px 0px",
+    });
+    observer.observe(sentinel);
+  }
+
+  currentState = readStateFromSearch();
+  syncForm(currentState);
+  setChips(currentState);
+  loader.hidden = false;
+  setStatus("Loading snapshot...");
+
+  fetch(new URL(dataHref, window.location.href).toString(), {
+    headers: {
+      "Accept": "application/json",
+    },
+  })
+    .then(async (response) => {
+      if (!response.ok) throw new Error("request failed");
+      return response.json();
+    })
+    .then((payload) => {
+      if (!payload || !Array.isArray(payload.events)) {
+        throw new Error("invalid payload");
+      }
+      allEvents = payload.events;
+      applyState(currentState, false);
+    })
+    .catch(() => {
+      loader.hidden = false;
+      setStatus("Couldn't load the static snapshot data.");
+      button.hidden = true;
+      sentinel.hidden = true;
+    });
+})();
+</script>
+  </body>
+</html>

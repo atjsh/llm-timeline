@@ -2,6 +2,7 @@ import {
   ALLOWED_CATEGORIES,
   ALLOWED_VENDORS,
   type EventCategory,
+  type EventDateKind,
   type EventRow,
   type Vendor,
 } from "../types.js";
@@ -26,6 +27,26 @@ export interface FeedsPageInput {
   calendarHref: string;
   sourcesHref: string;
   itemsHref: string;
+}
+
+export interface StaticFeedsEventSnapshot {
+  id: string;
+  vendor: Vendor;
+  category: EventCategory;
+  event_date: string;
+  event_date_kind: EventDateKind;
+  products: string[];
+  models: string[];
+  html: string;
+}
+
+export interface StaticFeedsPageInput {
+  events: EventRow[];
+  hasMore: boolean;
+  state: FeedsPageState;
+  dataHref: string;
+  homeHref: string;
+  exportedAt: string;
 }
 
 const pageTitle = "LLM Feeds";
@@ -88,7 +109,15 @@ const renderSummaryText = (event: EventRow) => {
 };
 
 const safeHref = (value: string) => {
-  if (value.startsWith("/")) return escapeHtml(value);
+  if (
+    value.startsWith("/") ||
+    value.startsWith("./") ||
+    value.startsWith("../") ||
+    value.startsWith("?") ||
+    value.startsWith("#")
+  ) {
+    return escapeHtml(value);
+  }
   try {
     const url = new URL(value);
     if (url.protocol === "http:" || url.protocol === "https:") {
@@ -103,6 +132,12 @@ const safeHref = (value: string) => {
 const formatEventDate = (event: EventRow) => {
   const parsed = Date.parse(event.event_date);
   if (Number.isNaN(parsed)) return escapeHtml(event.event_date);
+  return escapeHtml(dateFormatter.format(new Date(parsed)));
+};
+
+const formatUtcDate = (value: string) => {
+  const parsed = Date.parse(value);
+  if (Number.isNaN(parsed)) return escapeHtml(value);
   return escapeHtml(dateFormatter.format(new Date(parsed)));
 };
 
@@ -180,12 +215,13 @@ const activeFilterChips = (state: FeedsPageState) => {
   return chips;
 };
 
-const renderTimelineItem = (event: EventRow) => {
+const renderTimelineItemHtml = (event: EventRow, options: { includeJsonLink?: boolean } = {}) => {
+  const includeJsonLink = options.includeJsonLink !== false;
   const summary = renderSummaryText(event);
   const vendorLabel = vendorLabels[event.vendor] ?? humanizeToken(event.vendor);
   const categoryLabel = humanizeToken(event.category);
   const sourceHref = safeHref(event.canonical_url);
-  const jsonHref = safeHref(`/events/${encodeURIComponent(event.id)}`);
+  const jsonHref = includeJsonLink ? safeHref(`/events/${encodeURIComponent(event.id)}`) : null;
   const models = event.models.slice(0, 3);
   const products = event.products.slice(0, 3);
 
@@ -211,17 +247,135 @@ const renderTimelineItem = (event: EventRow) => {
         }
         <div class="event-card__links">
           <a href="${sourceHref}" target="_blank" rel="noreferrer">Source</a>
-          <a href="${jsonHref}" target="_blank" rel="noreferrer">JSON</a>
+          ${jsonHref ? `<a href="${jsonHref}" target="_blank" rel="noreferrer">JSON</a>` : ""}
         </div>
       </article>
     </li>
   `;
 };
 
-export const renderTimelineItems = (events: EventRow[]) => events.map((event) => renderTimelineItem(event)).join("");
+const renderTimelineItemsHtml = (events: EventRow[], options: { includeJsonLink?: boolean } = {}) =>
+  events.map((event) => renderTimelineItemHtml(event, options)).join("");
+
+export const renderTimelineItems = (events: EventRow[]) => renderTimelineItemsHtml(events);
+
+export const createStaticFeedsEventSnapshot = (event: EventRow): StaticFeedsEventSnapshot => ({
+  id: event.id,
+  vendor: event.vendor,
+  category: event.category,
+  event_date: event.event_date,
+  event_date_kind: event.event_date_kind,
+  products: event.products,
+  models: event.models,
+  html: renderTimelineItemHtml(event, { includeJsonLink: false }),
+});
 
 const renderSummaryHeading = (count: number, hasMore: boolean) =>
   `Showing ${count} event${count === 1 ? "" : "s"}${hasMore ? " with older pages available" : ""}.`;
+
+const renderFilterSummaryChips = (state: FeedsPageState) =>
+  activeFilterChips(state)
+    .map((chip) => `<span class="chip"><strong>${escapeHtml(chip.label)}:</strong><span>${escapeHtml(chip.value)}</span></span>`)
+    .join("");
+
+const renderForm = (
+  state: FeedsPageState,
+  options: {
+    action: string;
+    resetHref: string;
+    newestHref?: string | null;
+    formAttribute?: string;
+  }
+) => {
+  const vendorOptions = ALLOWED_VENDORS.map((vendor) => ({
+    value: vendor,
+    label: vendorLabels[vendor] ?? humanizeToken(vendor),
+  }));
+  const categoryOptions = ALLOWED_CATEGORIES.map((category) => ({
+    value: category,
+    label: humanizeToken(category),
+  }));
+
+  return `
+      <section class="controls">
+        <form method="get" action="${safeHref(options.action)}"${options.formAttribute ? ` ${options.formAttribute}` : ""}>
+          <div class="controls__grid">
+            <fieldset class="checkbox-fieldset">
+              <legend class="checkbox-fieldset__legend">Vendor</legend>
+              <input type="hidden" name="vendor" value="all" />
+              <div class="checkbox-grid">
+                ${renderCheckboxOptions("vendor", vendorOptions, state.vendors)}
+              </div>
+            </fieldset>
+            <fieldset class="checkbox-fieldset">
+              <legend class="checkbox-fieldset__legend">Category</legend>
+              <input type="hidden" name="category" value="all" />
+              <div class="checkbox-grid">
+                ${renderCheckboxOptions("category", categoryOptions, state.categories)}
+              </div>
+            </fieldset>
+            <label>
+              Product
+              <input type="text" name="product" value="${escapeHtml(state.product)}" placeholder="e.g. chatgpt" />
+            </label>
+            <label>
+              Model
+              <input type="text" name="model" value="${escapeHtml(state.model)}" placeholder="e.g. claude-opus-4.6" />
+            </label>
+            <label>
+              Since
+              <input type="date" name="since" value="${escapeHtml(state.since)}" />
+            </label>
+            <label>
+              Until
+              <input type="date" name="until" value="${escapeHtml(state.until)}" />
+            </label>
+            <label>
+              Per page
+              <select name="limit">${renderSelectOptions(
+                [
+                  { value: "25", label: "25" },
+                  { value: "50", label: "50" },
+                  { value: "100", label: "100" },
+                ],
+                String(state.limit)
+              )}</select>
+            </label>
+          </div>
+          <div class="controls__actions">
+            <button type="submit">Apply filters</button>
+            <a href="${safeHref(options.resetHref)}" data-reset-link>Reset</a>
+            ${options.newestHref ? `<a href="${safeHref(options.newestHref)}">Newest</a>` : ""}
+          </div>
+        </form>
+      </section>
+  `;
+};
+
+const renderSummarySection = (state: FeedsPageState, count: number, hasMore: boolean) => `
+      <section class="summary">
+        <p class="summary__heading" data-summary-heading>${escapeHtml(renderSummaryHeading(count, hasMore))}</p>
+        <div class="chips" data-filter-chips>
+          ${renderFilterSummaryChips(state)}
+        </div>
+      </section>
+`;
+
+const renderTimelineSection = (input: {
+  events: EventRow[];
+  timelineHtml: string;
+  emptyMessage: string;
+  afterTimelineHtml?: string;
+}) => `
+      <section class="timeline-shell">
+        ${
+          input.events.length
+            ? `<ol class="timeline" data-timeline>${input.timelineHtml}</ol>`
+            : `<p class="empty-state">${escapeHtml(input.emptyMessage)}</p>`
+        }
+        ${input.afterTimelineHtml ?? ""}
+      </section>
+`;
 
 const renderNoscriptPagination = (olderHref: string | null, newestHref: string | null) => {
   if (!olderHref && !newestHref) return "";
@@ -255,7 +409,7 @@ const renderLoaderSection = (input: FeedsPageInput) => {
   `;
 };
 
-const inlineScript = `
+const liveInlineScript = `
 (() => {
   const timeline = document.querySelector("[data-timeline]");
   const loader = document.querySelector("[data-feeds-loader]");
@@ -294,7 +448,7 @@ const inlineScript = `
     loader.dataset.hasMore = String(hasMore);
     loader.dataset.loadedCount = String(loadedCount);
     if (!hasMore && !loading) {
-      setStatus("You’ve reached the end of the timeline.");
+      setStatus("You've reached the end of the timeline.");
       if (observer) {
         observer.disconnect();
       }
@@ -307,7 +461,7 @@ const inlineScript = `
     }
     loading = true;
     updateControls();
-    setStatus(trigger === "manual" ? "Loading more events…" : "Loading older events…");
+    setStatus(trigger === "manual" ? "Loading more events..." : "Loading older events...");
 
     try {
       const url = new URL(loader.dataset.fragmentBase || "", window.location.href);
@@ -330,9 +484,9 @@ const inlineScript = `
       loadedCount += Number(payload.returned_count || 0);
       nextCursor = typeof payload.next_cursor === "string" ? payload.next_cursor : "";
       hasMore = Boolean(payload.has_more && nextCursor);
-      setStatus(hasMore ? "Loaded more events." : "You’ve reached the end of the timeline.");
+      setStatus(hasMore ? "Loaded more events." : "You've reached the end of the timeline.");
     } catch {
-      setStatus("Couldn’t load older events. Tap Load more to retry.");
+      setStatus("Couldn't load older events. Tap Load more to retry.");
     } finally {
       loading = false;
       updateControls();
@@ -357,6 +511,346 @@ const inlineScript = `
   }
 
   updateControls();
+})();
+`;
+
+const renderStaticInlineScript = () => `
+(() => {
+  const root = document.querySelector("[data-static-feeds]");
+  const form = document.querySelector("[data-feeds-form]");
+  const summary = document.querySelector("[data-summary-heading]");
+  const chips = document.querySelector("[data-filter-chips]");
+  const timeline = document.querySelector("[data-timeline]");
+  const emptyState = document.querySelector("[data-empty-state]");
+  const loader = document.querySelector("[data-static-loader]");
+  const resetLink = document.querySelector("[data-reset-link]");
+  if (
+    !(root instanceof HTMLElement) ||
+    !(form instanceof HTMLFormElement) ||
+    !(summary instanceof HTMLElement) ||
+    !(chips instanceof HTMLElement) ||
+    !(timeline instanceof HTMLElement) ||
+    !(emptyState instanceof HTMLElement) ||
+    !(loader instanceof HTMLElement)
+  ) {
+    return;
+  }
+
+  const button = loader.querySelector("[data-load-more]");
+  const status = loader.querySelector("[data-loader-status]");
+  const sentinel = loader.querySelector("[data-loader-sentinel]");
+  if (!(button instanceof HTMLButtonElement) || !(status instanceof HTMLElement) || !(sentinel instanceof HTMLElement)) {
+    return;
+  }
+
+  const allowedVendors = ${JSON.stringify(ALLOWED_VENDORS)};
+  const allowedCategories = ${JSON.stringify(ALLOWED_CATEGORIES)};
+  const vendorLabels = ${JSON.stringify(vendorLabels)};
+  const defaultCategories = ["model_release"];
+  const defaultLimit = Number(root.dataset.defaultLimit || "50");
+  const dataHref = root.dataset.dataHref || "";
+  let allEvents = null;
+  let filteredEvents = [];
+  let visibleCount = 0;
+  let currentState = null;
+  let loading = false;
+  let observer = null;
+
+  const humanizeToken = (value) =>
+    String(value || "")
+      .replace(/_/g, " ")
+      .replace(/\\b\\w/g, (match) => match.toUpperCase());
+
+  const readSelectedValues = (name, allowed) => {
+    const selected = [];
+    const seen = new Set();
+    for (const input of form.querySelectorAll('input[type="checkbox"][name="' + name + '"]')) {
+      if (!(input instanceof HTMLInputElement) || !input.checked) continue;
+      const value = input.value.trim();
+      if (!allowed.includes(value) || seen.has(value)) continue;
+      seen.add(value);
+      selected.push(value);
+    }
+    return selected;
+  };
+
+  const clampLimit = (value) => {
+    const parsed = Number(value);
+    if (!Number.isFinite(parsed) || parsed <= 0) return defaultLimit;
+    return Math.min(parsed, 200);
+  };
+
+  const readMultiFromSearch = (params, key, allowed) => {
+    const selected = [];
+    const seen = new Set();
+    for (const rawValue of params.getAll(key)) {
+      for (const part of rawValue.split(",")) {
+        const candidate = part.trim();
+        if (!candidate || candidate === "all" || !allowed.includes(candidate) || seen.has(candidate)) continue;
+        seen.add(candidate);
+        selected.push(candidate);
+      }
+    }
+    return selected;
+  };
+
+  const readStateFromSearch = () => {
+    const params = new URLSearchParams(window.location.search);
+    const hasCategoryParam = params.has("category");
+    return {
+      vendors: readMultiFromSearch(params, "vendor", allowedVendors),
+      categories: hasCategoryParam ? readMultiFromSearch(params, "category", allowedCategories) : defaultCategories.slice(),
+      product: (params.get("product") || "").trim(),
+      model: (params.get("model") || "").trim(),
+      since: (params.get("since") || "").trim(),
+      until: (params.get("until") || "").trim(),
+      limit: clampLimit(params.get("limit") || defaultLimit),
+    };
+  };
+
+  const readStateFromForm = () => {
+    const productInput = form.querySelector('input[name="product"]');
+    const modelInput = form.querySelector('input[name="model"]');
+    const sinceInput = form.querySelector('input[name="since"]');
+    const untilInput = form.querySelector('input[name="until"]');
+    const limitInput = form.querySelector('select[name="limit"]');
+    return {
+      vendors: readSelectedValues("vendor", allowedVendors),
+      categories: readSelectedValues("category", allowedCategories),
+      product: productInput instanceof HTMLInputElement ? productInput.value.trim() : "",
+      model: modelInput instanceof HTMLInputElement ? modelInput.value.trim() : "",
+      since: sinceInput instanceof HTMLInputElement ? sinceInput.value.trim() : "",
+      until: untilInput instanceof HTMLInputElement ? untilInput.value.trim() : "",
+      limit: clampLimit(limitInput instanceof HTMLSelectElement ? limitInput.value : defaultLimit),
+    };
+  };
+
+  const syncForm = (state) => {
+    for (const input of form.querySelectorAll('input[type="checkbox"][name="vendor"]')) {
+      if (input instanceof HTMLInputElement) {
+        input.checked = state.vendors.includes(input.value);
+      }
+    }
+    for (const input of form.querySelectorAll('input[type="checkbox"][name="category"]')) {
+      if (input instanceof HTMLInputElement) {
+        input.checked = state.categories.includes(input.value);
+      }
+    }
+    const productInput = form.querySelector('input[name="product"]');
+    if (productInput instanceof HTMLInputElement) productInput.value = state.product;
+    const modelInput = form.querySelector('input[name="model"]');
+    if (modelInput instanceof HTMLInputElement) modelInput.value = state.model;
+    const sinceInput = form.querySelector('input[name="since"]');
+    if (sinceInput instanceof HTMLInputElement) sinceInput.value = state.since;
+    const untilInput = form.querySelector('input[name="until"]');
+    if (untilInput instanceof HTMLInputElement) untilInput.value = state.until;
+    const limitInput = form.querySelector('select[name="limit"]');
+    if (limitInput instanceof HTMLSelectElement) limitInput.value = String(state.limit);
+  };
+
+  const buildStateSearch = (state) => {
+    const params = new URLSearchParams();
+    for (const vendor of state.vendors) params.append("vendor", vendor);
+    if (state.categories.length) {
+      for (const category of state.categories) params.append("category", category);
+    } else {
+      params.append("category", "all");
+    }
+    if (state.product) params.set("product", state.product);
+    if (state.model) params.set("model", state.model);
+    if (state.since) params.set("since", state.since);
+    if (state.until) params.set("until", state.until);
+    params.set("limit", String(state.limit));
+    return params.toString();
+  };
+
+  const summaryText = (count, hasMore) => {
+    return "Showing " + count + " event" + (count === 1 ? "" : "s") + (hasMore ? " with older pages available." : ".");
+  };
+
+  const setStatus = (message) => {
+    status.textContent = message;
+  };
+
+  const setChips = (state) => {
+    chips.textContent = "";
+    const values = [];
+    if (state.vendors.length) {
+      for (const vendor of state.vendors) {
+        values.push({ label: "Vendor", value: vendorLabels[vendor] || humanizeToken(vendor) });
+      }
+    } else {
+      values.push({ label: "Vendor", value: "All" });
+    }
+    if (state.categories.length) {
+      for (const category of state.categories) {
+        values.push({ label: "Category", value: humanizeToken(category) });
+      }
+    } else {
+      values.push({ label: "Category", value: "All" });
+    }
+    if (state.product) values.push({ label: "Product", value: state.product });
+    if (state.model) values.push({ label: "Model", value: state.model });
+    if (state.since) values.push({ label: "Since", value: state.since });
+    if (state.until) values.push({ label: "Until", value: state.until });
+    values.push({ label: "Per page", value: String(state.limit) });
+
+    for (const chipValue of values) {
+      const chip = document.createElement("span");
+      chip.className = "chip";
+      const label = document.createElement("strong");
+      label.textContent = chipValue.label + ":";
+      const value = document.createElement("span");
+      value.textContent = chipValue.value;
+      chip.append(label, value);
+      chips.append(chip);
+    }
+  };
+
+  const matchesState = (event, state) => {
+    if (state.vendors.length && !state.vendors.includes(event.vendor)) return false;
+    if (state.categories.length && !state.categories.includes(event.category)) return false;
+    if (state.product && (!Array.isArray(event.products) || !event.products.includes(state.product))) return false;
+    if (state.model && (!Array.isArray(event.models) || !event.models.includes(state.model))) return false;
+    if (state.since && String(event.event_date || "") < state.since) return false;
+    if (state.until && String(event.event_date || "") > state.until) return false;
+    return true;
+  };
+
+  const updateControls = () => {
+    const hasMore = visibleCount < filteredEvents.length;
+    summary.textContent = summaryText(Math.min(visibleCount, filteredEvents.length), hasMore);
+    setChips(currentState);
+    loader.hidden = allEvents === null;
+    button.disabled = loading || !hasMore;
+    button.hidden = !hasMore;
+    sentinel.hidden = !hasMore;
+    if (filteredEvents.length === 0 && !loading && allEvents !== null) {
+      setStatus("No events matched the current filters.");
+      return;
+    }
+    if (!loading && !hasMore && allEvents !== null) {
+      setStatus("You've reached the end of the timeline.");
+      return;
+    }
+    if (!loading && hasMore) {
+      setStatus("Scroll for older events or tap Load more.");
+    }
+  };
+
+  const renderVisibleEvents = (append) => {
+    if (!allEvents) return;
+    const nextVisible = Math.min(filteredEvents.length, visibleCount + currentState.limit);
+    const slice = filteredEvents.slice(append ? visibleCount : 0, nextVisible);
+    const html = slice.map((event) => String(event.html || "")).join("");
+    if (!append) {
+      timeline.innerHTML = html;
+    } else if (html) {
+      timeline.insertAdjacentHTML("beforeend", html);
+    }
+    visibleCount = nextVisible;
+    timeline.hidden = filteredEvents.length === 0;
+    emptyState.hidden = filteredEvents.length !== 0;
+  };
+
+  const applyState = (state, pushHistory) => {
+    currentState = state;
+    syncForm(state);
+    if (!allEvents) {
+      setChips(state);
+      summary.textContent = summaryText(Number(root.dataset.initialCount || "0"), root.dataset.initialHasMore === "true");
+      return;
+    }
+    filteredEvents = allEvents.filter((event) => matchesState(event, state));
+    visibleCount = 0;
+    renderVisibleEvents(false);
+    updateControls();
+    if (pushHistory) {
+      const nextSearch = buildStateSearch(state);
+      const nextUrl = nextSearch ? "./?" + nextSearch : "./";
+      window.history.pushState(null, "", nextUrl);
+    }
+  };
+
+  const loadMore = (trigger) => {
+    if (loading || !allEvents || visibleCount >= filteredEvents.length) {
+      return;
+    }
+    loading = true;
+    updateControls();
+    setStatus(trigger === "manual" ? "Loading more events..." : "Loading older events...");
+    renderVisibleEvents(true);
+    loading = false;
+    updateControls();
+  };
+
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    applyState(readStateFromForm(), true);
+  });
+
+  if (resetLink instanceof HTMLAnchorElement) {
+    resetLink.addEventListener("click", (event) => {
+      event.preventDefault();
+      applyState({
+        vendors: [],
+        categories: defaultCategories.slice(),
+        product: "",
+        model: "",
+        since: "",
+        until: "",
+        limit: defaultLimit,
+      }, true);
+    });
+  }
+
+  button.addEventListener("click", () => {
+    loadMore("manual");
+  });
+
+  window.addEventListener("popstate", () => {
+    applyState(readStateFromSearch(), false);
+  });
+
+  if ("IntersectionObserver" in window) {
+    observer = new IntersectionObserver((entries) => {
+      if (entries.some((entry) => entry.isIntersecting)) {
+        loadMore("auto");
+      }
+    }, {
+      rootMargin: "480px 0px",
+    });
+    observer.observe(sentinel);
+  }
+
+  currentState = readStateFromSearch();
+  syncForm(currentState);
+  setChips(currentState);
+  loader.hidden = false;
+  setStatus("Loading snapshot...");
+
+  fetch(new URL(dataHref, window.location.href).toString(), {
+    headers: {
+      "Accept": "application/json",
+    },
+  })
+    .then(async (response) => {
+      if (!response.ok) throw new Error("request failed");
+      return response.json();
+    })
+    .then((payload) => {
+      if (!payload || !Array.isArray(payload.events)) {
+        throw new Error("invalid payload");
+      }
+      allEvents = payload.events;
+      applyState(currentState, false);
+    })
+    .catch(() => {
+      loader.hidden = false;
+      setStatus("Couldn't load the static snapshot data.");
+      button.hidden = true;
+      sentinel.hidden = true;
+    });
 })();
 `;
 
@@ -841,19 +1335,6 @@ const styles = `
 
 export const renderFeedsPage = (input: FeedsPageInput) => {
   const state = input.state;
-  const vendorOptions = [
-    ...ALLOWED_VENDORS.map((vendor) => ({
-      value: vendor,
-      label: vendorLabels[vendor] ?? humanizeToken(vendor),
-    })),
-  ];
-  const categoryOptions = [
-    ...ALLOWED_CATEGORIES.map((category) => ({
-      value: category,
-      label: humanizeToken(category),
-    })),
-  ];
-  const chips = activeFilterChips(state);
   const olderHref = input.nextCursor ? buildPageHref(state, { cursor: input.nextCursor }) : null;
   const newestHref = state.cursor ? buildPageHref(state, { cursor: "" }) : null;
 
@@ -878,77 +1359,69 @@ export const renderFeedsPage = (input: FeedsPageInput) => {
         </div>
       </section>
 
-      <section class="controls">
-        <form method="get" action="/feeds">
-          <div class="controls__grid">
-            <fieldset class="checkbox-fieldset">
-              <legend class="checkbox-fieldset__legend">Vendor</legend>
-              <input type="hidden" name="vendor" value="all" />
-              <div class="checkbox-grid">
-                ${renderCheckboxOptions("vendor", vendorOptions, state.vendors)}
-              </div>
-            </fieldset>
-            <fieldset class="checkbox-fieldset">
-              <legend class="checkbox-fieldset__legend">Category</legend>
-              <input type="hidden" name="category" value="all" />
-              <div class="checkbox-grid">
-                ${renderCheckboxOptions("category", categoryOptions, state.categories)}
-              </div>
-            </fieldset>
-            <label>
-              Product
-              <input type="text" name="product" value="${escapeHtml(state.product)}" placeholder="e.g. chatgpt" />
-            </label>
-            <label>
-              Model
-              <input type="text" name="model" value="${escapeHtml(state.model)}" placeholder="e.g. claude-opus-4.6" />
-            </label>
-            <label>
-              Since
-              <input type="date" name="since" value="${escapeHtml(state.since)}" />
-            </label>
-            <label>
-              Until
-              <input type="date" name="until" value="${escapeHtml(state.until)}" />
-            </label>
-            <label>
-              Per page
-              <select name="limit">${renderSelectOptions(
-                [
-                  { value: "25", label: "25" },
-                  { value: "50", label: "50" },
-                  { value: "100", label: "100" },
-                ],
-                String(state.limit)
-              )}</select>
-            </label>
-          </div>
-          <div class="controls__actions">
-            <button type="submit">Apply filters</button>
-            <a href="/feeds">Reset</a>
-            ${newestHref ? `<a href="${safeHref(newestHref)}">Newest</a>` : ""}
-          </div>
-        </form>
-      </section>
+      ${renderForm(state, { action: "/feeds", resetHref: "/feeds", newestHref })}
+      ${renderSummarySection(state, input.events.length, input.hasMore)}
+      ${renderTimelineSection({
+        events: input.events,
+        timelineHtml: renderTimelineItemsHtml(input.events),
+        emptyMessage: "No events matched the current filters. Try widening the date range, switching category, or clearing product/model filters.",
+        afterTimelineHtml: `${renderLoaderSection(input)}${renderNoscriptPagination(olderHref, newestHref)}`,
+      })}
+    </main>
+    <script>${liveInlineScript}</script>
+  </body>
+</html>`;
+};
 
-      <section class="summary">
-        <p class="summary__heading" data-summary-heading>${escapeHtml(renderSummaryHeading(input.events.length, input.hasMore))}</p>
-        <div class="chips">
-          ${chips.map((chip) => `<span class="chip"><strong>${escapeHtml(chip.label)}:</strong><span>${escapeHtml(chip.value)}</span></span>`).join("")}
+export const renderStaticFeedsPage = (input: StaticFeedsPageInput) => {
+  const state = input.state;
+  return `<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>${pageTitle}</title>
+    <style>${styles}</style>
+  </head>
+  <body>
+    <main class="page">
+      <section class="hero">
+        <p class="hero__eyebrow">Static Snapshot</p>
+        <h1>${pageTitle}</h1>
+        <p>GitHub Pages-friendly snapshot generated from the local SQLite events table. Filters and load-more run in the browser; source links still open the original vendor announcement pages.</p>
+        <p>Exported ${formatUtcDate(input.exportedAt)}. Use the controls below to browse mixed-provider launches, deprecations, and release notes from a static bundle.</p>
+        <div class="hero__links">
+          <a href="${safeHref(input.homeHref)}">Snapshot entry</a>
         </div>
       </section>
 
-      <section class="timeline-shell">
-        ${
-          input.events.length
-            ? `<ol class="timeline" data-timeline>${renderTimelineItems(input.events)}</ol>`
-            : `<p class="empty-state">No events matched the current filters. Try widening the date range, switching category, or clearing product/model filters.</p>`
-        }
-        ${renderLoaderSection(input)}
-        ${renderNoscriptPagination(olderHref, newestHref)}
+      ${renderForm(state, { action: "./", resetHref: "./", formAttribute: 'data-feeds-form' })}
+      ${renderSummarySection(state, input.events.length, input.hasMore)}
+      <section
+        class="timeline-shell"
+        data-static-feeds
+        data-data-href="${safeHref(input.dataHref)}"
+        data-default-limit="${escapeHtml(String(state.limit))}"
+        data-initial-count="${escapeHtml(String(input.events.length))}"
+        data-initial-has-more="${input.hasMore ? "true" : "false"}"
+      >
+        <ol class="timeline" data-timeline${input.events.length ? "" : " hidden"}>${renderTimelineItemsHtml(input.events, {
+          includeJsonLink: false,
+        })}</ol>
+        <p class="empty-state" data-empty-state${input.events.length ? " hidden" : ""}>No events matched the current filters. Try widening the date range, switching category, or clearing product/model filters.</p>
+        <div class="feed-loader" data-static-loader hidden>
+          <div class="feed-loader__controls">
+            <button type="button" class="feed-loader__button" data-load-more>Load more</button>
+            <p class="feed-loader__status" data-loader-status aria-live="polite">Loading snapshot...</p>
+          </div>
+          <div class="feed-loader__sentinel" data-loader-sentinel aria-hidden="true"></div>
+        </div>
+        <noscript>
+          <p class="feed-loader__status">This static snapshot supports filtering and loading older pages with JavaScript enabled.</p>
+        </noscript>
       </section>
     </main>
-    <script>${inlineScript}</script>
+    <script>${renderStaticInlineScript()}</script>
   </body>
 </html>`;
 };
