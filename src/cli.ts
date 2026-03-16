@@ -2,7 +2,15 @@ import { rebuildSourceEvents, runIngestion } from "./pipeline/ingest.js";
 
 const parseArgs = () => {
   const [, , command, maybeValue] = process.argv;
-  if (command === "refresh") return { command: "refresh" as const };
+  if (command === "refresh") {
+    const explicit = process.argv.find((arg) => arg.startsWith("--vendor="));
+    const vendor = explicit
+      ? explicit.split("=", 2)[1]
+      : maybeValue && maybeValue !== "--vendor" && maybeValue !== undefined
+      ? maybeValue
+      : undefined;
+    return { command: "refresh" as const, vendor };
+  }
   if (command === "backfill") {
     const explicit = process.argv.find((arg) => arg.startsWith("--since="));
     const since = explicit
@@ -29,7 +37,7 @@ const parseArgs = () => {
 
 const usage = () => `
 Usage:
-  node dist/cli.js refresh
+  node dist/cli.js refresh [--vendor=openai|anthropic|google]
   node dist/cli.js backfill --since=YYYY-MM-DD
   node dist/cli.js rebuild --source=SOURCE_ID
 `;
@@ -41,7 +49,7 @@ const run = async () => {
     return;
   }
   if (args.command === "refresh") {
-    const result = await runIngestion();
+    const result = await runIngestion({ vendor: args.vendor as "openai" | "anthropic" | "google" | undefined });
     console.log(JSON.stringify(result, null, 2));
     return;
   }

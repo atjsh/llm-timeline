@@ -23,6 +23,8 @@ export interface SourceManifestEntry {
     | "github_releases"
     | "changelog_html"
     | "docs_html"
+    | "anthropic_news"
+    | "anthropic_api_release_notes_html"
     | "google_gemini_api_html"
     | "google_vertex_release_notes_html";
   enabled?: boolean;

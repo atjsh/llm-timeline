@@ -8,7 +8,15 @@ const decodeHtmlEntities = (value: string) =>
     .replace(/&lt;/g, "<")
     .replace(/&gt;/g, ">")
     .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'");
+    .replace(/&#39;/g, "'")
+    .replace(/&#x([0-9a-f]+);/gi, (_, hex: string) => {
+      const codePoint = Number.parseInt(hex, 16);
+      return Number.isFinite(codePoint) ? String.fromCodePoint(codePoint) : "";
+    })
+    .replace(/&#(\d+);/g, (_, decimal: string) => {
+      const codePoint = Number.parseInt(decimal, 10);
+      return Number.isFinite(codePoint) ? String.fromCodePoint(codePoint) : "";
+    });
 
 const unwrapCdata = (value: string) => value.replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, "$1");
 
@@ -241,8 +249,8 @@ export const parseChangelogHtml = (html: string, sourceUrl: string): ParsedSourc
   return parsed;
 };
 
-const parseDateSections = (html: string) => {
-  const matches = [...html.matchAll(/<h2\b[^>]*>[\s\S]*?<\/h2>/gi)];
+const parseHeadingSections = (html: string, headingTag: "h2" | "h3") => {
+  const matches = [...html.matchAll(new RegExp(`<${headingTag}\\b[^>]*>[\\s\\S]*?<\\/${headingTag}>`, "gi"))];
   return matches.map((match, index) => {
     const heading = match[0];
     const start = match.index ?? 0;
@@ -255,6 +263,8 @@ const parseDateSections = (html: string) => {
     };
   });
 };
+
+const parseDateSections = (html: string) => parseHeadingSections(html, "h2");
 
 const parseSectionPublishedAt = (dateText: string, sectionId?: string) => {
   const direct = parseDateMaybe(dateText);
@@ -333,5 +343,97 @@ export const parseGoogleVertexReleaseNotesHtml = (html: string, sourceUrl: strin
       );
     }
   }
+  return parsed;
+};
+
+const textBlocksFrom = (value: string, limit = 8) => {
+  const blocks = [
+    ...[...value.matchAll(/<p\b[^>]*>([\s\S]*?)<\/p>/gi)].map((match) => stripTags(match[1] ?? "")),
+    ...[...value.matchAll(/<li\b[^>]*>([\s\S]*?)<\/li>/gi)].map((match) => stripTags(match[1] ?? "")),
+  ]
+    .map((entry) => entry.trim())
+    .filter(Boolean);
+  return blocks.slice(0, limit);
+};
+
+export const parseAnthropicNewsArticleHtml = (html: string, sourceUrl: string): ParsedSourceItem[] => {
+  const sanitized = html.replace(/<script[\s\S]*?<\/script>/gi, " ").replace(/<style[\s\S]*?<\/style>/gi, " ");
+  const title = stripTags(/<h1\b[^>]*>([\s\S]*?)<\/h1>/i.exec(sanitized)?.[1] ?? "");
+  if (!title) return [];
+
+  const subject = stripTags(
+    /<div\b[^>]*class=\"[^\"]*subjects[^\"]*\"[^>]*>[\s\S]*?<span>([\s\S]*?)<\/span>/i.exec(sanitized)?.[1] ?? ""
+  );
+  const publishedAt =
+    parseDateMaybe(/<div\b[^>]*class=\"[^\"]*agate[^\"]*\">([\s\S]*?)<\/div>/i.exec(sanitized)?.[1]?.trim()) ??
+    parseDateMaybe(/\"publishedOn\":\"([^\"]+)\"/i.exec(sanitized)?.[1]?.trim());
+
+  const bodyMatch = /<div\b[^>]*class=\"Body-module[^\"]*__body[^\"]*\"[^>]*>/i.exec(sanitized);
+  const bodyStart = bodyMatch ? (bodyMatch.index ?? 0) + bodyMatch[0].length : -1;
+  const remainder = bodyStart >= 0 ? sanitized.slice(bodyStart) : sanitized;
+  const headingIndex = remainder.search(/<h2\b[^>]*class=\"[^\"]*post-heading[^\"]*\"/i);
+  const articleEnd = remainder.search(/<\/article>/i);
+  const introSegment =
+    headingIndex >= 0
+      ? remainder.slice(0, headingIndex)
+      : articleEnd >= 0
+      ? remainder.slice(0, articleEnd)
+      : remainder;
+  const summaryBlocks = textBlocksFrom(introSegment, 10);
+  const summary = summaryBlocks.join(" ").trim() || stripTags(introSegment).slice(0, 1600).trim();
+
+  if (!summary) return [];
+
+  return [
+    itemFrom({
+      sourceUrl,
+      sourceName: sourceUrl,
+      externalId: sourceUrl,
+      title,
+      canonicalUrl: sourceUrl,
+      summary,
+      publishedAt,
+      hints: publishedAt ? [publishedAt] : undefined,
+      feedCategories: subject ? [subject] : undefined,
+    }),
+  ];
+};
+
+export const parseAnthropicApiReleaseNotesHtml = (html: string, sourceUrl: string): ParsedSourceItem[] => {
+  const sanitized = html.replace(/<script[\s\S]*?<\/script>/gi, " ").replace(/<style[\s\S]*?<\/style>/gi, " ");
+  const sections = parseHeadingSections(sanitized, "h3");
+  const parsed: ParsedSourceItem[] = [];
+
+  for (const section of sections) {
+    const publishedAt = parseSectionPublishedAt(section.dateText, section.sectionId);
+    if (!publishedAt) continue;
+    const lists = [...section.sectionBody.matchAll(/<ul\b[^>]*>[\s\S]*?<\/ul>/gi)];
+    if (!lists.length) continue;
+
+    let itemIndex = 0;
+    for (const list of lists) {
+      const entries = topLevelListItems(list[0] ?? "");
+      for (const entry of entries) {
+        itemIndex += 1;
+        const summary = stripTags(entry);
+        if (!summary) continue;
+        const canonicalUrl =
+          firstLinkFrom(entry, sourceUrl) ?? `${sourceUrl}#${section.sectionId ?? publishedAt}-${itemIndex}`;
+        parsed.push(
+          itemFrom({
+            sourceUrl,
+            sourceName: sourceUrl,
+            externalId: normalizeItemId(`${section.sectionId ?? publishedAt}:${itemIndex}`, canonicalUrl),
+            title: titleFromText(summary),
+            canonicalUrl,
+            summary,
+            publishedAt,
+            hints: [publishedAt],
+          })
+        );
+      }
+    }
+  }
+
   return parsed;
 };

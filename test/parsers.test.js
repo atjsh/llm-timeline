@@ -1,5 +1,7 @@
 import assert from "node:assert/strict";
 import {
+  parseAnthropicApiReleaseNotesHtml,
+  parseAnthropicNewsArticleHtml,
   parseChangelogHtml,
   parseGoogleGeminiApiHtml,
   parseGoogleVertexReleaseNotesHtml,
@@ -142,3 +144,66 @@ assert.equal(
 );
 assert.equal(googleVertexResult[0].sourceLabel, "Feature");
 assert.equal(googleVertexResult[1].sourceLabel, "Deprecated");
+
+const anthropicNewsHtml = `
+  <html>
+    <body>
+      <main id="main-content">
+        <article>
+          <div class="PostDetail-module-scss-module__hero">
+            <div class="PostDetail-module-scss-module__header">
+              <div class="PostDetail-module-scss-module__subjects"><span>Announcements</span></div>
+              <h1>Introducing Claude Opus 4.6</h1>
+              <div class="body-3 agate">Feb 5, 2026</div>
+            </div>
+          </div>
+          <div class="Body-module-scss-module__body" data-theme="ivory">
+            <p>We’re upgrading our smartest model.</p>
+            <p>Opus 4.6 features a 1M token context window in beta.</p>
+            <p>Claude Opus 4.6 is available today on claude.ai, our API, and all major cloud platforms.</p>
+            <h2 class="post-heading" id="first-impressions">First impressions</h2>
+            <p>Additional body content not needed in the summary.</p>
+          </div>
+        </article>
+      </main>
+    </body>
+  </html>
+`;
+
+const anthropicApiReleaseNotesHtml = `
+  <html>
+    <body>
+      <main id="docs-scroll-container">
+        <article>
+          <h3 id="march-13-2026">
+            <button>
+              <div>March 13, 2026</div>
+            </button>
+          </h3>
+          <ul>
+            <li>The <a href="/docs/en/build-with-claude/context-windows">1M token context window</a> is now generally available for Claude Opus 4.6 and Sonnet 4.6 at standard pricing.</li>
+            <li>We&#x27;ve removed the dedicated 1M rate limits for all supported models.</li>
+          </ul>
+        </article>
+      </main>
+    </body>
+  </html>
+`;
+
+const anthropicNewsResult = parseAnthropicNewsArticleHtml(anthropicNewsHtml, "https://www.anthropic.com/news/claude-opus-4-6");
+assert.equal(anthropicNewsResult.length, 1);
+assert.equal(anthropicNewsResult[0].title, "Introducing Claude Opus 4.6");
+assert.equal(anthropicNewsResult[0].publishedAt, "2026-02-05T00:00:00.000Z");
+assert.equal(anthropicNewsResult[0].canonicalUrl, "https://www.anthropic.com/news/claude-opus-4-6");
+assert.match(anthropicNewsResult[0].summary, /1M token context window in beta/i);
+assert.deepEqual(anthropicNewsResult[0].feedCategories, ["Announcements"]);
+
+const anthropicApiResult = parseAnthropicApiReleaseNotesHtml(
+  anthropicApiReleaseNotesHtml,
+  "https://platform.claude.com/docs/en/release-notes/overview"
+);
+assert.equal(anthropicApiResult.length, 2);
+assert.equal(anthropicApiResult[0].publishedAt, "2026-03-13T00:00:00.000Z");
+assert.equal(anthropicApiResult[0].canonicalUrl, "https://platform.claude.com/docs/en/build-with-claude/context-windows");
+assert.match(anthropicApiResult[0].title, /1M token context window/i);
+assert.match(anthropicApiResult[1].title, /^We've removed the dedicated 1M rate limits/i);

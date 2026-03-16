@@ -125,6 +125,122 @@ const openAiChatGptFeature = normalizeSourceItems(openAiRssSource, [
 ]);
 assert.equal(openAiChatGptFeature[0].category, "blog_update");
 
+const anthropicNewsSource = {
+  ...source,
+  id: "anthropic-news",
+  vendor: "anthropic",
+  name: "Anthropic News",
+  parser: "anthropic_news",
+  default_category: "blog_update",
+  url: "https://www.anthropic.com/news",
+};
+
+const anthropicApiSource = {
+  ...source,
+  id: "anthropic-releases",
+  vendor: "anthropic",
+  name: "Claude API Release Notes",
+  parser: "anthropic_api_release_notes_html",
+  default_category: "release_note",
+  url: "https://platform.claude.com/docs/en/release-notes/overview",
+};
+
+const anthropicSdkSource = {
+  ...source,
+  id: "anthropic-github-releases",
+  vendor: "anthropic",
+  name: "Anthropic GitHub Releases",
+  parser: "github_releases",
+  default_category: "release_note",
+  url: "https://github.com/anthropics/anthropic-sdk-python/releases.atom",
+};
+
+const anthropicNewsRelease = normalizeSourceItems(anthropicNewsSource, [
+  {
+    externalId: "anthropic-news-opus-4-6",
+    title: "Introducing Claude Opus 4.6",
+    canonicalUrl: "https://www.anthropic.com/news/claude-opus-4-6",
+    summary:
+      "We’re upgrading our smartest model. Claude Opus 4.6 improves on Claude Opus 4.5, features a 1M token context window in beta, and is available today on claude.ai, our API, and all major cloud platforms.",
+    publishedAt: "2026-02-05T00:00:00.000Z",
+    feedCategories: ["Announcements"],
+  },
+]);
+assert.equal(anthropicNewsRelease.length, 1);
+assert.equal(anthropicNewsRelease[0].category, "model_release");
+assert.deepEqual(anthropicNewsRelease[0].models, ["claude-opus-4.6"]);
+
+const anthropicNewsReleaseWithModelId = normalizeSourceItems(anthropicNewsSource, [
+  {
+    externalId: "anthropic-news-opus-4-5",
+    title: "Introducing Claude Opus 4.5",
+    canonicalUrl: "https://www.anthropic.com/news/claude-opus-4-5",
+    summary:
+      "Our newest model, Claude Opus 4.5, is available today. If you’re a developer, simply use claude-opus-4-5-20251101 via the Claude API.",
+    publishedAt: "2025-11-24T00:00:00.000Z",
+    feedCategories: ["Announcements"],
+  },
+]);
+assert.equal(anthropicNewsReleaseWithModelId.length, 1);
+assert.equal(anthropicNewsReleaseWithModelId[0].eventDate, "2025-11-24T00:00:00.000Z");
+assert.deepEqual(anthropicNewsReleaseWithModelId[0].models, ["claude-opus-4.5"]);
+
+const anthropicApiLaunch = normalizeSourceItems(anthropicApiSource, [
+  {
+    externalId: "anthropic-api-sonnet-4-6",
+    title: "We’ve launched Claude Sonnet 4.6, our latest balanced model combining speed and intelligence for everyday tasks.",
+    canonicalUrl: "https://www.anthropic.com/news/claude-sonnet-4-6",
+    summary:
+      "We’ve launched Claude Sonnet 4.6, our latest balanced model combining speed and intelligence for everyday tasks.",
+    publishedAt: "2026-02-17T00:00:00.000Z",
+  },
+]);
+assert.equal(anthropicApiLaunch.length, 1);
+assert.equal(anthropicApiLaunch[0].category, "model_release");
+assert.deepEqual(anthropicApiLaunch[0].models, ["claude-sonnet-4.6"]);
+
+const anthropicApiMilestone = normalizeSourceItems(anthropicApiSource, [
+  {
+    externalId: "anthropic-api-1m-context",
+    title: "The 1M token context window is now generally available for Claude Opus 4.6 and Sonnet 4.6 at standard pricing.",
+    canonicalUrl: "https://platform.claude.com/docs/en/build-with-claude/context-windows",
+    summary:
+      "The 1M token context window is now generally available for Claude Opus 4.6 and Sonnet 4.6 at standard pricing.",
+    publishedAt: "2026-03-13T00:00:00.000Z",
+  },
+]);
+assert.equal(anthropicApiMilestone.length, 1);
+assert.equal(anthropicApiMilestone[0].category, "release_note");
+assert.deepEqual(anthropicApiMilestone[0].models, ["claude-opus-4.6", "claude-sonnet-4.6"]);
+
+const anthropicApiFeatureMilestone = normalizeSourceItems(anthropicApiSource, [
+  {
+    externalId: "anthropic-api-fast-mode",
+    title:
+      "We’ve launched fast mode in research preview for Opus 4.6, providing significantly faster output token generation via the speed parameter.",
+    canonicalUrl: "https://platform.claude.com/docs/en/build-with-claude/fast-mode",
+    summary:
+      "We’ve launched fast mode in research preview for Opus 4.6, providing significantly faster output token generation via the speed parameter.",
+    publishedAt: "2026-02-07T00:00:00.000Z",
+  },
+]);
+assert.equal(anthropicApiFeatureMilestone.length, 1);
+assert.equal(anthropicApiFeatureMilestone[0].category, "release_note");
+assert.deepEqual(anthropicApiFeatureMilestone[0].models, ["claude-opus-4.6"]);
+
+const anthropicSdkRelease = normalizeSourceItems(anthropicSdkSource, [
+  {
+    externalId: "anthropic-sdk-v0.80.0",
+    title: "v0.80.0",
+    canonicalUrl: "https://github.com/anthropics/anthropic-sdk-python/releases/tag/v0.80.0",
+    summary: "Features api: Releasing claude-sonnet-4-6.",
+    publishedAt: "2026-02-17T00:00:00.000Z",
+  },
+]);
+assert.equal(anthropicSdkRelease.length, 1);
+assert.equal(anthropicSdkRelease[0].category, "release_note");
+assert.deepEqual(anthropicSdkRelease[0].models, ["claude-sonnet-4.6"]);
+
 const googleBlogSource = {
   ...source,
   id: "google-ai-blog-rss",
@@ -234,7 +350,17 @@ assert.equal(googleChangelogPricingNoise.length, 1);
 assert.equal(googleChangelogPricingNoise[0].category, "release_note");
 
 const db = new TimelineDatabase(":memory:");
-db.seedDataIfEmpty([source, openAiRssSource, googleBlogSource, googleChangelogSource, googleVertexSource, googleSdkSource]);
+db.seedDataIfEmpty([
+  source,
+  openAiRssSource,
+  anthropicNewsSource,
+  anthropicApiSource,
+  anthropicSdkSource,
+  googleBlogSource,
+  googleChangelogSource,
+  googleVertexSource,
+  googleSdkSource,
+]);
 const raw = db.upsertRawItem({
   source_id: source.id,
   external_id: item.externalId,
@@ -461,6 +587,118 @@ assert.equal(
 const rebuiltCalendar = buildCalendar(rebuiltChatGptEvents);
 assert.ok(rebuiltCalendar.includes("SUMMARY:Introducing ChatGPT"));
 assert.ok(rebuiltCalendar.includes("URL:https://openai.com/index/chatgpt"));
+
+const anthropicNewsRaw = db.upsertRawItem({
+  source_id: anthropicNewsSource.id,
+  external_id: "anthropic-news-opus-4-6",
+  title: "Introducing Claude Opus 4.6",
+  canonical_url: "https://www.anthropic.com/news/claude-opus-4-6",
+  summary:
+    "We’re upgrading our smartest model. Opus 4.6 features a 1M token context window in beta and is available today on claude.ai, our API, and all major cloud platforms.",
+  published_at: "2026-02-05T00:00:00.000Z",
+  fetched_at: new Date().toISOString(),
+  payload_json: JSON.stringify({
+    externalId: "anthropic-news-opus-4-6",
+    title: "Introducing Claude Opus 4.6",
+    canonicalUrl: "https://www.anthropic.com/news/claude-opus-4-6",
+    summary:
+      "We’re upgrading our smartest model. Opus 4.6 features a 1M token context window in beta and is available today on claude.ai, our API, and all major cloud platforms.",
+    publishedAt: "2026-02-05T00:00:00.000Z",
+    feedCategories: ["Announcements"],
+  }),
+  checksum: "anthropic-news-opus-4-6",
+});
+
+for (const event of anthropicNewsRelease) {
+  db.upsertEvent({
+    id: event.id,
+    vendor: event.vendor,
+    category: event.category,
+    title: event.title,
+    summary: event.summary,
+    canonical_url: event.canonicalUrl,
+    evidence_url: event.evidenceUrl,
+    evidence_excerpt: event.evidenceExcerpt,
+    published_at: event.publishedAt,
+    event_date: event.eventDate,
+    event_date_kind: event.eventDateKind,
+    date_precision: event.datePrecision,
+    products: event.products,
+    models: event.models,
+    tags: event.tags,
+    source_id: anthropicNewsSource.id,
+    raw_item_id: anthropicNewsRaw.rawItemId,
+    anchor: event.anchor,
+    source_priority: event.sourcePriority,
+    last_seen_at: new Date().toISOString(),
+  });
+}
+
+const anthropicApiLaunchRaw = db.upsertRawItem({
+  source_id: anthropicApiSource.id,
+  external_id: "anthropic-api-opus-4-6-launch",
+  title: "Claude Opus 4.6 is now available in the API and claude.ai.",
+  canonical_url: "https://platform.claude.com/docs/en/release-notes/overview#2026-02-05-1",
+  summary: "Claude Opus 4.6 is now available in the API and claude.ai.",
+  published_at: "2026-02-05T00:00:00.000Z",
+  fetched_at: new Date().toISOString(),
+  payload_json: JSON.stringify({
+    externalId: "anthropic-api-opus-4-6-launch",
+    title: "Claude Opus 4.6 is now available in the API and claude.ai.",
+    canonicalUrl: "https://platform.claude.com/docs/en/release-notes/overview#2026-02-05-1",
+    summary: "Claude Opus 4.6 is now available in the API and claude.ai.",
+    publishedAt: "2026-02-05T00:00:00.000Z",
+  }),
+  checksum: "anthropic-api-opus-4-6-launch",
+});
+
+for (const event of normalizeSourceItems(anthropicApiSource, [
+  {
+    externalId: "anthropic-api-opus-4-6-launch",
+    title: "Claude Opus 4.6 is now available in the API and claude.ai.",
+    canonicalUrl: "https://platform.claude.com/docs/en/release-notes/overview#2026-02-05-1",
+    summary: "Claude Opus 4.6 is now available in the API and claude.ai.",
+    publishedAt: "2026-02-05T00:00:00.000Z",
+  },
+])) {
+  db.upsertEvent({
+    id: event.id,
+    vendor: event.vendor,
+    category: event.category,
+    title: event.title,
+    summary: event.summary,
+    canonical_url: event.canonicalUrl,
+    evidence_url: event.evidenceUrl,
+    evidence_excerpt: event.evidenceExcerpt,
+    published_at: event.publishedAt,
+    event_date: event.eventDate,
+    event_date_kind: event.eventDateKind,
+    date_precision: event.datePrecision,
+    products: event.products,
+    models: event.models,
+    tags: event.tags,
+    source_id: anthropicApiSource.id,
+    raw_item_id: anthropicApiLaunchRaw.rawItemId,
+    anchor: event.anchor,
+    source_priority: event.sourcePriority,
+    last_seen_at: new Date().toISOString(),
+  });
+}
+
+const anthropicModelReleaseEvents = db.getEvents({
+  vendor: "anthropic",
+  category: "model_release",
+  product: null,
+  model: null,
+  since: null,
+  until: null,
+  limit: 20,
+  cursor: null,
+}).events;
+
+assert.equal(anthropicModelReleaseEvents.length, 1);
+assert.equal(anthropicModelReleaseEvents[0].source_id, anthropicNewsSource.id);
+assert.equal(anthropicModelReleaseEvents[0].canonical_url, "https://www.anthropic.com/news/claude-opus-4-6");
 
 const googleVertexRaw = db.upsertRawItem({
   source_id: googleVertexSource.id,

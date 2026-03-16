@@ -3,10 +3,13 @@ import { config } from "../config.js";
 import { normalizeSourceItems } from "./normalize.js";
 import { fetchSource, hashSourceItem } from "../sources/fetchers.js";
 import { sourceManifest } from "../sources/manifest.js";
-import type { ParsedSourceItem, RawParsedEvent, SourceManifestEntry, SourceRow, StoredRawItem } from "../types.js";
+import type { ParsedSourceItem, RawParsedEvent, SourceManifestEntry, SourceRow, StoredRawItem, Vendor } from "../types.js";
 const parseDate = () => new Date().toISOString();
 
 const sourcePriority: Record<string, number> = {
+  "anthropic-github-releases": 10,
+  "anthropic-releases": 20,
+  "anthropic-news": 30,
   "google-gemini-release-notes-rss": 10,
   "google-vertex-release-notes": 20,
   "google-cloud-ai-release-notes": 30,
@@ -120,11 +123,13 @@ export const rebuildSourceEvents = async (sourceId: string) => {
   return rebuildSourceEventsInDatabase(db, sourceId);
 };
 
-export const runIngestion = async (options: { backfillSince?: string | null } = {}) => {
+export const runIngestion = async (options: { backfillSince?: string | null; vendor?: Vendor | null } = {}) => {
   const dbPath = config.databasePath;
   const db = new TimelineDatabase(dbPath);
   seedSources(db);
-  const sources = options.backfillSince ? db.getAllSources() : db.getDueSources();
+  const sources = (options.backfillSince ? db.getAllSources() : db.getDueSources()).filter((source) =>
+    options.vendor ? source.vendor === options.vendor : true
+  );
 
   const start = Date.now();
   const queue = [...sources].sort((left, right) => (sourcePriority[left.id] ?? 0) - (sourcePriority[right.id] ?? 0));

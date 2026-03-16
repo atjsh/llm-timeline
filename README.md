@@ -56,6 +56,12 @@ Run incremental refresh:
 npm run cli:refresh
 ```
 
+Run a vendor-scoped refresh:
+
+```bash
+npm run cli:refresh -- --vendor=anthropic
+```
+
 Run backfill:
 
 ```bash

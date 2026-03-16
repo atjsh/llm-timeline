@@ -76,7 +76,8 @@ type DateCandidate = {
   kind: EventDateKind;
 };
 
-const dateRegex = /((?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\s+\d{1,2},\s+\d{4}|\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z|\d{4}-\d{2}-\d{2}|\d{1,2}\/\d{1,2}\/\d{4}|\d{1,2}-\d{1,2}-\d{4})/gi;
+const dateRegex =
+  /\b((?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\s+\d{1,2},\s+\d{4}|\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z|\d{4}-\d{2}-\d{2}|\d{1,2}\/\d{1,2}\/\d{4}|\d{1,2}-\d{1,2}-\d{4})\b/gi;
 
 const dateKindFromContext = (context: string): EventDateKind => {
   const lower = context.toLowerCase();
@@ -165,6 +166,21 @@ const openAiChatGptFeatureUrlHints = [
   "/index/new-tools-for-chatgpt-enterprise",
 ];
 
+const anthropicSourcePriority: Record<string, number> = {
+  "anthropic-github-releases": 10,
+  "anthropic-releases": 20,
+  "anthropic-news": 30,
+};
+
+const anthropicDeveloperProducts = ["claude", "claude code"];
+const anthropicNewsModelReleaseTitleRegex = /\bintroducing\s+claude\s+(opus|sonnet|haiku)\s+\d+(?:\.\d+)?\b/i;
+const anthropicDirectModelLaunchTitleRegex =
+  /\b(?:introducing|announcing|we(?:'|’)ve launched|launching)\s+claude(?:\s+(?:opus|sonnet|haiku))?\s+\d+(?:\.\d+)?(?:\s+(?:and|&)\s+claude(?:\s+(?:opus|sonnet|haiku))?\s+\d+(?:\.\d+)?)*\b/i;
+const anthropicModelAvailabilityRegex =
+  /\b(introducing|introduced|launch(?:ed)?|released?|available(?:\s+today)?|generally available|\bga\b)\b/i;
+const anthropicReleaseNoteMilestoneRegex =
+  /\b(1m token context|1 million token context|context window|128k output tokens?|context compaction|adaptive thinking|effort levels?|us-only inference|rate limits?)\b/i;
+
 const googleSourcePriority: Record<string, number> = {
   "google-gemini-release-notes-rss": 10,
   "google-vertex-release-notes": 20,
@@ -196,6 +212,14 @@ type GoogleNormalizationMetadata = {
   models: string[];
 };
 
+type AnthropicNormalizationMetadata = {
+  category: EventCategory;
+  dedupeKey?: string;
+  sourcePriority: number;
+  products: string[];
+  models: string[];
+};
+
 const inferOpenAiRssCategory = (item: ParsedSourceItem): EventCategory => {
   const categories = normalizeFeedCategories(item.feedCategories);
   const title = item.title.toLowerCase();
@@ -210,6 +234,109 @@ const inferOpenAiRssCategory = (item: ParsedSourceItem): EventCategory => {
   if (openAiNonReleaseTitleRegex.test(title)) return "blog_update";
   if (openAiModelReleaseTitleRegex.test(title) && hasAllowedContextCategory) return "model_release";
   return "blog_update";
+};
+
+const normalizeAnthropicVersion = (value: string) => value.replace(/-/g, ".");
+
+const extractAnthropicModels = (item: ParsedSourceItem, text: string, mode: "primary" | "full" = "full") => {
+  const segments = [item.title];
+  if (mode === "full") {
+    segments.push(text);
+  }
+  try {
+    const url = new URL(item.canonicalUrl);
+    segments.push(decodeURIComponent(url.pathname));
+  } catch {
+    segments.push(item.canonicalUrl);
+  }
+
+  const models: string[] = [];
+  const explicitRegex = /\bclaude[-\s]+(opus|sonnet|haiku)[-\s]+(\d+(?:[.-]\d+)*(?:-\d+)*)\b/gi;
+  const implicitRegex = /\b(opus|sonnet|haiku)[-\s]+(\d+(?:[.-]\d+)*(?:-\d+)*)\b/gi;
+
+  for (const segment of segments) {
+    let match: RegExpExecArray | null;
+    while ((match = explicitRegex.exec(segment)) !== null) {
+      models.push(`claude-${match[1].toLowerCase()}-${normalizeAnthropicVersion(match[2])}`);
+    }
+    while ((match = implicitRegex.exec(segment)) !== null) {
+      models.push(`claude-${match[1].toLowerCase()}-${normalizeAnthropicVersion(match[2])}`);
+    }
+  }
+
+  return dedupe(models, (value) => value).sort();
+};
+
+const anthropicReleaseNoteMilestoneKey = (text: string) => {
+  if (/\b(1m token context|1 million token context|context window)\b/i.test(text)) return "1m-context";
+  if (/\b128k output tokens?\b/i.test(text)) return "128k-output";
+  if (/\bcontext compaction\b/i.test(text)) return "context-compaction";
+  if (/\badaptive thinking\b/i.test(text)) return "adaptive-thinking";
+  if (/\beffort levels?\b/i.test(text)) return "effort";
+  if (/\bus-only inference\b/i.test(text)) return "us-only-inference";
+  return null;
+};
+
+const inferAnthropicMetadata = (
+  source: SourceRow,
+  item: ParsedSourceItem,
+  text: string
+): AnthropicNormalizationMetadata | null => {
+  const primaryModels = extractAnthropicModels(item, text, "primary");
+  const models = source.id === "anthropic-github-releases" ? extractAnthropicModels(item, text, "full") : primaryModels;
+  const products = dedupe(
+    anthropicDeveloperProducts.filter((value) => text.toLowerCase().includes(value.toLowerCase())).concat(["claude"]),
+    (value) => value
+  );
+  const priority = anthropicSourcePriority[source.id] ?? 0;
+
+  if (source.id === "anthropic-github-releases") {
+    return {
+      category: "release_note",
+      sourcePriority: priority,
+      products,
+      models,
+    };
+  }
+
+  if (source.id === "anthropic-news") {
+    if (!primaryModels.length || !anthropicNewsModelReleaseTitleRegex.test(item.title)) {
+      return null;
+    }
+    return {
+      category: "model_release",
+      dedupeKey: `${primaryModels.join("|")}|release`,
+      sourcePriority: priority,
+      products,
+      models,
+    };
+  }
+
+  if (source.id === "anthropic-releases") {
+    const milestoneKey = anthropicReleaseNoteMilestoneKey(text);
+    const isDirectModelLaunch =
+      primaryModels.length > 0 &&
+      anthropicDirectModelLaunchTitleRegex.test(item.title) &&
+      anthropicModelAvailabilityRegex.test(text);
+    if (isDirectModelLaunch && !milestoneKey) {
+      return {
+        category: "model_release",
+        dedupeKey: `${primaryModels.join("|")}|release`,
+        sourcePriority: priority,
+        products,
+        models,
+      };
+    }
+    return {
+      category: "release_note",
+      dedupeKey: milestoneKey && models.length ? `${models.join("|")}|${milestoneKey}` : undefined,
+      sourcePriority: priority,
+      products,
+      models,
+    };
+  }
+
+  return null;
 };
 
 const normalizeGoogleEntityToken = (value: string) =>
@@ -390,19 +517,26 @@ export const normalizeSourceItems = (source: SourceRow, items: ParsedSourceItem[
   for (const item of items) {
     const combined = `${item.title}\n${item.summary}`.trim();
     const googleMetadata = source.vendor === "google" ? inferGoogleMetadata(source, item, combined) : null;
-    if (source.vendor === "google" && !googleMetadata) continue;
+    const anthropicMetadata = source.vendor === "anthropic" ? inferAnthropicMetadata(source, item, combined) : null;
+    const vendorMetadata = googleMetadata ?? anthropicMetadata;
+    if ((source.vendor === "google" || source.vendor === "anthropic") && !vendorMetadata) continue;
     const candidates = dedupe(extractDateCandidates(`${combined} ${item.externalId}`), (candidate) => `${candidate.date}-${candidate.kind}`);
     const dateRefs = candidates.length
       ? candidates.map((c) => c.date).filter((value, index, arr) => arr.indexOf(value) === index)
       : item.publishedAt
       ? [item.publishedAt]
       : [];
-    const category = googleMetadata?.category ?? inferCategory(source, item, combined, source.default_category);
+    const category = vendorMetadata?.category ?? inferCategory(source, item, combined, source.default_category);
+    const extractedProducts =
+      source.vendor === "anthropic"
+        ? extractTerms(combined, anthropicDeveloperProducts)
+        : extractTerms(combined, knownProducts.concat(vendorProducts));
+    const extractedModels = source.vendor === "anthropic" ? [] : extractTerms(combined, knownModels);
     const productHints = dedupe(
-      extractTerms(combined, knownProducts.concat(vendorProducts)).concat(googleMetadata?.products ?? []),
+      extractedProducts.concat(vendorMetadata?.products ?? []),
       (v) => v
     ).sort();
-    const modelHints = dedupe(extractTerms(combined, knownModels).concat(googleMetadata?.models ?? []), (v) => v).sort();
+    const modelHints = dedupe(extractedModels.concat(vendorMetadata?.models ?? []), (v) => v).sort();
     const tags = dedupe(
       [category, source.vendor, source.name]
         .concat(item.feedCategories ?? [])
@@ -427,8 +561,8 @@ export const normalizeSourceItems = (source: SourceRow, items: ParsedSourceItem[
       const dedupeDate = normalizedDate.iso.slice(0, 10);
       const id = createHash("sha1")
         .update(
-          googleMetadata?.dedupeKey
-            ? `${source.vendor}|${category}|${dedupeDate}|${googleMetadata.dedupeKey}`
+          vendorMetadata?.dedupeKey
+            ? `${source.vendor}|${category}|${dedupeDate}|${vendorMetadata.dedupeKey}`
             : `${canonicalUrl}|${source.vendor}|${category}|${normalizedDate.iso}|${anchorBase}`
         )
         .digest("hex");
@@ -450,8 +584,8 @@ export const normalizeSourceItems = (source: SourceRow, items: ParsedSourceItem[
         models: modelHints,
         tags,
         anchor: anchorBase,
-        dedupeKey: googleMetadata?.dedupeKey,
-        sourcePriority: googleMetadata?.sourcePriority,
+        dedupeKey: vendorMetadata?.dedupeKey,
+        sourcePriority: vendorMetadata?.sourcePriority,
       });
     }
   }
