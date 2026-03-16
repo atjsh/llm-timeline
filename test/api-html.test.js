@@ -112,6 +112,20 @@ insertEvent({
   models: ["gemini-3.1-pro"],
 });
 
+insertEvent({
+  id: "evt-openai-release-html",
+  sourceId: "openai-github-releases",
+  vendor: "openai",
+  category: "release_note",
+  title: "v2.26.0",
+  summary: "GitHub release body.",
+  evidenceExcerpt:
+    '<h2>2.26.0 (2026-03-05)</h2><p>Full Changelog: <a href="https://github.com/openai/openai-python/compare/v2.25.0...v2.26.0">v2.25.0...v2.26.0</a></p><h3>Features</h3><ul><li><strong>api:</strong> The GA ComputerTool now uses the Computer API (&lt;a href="https://github.com/openai/openai-python/pull/123"&gt;#123&lt;/a&gt;).</li></ul><a href="https://github.co...',
+  canonicalUrl: "https://github.com/openai/openai-python/releases/tag/v2.26.0",
+  eventDate: "2026-03-05T00:00:00.000Z",
+  products: ["gpt"],
+});
+
 const getHtml = async (path) => {
   const response = await app.fetch(new Request(`http://localhost${path}`));
   const body = await response.text();
@@ -179,6 +193,13 @@ assert.equal(invalidCursor.response.status, 400);
 
 const allCategoriesPage = await getHtml("/feeds?category=all&limit=10");
 assert.match(allCategoriesPage.body, /Gemini tooling update/);
+
+const htmlReleaseNotePage = await getHtml("/feeds?vendor=openai&category=release_note&limit=20");
+assert.match(htmlReleaseNotePage.body, /v2\.26\.0/);
+assert.match(htmlReleaseNotePage.body, /Full Changelog: v2\.25\.0\.\.\.v2\.26\.0/);
+assert.doesNotMatch(htmlReleaseNotePage.body, /&lt;h2&gt;2\.26\.0/);
+assert.doesNotMatch(htmlReleaseNotePage.body, /&lt;a href=/);
+assert.doesNotMatch(htmlReleaseNotePage.body, /href=&quot;https:\/\/github\.com\/openai\/openai-python\/compare\/v2\.25\.0\.\.\.v2\.26\.0&quot;/);
 
 const emptyPage = await getHtml("/feeds?vendor=openai&category=deprecation");
 assert.match(emptyPage.body, /No events matched the current filters/);

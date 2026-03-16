@@ -56,6 +56,31 @@ const compactText = (value: string, limit = 240) => {
   return `${normalized.slice(0, limit - 3).trimEnd()}...`;
 };
 
+const decodeHtmlEntities = (value: string) =>
+  value
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&#x([0-9a-f]+);/gi, (_, hex: string) => {
+      const codePoint = Number.parseInt(hex, 16);
+      return Number.isFinite(codePoint) ? String.fromCodePoint(codePoint) : "";
+    })
+    .replace(/&#(\d+);/g, (_, decimal: string) => {
+      const codePoint = Number.parseInt(decimal, 10);
+      return Number.isFinite(codePoint) ? String.fromCodePoint(codePoint) : "";
+    });
+
+const stripHtml = (value: string) =>
+  decodeHtmlEntities(decodeHtmlEntities(value)).replace(/<[^>]*>?/g, " ");
+
+const renderSummaryText = (event: EventRow) => {
+  const rawSummary = event.evidence_excerpt || event.summary || "";
+  return compactText(stripHtml(rawSummary));
+};
+
 const safeHref = (value: string) => {
   if (value.startsWith("/")) return escapeHtml(value);
   try {
@@ -120,7 +145,7 @@ const activeFilterChips = (state: FeedsPageState) => {
 };
 
 const renderTimelineItem = (event: EventRow) => {
-  const summary = compactText(event.evidence_excerpt || event.summary || "");
+  const summary = renderSummaryText(event);
   const vendorLabel = vendorLabels[event.vendor] ?? humanizeToken(event.vendor);
   const categoryLabel = humanizeToken(event.category);
   const sourceHref = safeHref(event.canonical_url);
@@ -539,6 +564,7 @@ const styles = `
     display: flex;
     flex-direction: column;
     gap: 2px;
+    min-width: 0;
   }
 
   .timeline__day {
@@ -557,6 +583,7 @@ const styles = `
     border: 1px solid rgba(214, 205, 191, 0.95);
     border-radius: 20px;
     padding: 18px;
+    min-width: 0;
   }
 
   .event-card__badges,
@@ -602,6 +629,8 @@ const styles = `
     margin: 12px 0 10px;
     font-size: clamp(1.12rem, 2vw, 1.42rem);
     line-height: 1.2;
+    overflow-wrap: anywhere;
+    word-break: break-word;
   }
 
   .event-card__summary,
@@ -610,6 +639,8 @@ const styles = `
     margin: 0;
     color: var(--muted);
     line-height: 1.6;
+    overflow-wrap: anywhere;
+    word-break: break-word;
   }
 
   .event-card__meta {
@@ -625,6 +656,8 @@ const styles = `
   .event-card__links a {
     text-decoration: underline;
     text-underline-offset: 0.18em;
+    overflow-wrap: anywhere;
+    word-break: break-word;
   }
 
   .empty-state {
