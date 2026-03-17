@@ -77,6 +77,100 @@ const openAiResearchRelease = normalizeSourceItems(openAiRssSource, [
 ]);
 assert.equal(openAiResearchRelease[0].category, "model_release");
 
+const openAiGpt4Launch = normalizeSourceItems(openAiRssSource, [
+  {
+    externalId: "openai-gpt4-1",
+    title: "GPT-4",
+    canonicalUrl: "https://openai.com/index/gpt-4/",
+    summary:
+      "We’ve created GPT-4, the latest milestone in OpenAI’s effort in scaling up deep learning. GPT-4 is a large multimodal model.",
+    publishedAt: "2023-03-14T07:00:00.000Z",
+    feedCategories: ["Research"],
+  },
+]);
+assert.equal(openAiGpt4Launch[0].category, "model_release");
+assert.equal(openAiGpt4Launch[0].canonicalUrl, "https://openai.com/index/gpt-4-research");
+assert.deepEqual(openAiGpt4Launch[0].models, ["gpt-4"]);
+
+const openAiO1Launch = normalizeSourceItems(openAiRssSource, [
+  {
+    externalId: "openai-o1-1",
+    title: "Introducing OpenAI o1",
+    canonicalUrl: "https://openai.com/index/introducing-openai-o1-preview",
+    summary: "Introducing OpenAI o1",
+    publishedAt: "2024-09-12T10:03:00.000Z",
+    feedCategories: ["Product"],
+  },
+]);
+assert.equal(openAiO1Launch[0].category, "model_release");
+assert.deepEqual(openAiO1Launch[0].models, ["o1"]);
+
+const openAiO3MiniLaunch = normalizeSourceItems(openAiRssSource, [
+  {
+    externalId: "openai-o3-mini-1",
+    title: "OpenAI o3-mini",
+    canonicalUrl: "https://openai.com/index/openai-o3-mini",
+    summary: "Pushing the frontier of cost-effective reasoning.",
+    publishedAt: "2025-01-31T11:00:00.000Z",
+    feedCategories: ["Research"],
+  },
+]);
+assert.equal(openAiO3MiniLaunch[0].category, "model_release");
+assert.deepEqual(openAiO3MiniLaunch[0].models, ["o3-mini"]);
+
+const openAiO3AndO4MiniLaunch = normalizeSourceItems(openAiRssSource, [
+  {
+    externalId: "openai-o3-o4-mini-1",
+    title: "Introducing OpenAI o3 and o4-mini",
+    canonicalUrl: "https://openai.com/index/introducing-o3-and-o4-mini",
+    summary: "Our smartest and most capable models to date with full tool access.",
+    publishedAt: "2025-04-16T10:00:00.000Z",
+    feedCategories: ["Release"],
+  },
+]);
+assert.equal(openAiO3AndO4MiniLaunch[0].category, "model_release");
+assert.deepEqual(openAiO3AndO4MiniLaunch[0].models, ["o3", "o4-mini"]);
+
+const openAiGpt4oMiniLaunch = normalizeSourceItems(openAiRssSource, [
+  {
+    externalId: "openai-gpt4o-mini-1",
+    title: "GPT-4o mini: advancing cost-efficient intelligence",
+    canonicalUrl: "https://openai.com/index/gpt-4o-mini-advancing-cost-efficient-intelligence",
+    summary: "Introducing the most cost-efficient small model in the market.",
+    publishedAt: "2024-07-18T10:00:00.000Z",
+    feedCategories: ["Research"],
+  },
+]);
+assert.equal(openAiGpt4oMiniLaunch[0].category, "model_release");
+assert.deepEqual(openAiGpt4oMiniLaunch[0].models, ["gpt-4o-mini"]);
+
+const openAiSoraLaunch = normalizeSourceItems(openAiRssSource, [
+  {
+    externalId: "openai-sora-1",
+    title: "Sora is here",
+    canonicalUrl: "https://openai.com/index/sora-is-here",
+    summary: "Our video generation model, Sora, is now available to use at sora.com.",
+    publishedAt: "2024-12-09T10:00:00.000Z",
+    feedCategories: ["Product"],
+  },
+]);
+assert.equal(openAiSoraLaunch[0].category, "model_release");
+assert.ok(openAiSoraLaunch[0].products.includes("sora"));
+assert.deepEqual(openAiSoraLaunch[0].models, ["sora"]);
+
+const openAiGpt53InstantLaunch = normalizeSourceItems(openAiRssSource, [
+  {
+    externalId: "openai-gpt53-instant-1",
+    title: "GPT-5.3 Instant: Smoother, more useful everyday conversations",
+    canonicalUrl: "https://openai.com/index/gpt-5-3-instant",
+    summary: "",
+    publishedAt: "2026-03-03T10:00:00.000Z",
+    feedCategories: ["Product"],
+  },
+]);
+assert.equal(openAiGpt53InstantLaunch[0].category, "model_release");
+assert.deepEqual(openAiGpt53InstantLaunch[0].models, ["gpt-5.3-instant"]);
+
 const openAiChatGptLaunch = normalizeSourceItems(openAiRssSource, [
   {
     externalId: "openai-chatgpt-1",
@@ -124,6 +218,42 @@ const openAiChatGptFeature = normalizeSourceItems(openAiRssSource, [
   },
 ]);
 assert.equal(openAiChatGptFeature[0].category, "blog_update");
+
+const openAiO1SystemCard = normalizeSourceItems(openAiRssSource, [
+  {
+    externalId: "openai-o1-system-card-1",
+    title: "OpenAI o1 System Card",
+    canonicalUrl: "https://openai.com/index/openai-o1-system-card",
+    summary: "This report outlines the safety work carried out prior to releasing OpenAI o1 and o1-mini.",
+    publishedAt: "2024-12-05T10:00:00.000Z",
+    feedCategories: ["Product"],
+  },
+]);
+assert.equal(openAiO1SystemCard[0].category, "blog_update");
+
+const openAiSoraSystemCard = normalizeSourceItems(openAiRssSource, [
+  {
+    externalId: "openai-sora-system-card-1",
+    title: "Sora System Card",
+    canonicalUrl: "https://openai.com/index/sora-system-card",
+    summary: "Safety and preparedness report for Sora.",
+    publishedAt: "2024-12-09T00:00:00.000Z",
+    feedCategories: ["Product"],
+  },
+]);
+assert.equal(openAiSoraSystemCard[0].category, "blog_update");
+
+const openAiO1RoundupPost = normalizeSourceItems(openAiRssSource, [
+  {
+    externalId: "openai-o1-roundup-1",
+    title: "OpenAI o1 and new tools for developers",
+    canonicalUrl: "https://openai.com/index/o1-and-new-tools-for-developers",
+    summary: "Introducing OpenAI o1, Realtime API improvements, a new fine-tuning method and more for developers.",
+    publishedAt: "2024-12-17T00:00:00.000Z",
+    feedCategories: ["Product"],
+  },
+]);
+assert.equal(openAiO1RoundupPost[0].category, "blog_update");
 
 const openAiRetirementPost = normalizeSourceItems(openAiRssSource, [
   {
@@ -660,6 +790,78 @@ assert.equal(
 const rebuiltCalendar = buildCalendar(rebuiltChatGptEvents);
 assert.ok(rebuiltCalendar.includes("SUMMARY:Introducing ChatGPT"));
 assert.ok(rebuiltCalendar.includes("URL:https://openai.com/index/chatgpt"));
+
+const openAiAliasDb = new TimelineDatabase(":memory:");
+openAiAliasDb.seedDataIfEmpty([source, openAiRssSource]);
+
+const openAiAliasRaw = openAiAliasDb.upsertRawItem({
+  source_id: openAiRssSource.id,
+  external_id: "openai-gpt4-legacy",
+  title: "GPT-4",
+  canonical_url: "https://openai.com/index/gpt-4/",
+  summary:
+    "We’ve created GPT-4, the latest milestone in OpenAI’s effort in scaling up deep learning. GPT-4 is a large multimodal model.",
+  published_at: "2023-03-14T07:00:00.000Z",
+  fetched_at: new Date().toISOString(),
+  payload_json: JSON.stringify({
+    externalId: "openai-gpt4-legacy",
+    title: "GPT-4",
+    canonicalUrl: "https://openai.com/index/gpt-4/",
+    summary:
+      "We’ve created GPT-4, the latest milestone in OpenAI’s effort in scaling up deep learning. GPT-4 is a large multimodal model.",
+    publishedAt: "2023-03-14T07:00:00.000Z",
+    feedCategories: ["Research"],
+  }),
+  checksum: "openai-gpt4-legacy",
+});
+
+openAiAliasDb.upsertEvent({
+  id: "legacy-openai-gpt4-blog-update",
+  vendor: "openai",
+  category: "blog_update",
+  title: "GPT-4",
+  summary:
+    "We’ve created GPT-4, the latest milestone in OpenAI’s effort in scaling up deep learning. GPT-4 is a large multimodal model.",
+  canonical_url: "https://openai.com/index/gpt-4/",
+  evidence_url: "https://openai.com/news/rss.xml",
+  evidence_excerpt:
+    "We’ve created GPT-4, the latest milestone in OpenAI’s effort in scaling up deep learning. GPT-4 is a large multimodal model.",
+  published_at: "2023-03-14T07:00:00.000Z",
+  event_date: "2023-03-14T07:00:00.000Z",
+  event_date_kind: "published",
+  date_precision: "datetime",
+  products: ["gpt", "gpt-4"],
+  models: ["gpt-4"],
+  tags: ["blog_update", "openai", "OpenAI Blog RSS", "Research"],
+  source_id: openAiRssSource.id,
+  raw_item_id: openAiAliasRaw.rawItemId,
+  anchor: "gpt-4-published-2023-03-14t07-00-00-000z",
+  last_seen_at: new Date().toISOString(),
+});
+
+const openAiAliasRebuild = rebuildSourceEventsInDatabase(openAiAliasDb, openAiRssSource.id);
+assert.equal(openAiAliasRebuild.rawItems, 1);
+assert.equal(openAiAliasRebuild.deletedCount, 1);
+
+const rebuiltOpenAiGpt4Events = openAiAliasDb.getEvents({
+  vendor: "openai",
+  category: "model_release",
+  product: null,
+  model: null,
+  since: null,
+  until: null,
+  limit: 20,
+  cursor: null,
+}).events;
+
+assert.equal(
+  rebuiltOpenAiGpt4Events.filter((event) => event.canonical_url === "https://openai.com/index/gpt-4-research").length,
+  1
+);
+assert.equal(
+  rebuiltOpenAiGpt4Events.find((event) => event.canonical_url === "https://openai.com/index/gpt-4-research")?.category,
+  "model_release"
+);
 
 const openAiRetirementDb = new TimelineDatabase(":memory:");
 openAiRetirementDb.seedDataIfEmpty([source, openAiRssSource]);

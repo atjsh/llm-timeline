@@ -41,11 +41,49 @@ const xmlCategoryTerms = (block: string): string[] =>
     .map((match) => decodeHtmlEntities(match[1] ?? "").trim())
     .filter(Boolean);
 
+const parseDateUtcMaybe = (value: string) => {
+  const trimmed = value.trim();
+  if (!trimmed) return undefined;
+  const hasTime = /[T\s]\d{1,2}:\d{2}/.test(trimmed);
+  if (hasTime) {
+    const parsed = Date.parse(trimmed);
+    if (Number.isNaN(parsed)) return undefined;
+    return new Date(parsed);
+  }
+
+  const isoMatch = /^(\d{4})-(\d{2})-(\d{2})$/.exec(trimmed);
+  if (isoMatch) {
+    const [, year, month, day] = isoMatch;
+    return new Date(Date.UTC(Number(year), Number(month) - 1, Number(day)));
+  }
+
+  const numericMatch = /^(\d{1,2})[/-](\d{1,2})[/-](\d{2,4})$/.exec(trimmed);
+  if (numericMatch) {
+    const [, month, day, yearValue] = numericMatch;
+    const year = yearValue.length === 2 ? 2000 + Number(yearValue) : Number(yearValue);
+    return new Date(Date.UTC(year, Number(month) - 1, Number(day)));
+  }
+
+  const monthMatch =
+    /^(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:tember)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\s+(\d{1,2}),\s*(\d{4})$/i.exec(
+      trimmed
+    );
+  if (monthMatch) {
+    const monthNames = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
+    const monthIndex = monthNames.indexOf(monthMatch[1].slice(0, 3).toLowerCase());
+    if (monthIndex !== -1) {
+      return new Date(Date.UTC(Number(monthMatch[3]), monthIndex, Number(monthMatch[2])));
+    }
+  }
+
+  const parsed = Date.parse(trimmed);
+  if (Number.isNaN(parsed)) return undefined;
+  return new Date(parsed);
+};
+
 const parseDateMaybe = (value?: string) => {
   if (!value) return undefined;
-  const parsed = Date.parse(value);
-  if (Number.isNaN(parsed)) return undefined;
-  return new Date(parsed).toISOString();
+  return parseDateUtcMaybe(value)?.toISOString();
 };
 
 const normalizeItemId = (seed: string, fallback: string) => {

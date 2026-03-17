@@ -1,5 +1,5 @@
 {
-  "exported_at": "2026-03-17T02:34:45.676Z",
+  "exported_at": "2026-03-17T03:28:51.896Z",
   "events": [
     {
       "id": "8d32c4636954f1bfada11bacb79c0347e6e5ed73",
@@ -344,10 +344,13 @@
       "event_date": "2026-03-05T10:00:00.000Z",
       "event_date_kind": "published",
       "products": [
-        "gpt"
+        "gpt",
+        "gpt-5.4"
       ],
-      "models": [],
-      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2026년 3월 5일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">모델 출시</span>\n        </div>\n        <h2 class=\"event-card__title\">Introducing GPT-5.4</h2>\n        <p class=\"event-card__summary\">Introducing GPT-5.4, OpenAI’s most most capable and efficient frontier model for professional work, with state-of-the-art coding, computer use, tool search, and 1M-token context.</p>\n        <p class=\"event-card__meta\">제품: gpt</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/introducing-gpt-5-4\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
+      "models": [
+        "gpt-5.4"
+      ],
+      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2026년 3월 5일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">모델 출시</span>\n        </div>\n        <h2 class=\"event-card__title\">Introducing GPT-5.4</h2>\n        <p class=\"event-card__summary\">Introducing GPT-5.4, OpenAI’s most most capable and efficient frontier model for professional work, with state-of-the-art coding, computer use, tool search, and 1M-token context.</p>\n        <p class=\"event-card__meta\">제품: gpt, gpt-5.4 · 모델: gpt-5.4</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/introducing-gpt-5-4\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
     },
     {
       "id": "527d395b6c45a4e152431d53565692b16e85e84a",
@@ -488,16 +491,19 @@
       "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2026년 3월 3일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">블로그 업데이트</span>\n        </div>\n        <h2 class=\"event-card__title\">GPT-5.3 Instant System Card</h2>\n        <p class=\"event-card__summary\">요약이 없습니다.</p>\n        <p class=\"event-card__meta\">제품: gpt</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/gpt-5-3-instant-system-card\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
     },
     {
-      "id": "43e5adfdc47d62338e48c7cc01193aba8e495824",
+      "id": "9f16078cf48bd0c84f8fb60efd8e14aa29898553",
       "vendor": "openai",
-      "category": "blog_update",
+      "category": "model_release",
       "event_date": "2026-03-03T10:00:00.000Z",
       "event_date_kind": "published",
       "products": [
-        "gpt"
+        "gpt",
+        "gpt-5.3"
       ],
-      "models": [],
-      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2026년 3월 3일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">블로그 업데이트</span>\n        </div>\n        <h2 class=\"event-card__title\">GPT-5.3 Instant: Smoother, more useful everyday conversations</h2>\n        <p class=\"event-card__summary\">요약이 없습니다.</p>\n        <p class=\"event-card__meta\">제품: gpt</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/gpt-5-3-instant\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
+      "models": [
+        "gpt-5.3-instant"
+      ],
+      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2026년 3월 3일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">모델 출시</span>\n        </div>\n        <h2 class=\"event-card__title\">GPT-5.3 Instant: Smoother, more useful everyday conversations</h2>\n        <p class=\"event-card__summary\">요약이 없습니다.</p>\n        <p class=\"event-card__meta\">제품: gpt, gpt-5.3 · 모델: gpt-5.3-instant</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/gpt-5-3-instant\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
     },
     {
       "id": "c3fc7e88ffe76f8526fbe9cc06303a7d48d5e678",
@@ -1049,6 +1055,27 @@
       "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2026년 2월 13일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">릴리스 노트</span>\n        </div>\n        <h2 class=\"event-card__title\">v2.21.0</h2>\n        <p class=\"event-card__summary\">2.21.0 (2026-02-13) Full Changelog: v2.20.0...v2.21.0 Features api: container network_policy and skills ( d19de2e ) Bug Fixes structured outputs: resolve memory leak in parse methods ( #2860 ) ( 6dcbe21 ) webhooks: preserve method visibi...</p>\n        \n        <div class=\"event-card__links\">\n          <a href=\"https://github.com/openai/openai-python/releases/tag/v2.21.0\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
     },
     {
+      "id": "6e46a5bc1f0d1e8b062610c71b8b3e5e5a935408",
+      "vendor": "openai",
+      "category": "deprecation",
+      "event_date": "2026-02-13",
+      "event_date_kind": "published",
+      "products": [
+        "chatgpt",
+        "gpt",
+        "gpt-4",
+        "gpt-4.1",
+        "gpt-4o",
+        "o4"
+      ],
+      "models": [
+        "gpt-4",
+        "gpt-4.1",
+        "gpt-4o"
+      ],
+      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2026년 2월 13일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">지원 종료</span>\n        </div>\n        <h2 class=\"event-card__title\">Retiring GPT-4o, GPT-4.1, GPT-4.1 mini, and OpenAI o4-mini in ChatGPT</h2>\n        <p class=\"event-card__summary\">On February 13, 2026, alongside the previously announced retirement⁠ of GPT‑5 (Instant, Thinking, and Pro), we will retire GPT‑4o, GPT‑4.1, GPT‑4.1 mini, and OpenAI o4-mini from ChatGPT. In the API, there are no changes at this time.</p>\n        <p class=\"event-card__meta\">제품: chatgpt, gpt, gpt-4 · 모델: gpt-4, gpt-4.1, gpt-4o</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/retiring-gpt-4o-and-older-models\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
+    },
+    {
       "id": "150f021f3a432f36f327806ffe218c92ecca2049",
       "vendor": "google",
       "category": "model_release",
@@ -1071,30 +1098,13 @@
       "event_date_kind": "published",
       "products": [
         "chatgpt",
-        "gpt"
-      ],
-      "models": [],
-      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2026년 2월 12일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">모델 출시</span>\n        </div>\n        <h2 class=\"event-card__title\">Introducing GPT-5.3-Codex-Spark</h2>\n        <p class=\"event-card__summary\">Introducing GPT-5.3-Codex-Spark—our first real-time coding model. 15x faster generation, 128k context, now in research preview for ChatGPT Pro users.</p>\n        <p class=\"event-card__meta\">제품: chatgpt, gpt</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/introducing-gpt-5-3-codex-spark\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
-    },
-    {
-      "id": "0e6019b8e50e542afbf6582116a1d7a9d6813a0e",
-      "vendor": "openai",
-      "category": "deprecation",
-      "event_date": "2026-02-12",
-      "event_date_kind": "published",
-      "products": [
-        "chatgpt",
         "gpt",
-        "gpt-4",
-        "gpt-4.1",
-        "gpt-4o"
+        "gpt-5.3"
       ],
       "models": [
-        "gpt-4",
-        "gpt-4.1",
-        "gpt-4o"
+        "gpt-5.3-codex-spark"
       ],
-      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2026년 2월 12일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">지원 종료</span>\n        </div>\n        <h2 class=\"event-card__title\">Retiring GPT-4o, GPT-4.1, GPT-4.1 mini, and OpenAI o4-mini in ChatGPT</h2>\n        <p class=\"event-card__summary\">On February 13, 2026, alongside the previously announced retirement⁠ of GPT‑5 (Instant, Thinking, and Pro), we will retire GPT‑4o, GPT‑4.1, GPT‑4.1 mini, and OpenAI o4-mini from ChatGPT. In the API, there are no changes at this time.</p>\n        <p class=\"event-card__meta\">제품: chatgpt, gpt, gpt-4 · 모델: gpt-4, gpt-4.1, gpt-4o</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/retiring-gpt-4o-and-older-models\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
+      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2026년 2월 12일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">모델 출시</span>\n        </div>\n        <h2 class=\"event-card__title\">Introducing GPT-5.3-Codex-Spark</h2>\n        <p class=\"event-card__summary\">Introducing GPT-5.3-Codex-Spark—our first real-time coding model. 15x faster generation, 128k context, now in research preview for ChatGPT Pro users.</p>\n        <p class=\"event-card__meta\">제품: chatgpt, gpt, gpt-5.3 · 모델: gpt-5.3-codex-spark</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/introducing-gpt-5-3-codex-spark\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
     },
     {
       "id": "e3c2f071d75f8b5ad62e068e55af0989265049cd",
@@ -1254,10 +1264,13 @@
       "event_date": "2026-02-05T00:00:00.000Z",
       "event_date_kind": "published",
       "products": [
-        "gpt"
+        "gpt",
+        "gpt-5.3"
       ],
-      "models": [],
-      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2026년 2월 5일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">모델 출시</span>\n        </div>\n        <h2 class=\"event-card__title\">Introducing GPT-5.3-Codex</h2>\n        <p class=\"event-card__summary\">GPT-5.3-Codex is a Codex-native agent that pairs frontier coding performance with general reasoning to support long-horizon, real-world technical work.</p>\n        <p class=\"event-card__meta\">제품: gpt</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/introducing-gpt-5-3-codex\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
+      "models": [
+        "gpt-5.3-codex"
+      ],
+      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2026년 2월 5일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">모델 출시</span>\n        </div>\n        <h2 class=\"event-card__title\">Introducing GPT-5.3-Codex</h2>\n        <p class=\"event-card__summary\">GPT-5.3-Codex is a Codex-native agent that pairs frontier coding performance with general reasoning to support long-horizon, real-world technical work.</p>\n        <p class=\"event-card__meta\">제품: gpt, gpt-5.3 · 모델: gpt-5.3-codex</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/introducing-gpt-5-3-codex\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
     },
     {
       "id": "1d38f754d0d353e7905ac26f6c1159662e09b298",
@@ -1863,6 +1876,19 @@
       "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2026년 1월 15일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--google\">Google</span>\n          <span class=\"badge badge--category\">릴리스 노트</span>\n        </div>\n        <h2 class=\"event-card__title\">v1.37.0</h2>\n        <p class=\"event-card__summary\">1.37.0 (2026-01-15) Features Support 4:5 and 5:4 aspect ratio in Interactions ( 5294da2 )</p>\n        <p class=\"event-card__meta\">제품: gemini</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://github.com/googleapis/js-genai/releases/tag/v1.37.0\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
     },
     {
+      "id": "93d5fe567edd13405de670bf6e763f4ef3bcb76e",
+      "vendor": "openai",
+      "category": "blog_update",
+      "event_date": "2026-01-15",
+      "event_date_kind": "published",
+      "products": [
+        "chatgpt",
+        "gpt"
+      ],
+      "models": [],
+      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2026년 1월 15일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">블로그 업데이트</span>\n        </div>\n        <h2 class=\"event-card__title\">Continue your ChatGPT experience beyond WhatsApp</h2>\n        <p class=\"event-card__summary\">ChatGPT will no longer be available on WhatsApp after January 15, 2026. Learn how to link your ChatGPT account and continue your conversations across devices.</p>\n        <p class=\"event-card__meta\">제품: chatgpt, gpt</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/chatgpt-whatsapp-transition\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
+    },
+    {
       "id": "4865c5769a717e002d6dafe62d6cec2dd755bbe5",
       "vendor": "openai",
       "category": "blog_update",
@@ -1888,19 +1914,6 @@
         "gemini-2.5-flash-image"
       ],
       "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2026년 1월 14일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--google\">Google</span>\n          <span class=\"badge badge--category\">지원 종료</span>\n        </div>\n        <h2 class=\"event-card__title\">Deprecation announcement: The gemini-2.5-flash-image-preview model will be shut down January 15, 2026.</h2>\n        <p class=\"event-card__summary\">Deprecation announcement: The gemini-2.5-flash-image-preview model will be shut down January 15, 2026.</p>\n        <p class=\"event-card__meta\">제품: gemini · 모델: gemini-2.5-flash-image</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://ai.google.dev/gemini-api/docs/changelog?hl=en#12-04-2025-1\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
-    },
-    {
-      "id": "7ba66329eaf44f59b48bd87cc0be5e34b0bc8b0f",
-      "vendor": "openai",
-      "category": "blog_update",
-      "event_date": "2026-01-14",
-      "event_date_kind": "published",
-      "products": [
-        "chatgpt",
-        "gpt"
-      ],
-      "models": [],
-      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2026년 1월 14일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">블로그 업데이트</span>\n        </div>\n        <h2 class=\"event-card__title\">Continue your ChatGPT experience beyond WhatsApp</h2>\n        <p class=\"event-card__summary\">ChatGPT will no longer be available on WhatsApp after January 15, 2026. Learn how to link your ChatGPT account and continue your conversations across devices.</p>\n        <p class=\"event-card__meta\">제품: chatgpt, gpt</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/chatgpt-whatsapp-transition\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
     },
     {
       "id": "476e5291ba9c7446b0960e67e26aac999ddce0f0",
@@ -2181,10 +2194,13 @@
       "event_date": "2025-12-18T00:00:00.000Z",
       "event_date_kind": "published",
       "products": [
-        "gpt"
+        "gpt",
+        "gpt-5.2"
       ],
-      "models": [],
-      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2025년 12월 18일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">모델 출시</span>\n        </div>\n        <h2 class=\"event-card__title\">Introducing GPT-5.2-Codex</h2>\n        <p class=\"event-card__summary\">GPT-5.2-Codex is OpenAI’s most advanced coding model, offering long-horizon reasoning, large-scale code transformations, and enhanced cybersecurity capabilities.</p>\n        <p class=\"event-card__meta\">제품: gpt</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/gpt-5-2-codex\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
+      "models": [
+        "gpt-5.2-codex"
+      ],
+      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2025년 12월 18일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">모델 출시</span>\n        </div>\n        <h2 class=\"event-card__title\">Introducing GPT-5.2-Codex</h2>\n        <p class=\"event-card__summary\">GPT-5.2-Codex is OpenAI’s most advanced coding model, offering long-horizon reasoning, large-scale code transformations, and enhanced cybersecurity capabilities.</p>\n        <p class=\"event-card__meta\">제품: gpt, gpt-5.2 · 모델: gpt-5.2-codex</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/gpt-5-2-codex\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
     },
     {
       "id": "13812e5430a448e5a264737d6d959335776a4d2b",
@@ -2193,10 +2209,13 @@
       "event_date": "2025-12-18T00:00:00.000Z",
       "event_date_kind": "published",
       "products": [
-        "gpt"
+        "gpt",
+        "gpt-5.2"
       ],
-      "models": [],
-      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2025년 12월 18일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">모델 출시</span>\n        </div>\n        <h2 class=\"event-card__title\">Introducing GPT-5.2-Codex</h2>\n        <p class=\"event-card__summary\">GPT-5.2-Codex is OpenAI’s most advanced coding model, offering long-horizon reasoning, large-scale code transformations, and enhanced cybersecurity capabilities.</p>\n        <p class=\"event-card__meta\">제품: gpt</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/introducing-gpt-5-2-codex\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
+      "models": [
+        "gpt-5.2-codex"
+      ],
+      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2025년 12월 18일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">모델 출시</span>\n        </div>\n        <h2 class=\"event-card__title\">Introducing GPT-5.2-Codex</h2>\n        <p class=\"event-card__summary\">GPT-5.2-Codex is OpenAI’s most advanced coding model, offering long-horizon reasoning, large-scale code transformations, and enhanced cybersecurity capabilities.</p>\n        <p class=\"event-card__meta\">제품: gpt, gpt-5.2 · 모델: gpt-5.2-codex</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/introducing-gpt-5-2-codex\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
     },
     {
       "id": "92d587fd65f8f77c9fa0085fcc82ed51af780104",
@@ -2378,10 +2397,13 @@
       "event_date_kind": "published",
       "products": [
         "chatgpt",
-        "gpt"
+        "gpt",
+        "gpt-5.2"
       ],
-      "models": [],
-      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2025년 12월 11일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">모델 출시</span>\n        </div>\n        <h2 class=\"event-card__title\">Introducing GPT-5.2</h2>\n        <p class=\"event-card__summary\">GPT-5.2 is our most advanced frontier model for everyday professional work, with state-of-the-art reasoning, long-context understanding, coding, and vision. Use it in ChatGPT and the OpenAI API to power faster, more reliable agentic work...</p>\n        <p class=\"event-card__meta\">제품: chatgpt, gpt</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/introducing-gpt-5-2\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
+      "models": [
+        "gpt-5.2"
+      ],
+      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2025년 12월 11일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">모델 출시</span>\n        </div>\n        <h2 class=\"event-card__title\">Introducing GPT-5.2</h2>\n        <p class=\"event-card__summary\">GPT-5.2 is our most advanced frontier model for everyday professional work, with state-of-the-art reasoning, long-context understanding, coding, and vision. Use it in ChatGPT and the OpenAI API to power faster, more reliable agentic work...</p>\n        <p class=\"event-card__meta\">제품: chatgpt, gpt, gpt-5.2 · 모델: gpt-5.2</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/introducing-gpt-5-2\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
     },
     {
       "id": "39719d96d39e392256bf5ba3e4d0ddbb3b111038",
@@ -2959,6 +2981,21 @@
       "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2025년 11월 19일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">블로그 업데이트</span>\n        </div>\n        <h2 class=\"event-card__title\">A free version of ChatGPT built for teachers</h2>\n        <p class=\"event-card__summary\">ChatGPT for Teachers is a secure workspace with education‑grade privacy and admin controls. Free for verified U.S. K–12 educators through June 2027.</p>\n        <p class=\"event-card__meta\">제품: chatgpt, gpt</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/chatgpt-for-teachers\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
     },
     {
+      "id": "f82a44be5671a863e15c60c81df3aa946e0dab60",
+      "vendor": "openai",
+      "category": "model_release",
+      "event_date": "2025-11-19T00:00:00.000Z",
+      "event_date_kind": "published",
+      "products": [
+        "gpt",
+        "gpt-5.1"
+      ],
+      "models": [
+        "gpt-5.1-codex-max"
+      ],
+      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2025년 11월 19일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">모델 출시</span>\n        </div>\n        <h2 class=\"event-card__title\">Building more with GPT-5.1-Codex-Max</h2>\n        <p class=\"event-card__summary\">Introducing GPT-5.1-Codex-Max, a faster, more intelligent agentic coding model for Codex. The model is designed for long-running, project-scale work with enhanced reasoning and token efficiency.</p>\n        <p class=\"event-card__meta\">제품: gpt, gpt-5.1 · 모델: gpt-5.1-codex-max</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/gpt-5-1-codex-max\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
+    },
+    {
       "id": "f801a662c953d5b071e123560d929606998987a0",
       "vendor": "openai",
       "category": "blog_update",
@@ -2969,18 +3006,6 @@
       ],
       "models": [],
       "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2025년 11월 19일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">블로그 업데이트</span>\n        </div>\n        <h2 class=\"event-card__title\">GPT-5.1-Codex-Max System Card</h2>\n        <p class=\"event-card__summary\">This system card outlines the comprehensive safety measures implemented for GPT‑5.1-CodexMax. It details both model-level mitigations, such as specialized safety training for harmful tasks and prompt injections, and product-level mitigat...</p>\n        <p class=\"event-card__meta\">제품: gpt</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/gpt-5-1-codex-max-system-card\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
-    },
-    {
-      "id": "23be4efe019119265eeb959b22bb28ff02e11604",
-      "vendor": "openai",
-      "category": "blog_update",
-      "event_date": "2025-11-19T00:00:00.000Z",
-      "event_date_kind": "published",
-      "products": [
-        "gpt"
-      ],
-      "models": [],
-      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2025년 11월 19일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">블로그 업데이트</span>\n        </div>\n        <h2 class=\"event-card__title\">Building more with GPT-5.1-Codex-Max</h2>\n        <p class=\"event-card__summary\">Introducing GPT-5.1-Codex-Max, a faster, more intelligent agentic coding model for Codex. The model is designed for long-running, project-scale work with enhanced reasoning and token efficiency.</p>\n        <p class=\"event-card__meta\">제품: gpt</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/gpt-5-1-codex-max\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
     },
     {
       "id": "0881e0bd38335e47a7942d113efff95dcdd1cdcf",
@@ -3114,10 +3139,13 @@
       "event_date": "2025-11-13T00:00:00.000Z",
       "event_date_kind": "published",
       "products": [
-        "gpt"
+        "gpt",
+        "gpt-5.1"
       ],
-      "models": [],
-      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2025년 11월 13일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">모델 출시</span>\n        </div>\n        <h2 class=\"event-card__title\">Introducing GPT-5.1 for developers</h2>\n        <p class=\"event-card__summary\">GPT-5.1 is now available in the API, bringing faster adaptive reasoning, extended prompt caching, improved coding performance, and new apply_patch and shell tools.</p>\n        <p class=\"event-card__meta\">제품: gpt</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/gpt-5-1-for-developers\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
+      "models": [
+        "gpt-5.1"
+      ],
+      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2025년 11월 13일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">모델 출시</span>\n        </div>\n        <h2 class=\"event-card__title\">Introducing GPT-5.1 for developers</h2>\n        <p class=\"event-card__summary\">GPT-5.1 is now available in the API, bringing faster adaptive reasoning, extended prompt caching, improved coding performance, and new apply_patch and shell tools.</p>\n        <p class=\"event-card__meta\">제품: gpt, gpt-5.1 · 모델: gpt-5.1</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/gpt-5-1-for-developers\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
     },
     {
       "id": "6a437aa25bf59232f0696f5951e828d089543064",
@@ -3158,6 +3186,24 @@
       "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2025년 11월 12일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">블로그 업데이트</span>\n        </div>\n        <h2 class=\"event-card__title\">Fighting the New York Times’ invasion of user privacy</h2>\n        <p class=\"event-card__summary\">OpenAI is fighting the New York Times’ demand for 20 million private ChatGPT conversations and accelerating new security and privacy protections to protect your data.</p>\n        <p class=\"event-card__meta\">제품: chatgpt, gpt</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/fighting-nyt-user-privacy-invasion\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
     },
     {
+      "id": "ad5fb4cb378159fd9107edaf003c0fd780cef406",
+      "vendor": "openai",
+      "category": "model_release",
+      "event_date": "2025-11-12T00:00:00.000Z",
+      "event_date_kind": "published",
+      "products": [
+        "chatgpt",
+        "gpt",
+        "gpt-5",
+        "gpt-5.1"
+      ],
+      "models": [
+        "gpt-5",
+        "gpt-5.1"
+      ],
+      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2025년 11월 12일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">모델 출시</span>\n        </div>\n        <h2 class=\"event-card__title\">GPT-5.1: A smarter, more conversational ChatGPT</h2>\n        <p class=\"event-card__summary\">We’re upgrading the GPT-5 series with warmer, more capable models and new ways to customize ChatGPT’s tone and style. GPT-5.1 starts rolling out today to paid users.</p>\n        <p class=\"event-card__meta\">제품: chatgpt, gpt, gpt-5 · 모델: gpt-5, gpt-5.1</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/gpt-5-1\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
+    },
+    {
       "id": "96bb79242b555e4eb0a10ac7b33219a784e8bad4",
       "vendor": "openai",
       "category": "blog_update",
@@ -3168,19 +3214,6 @@
       ],
       "models": [],
       "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2025년 11월 12일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">블로그 업데이트</span>\n        </div>\n        <h2 class=\"event-card__title\">GPT-5.1 Instant and GPT-5.1 Thinking System Card Addendum</h2>\n        <p class=\"event-card__summary\">This GPT-5 system card addendum provides updated safety metrics for GPT-5.1 Instant and Thinking, including new evaluations for mental health and emotional reliance.</p>\n        <p class=\"event-card__meta\">제품: gpt</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/gpt-5-system-card-addendum-gpt-5-1\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
-    },
-    {
-      "id": "6da7912801574897d306826bd1a114e4027a175f",
-      "vendor": "openai",
-      "category": "blog_update",
-      "event_date": "2025-11-12T00:00:00.000Z",
-      "event_date_kind": "published",
-      "products": [
-        "chatgpt",
-        "gpt"
-      ],
-      "models": [],
-      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2025년 11월 12일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">블로그 업데이트</span>\n        </div>\n        <h2 class=\"event-card__title\">GPT-5.1: A smarter, more conversational ChatGPT</h2>\n        <p class=\"event-card__summary\">We’re upgrading the GPT-5 series with warmer, more capable models and new ways to customize ChatGPT’s tone and style. GPT-5.1 starts rolling out today to paid users.</p>\n        <p class=\"event-card__meta\">제품: chatgpt, gpt</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/gpt-5-1\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
     },
     {
       "id": "ac6b32eaeae57ed5a92a833f70287d77055f405f",
@@ -3381,10 +3414,13 @@
       "event_date": "2025-10-29T00:00:00.000Z",
       "event_date_kind": "published",
       "products": [
-        "gpt"
+        "gpt",
+        "gpt-oss"
       ],
-      "models": [],
-      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2025년 10월 29일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">모델 출시</span>\n        </div>\n        <h2 class=\"event-card__title\">Introducing gpt-oss-safeguard</h2>\n        <p class=\"event-card__summary\">OpenAI introduces gpt-oss-safeguard—open-weight reasoning models for safety classification that let developers apply and iterate on custom policies.</p>\n        <p class=\"event-card__meta\">제품: gpt</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/introducing-gpt-oss-safeguard\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
+      "models": [
+        "gpt-oss-safeguard"
+      ],
+      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2025년 10월 29일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">모델 출시</span>\n        </div>\n        <h2 class=\"event-card__title\">Introducing gpt-oss-safeguard</h2>\n        <p class=\"event-card__summary\">OpenAI introduces gpt-oss-safeguard—open-weight reasoning models for safety classification that let developers apply and iterate on custom policies.</p>\n        <p class=\"event-card__meta\">제품: gpt, gpt-oss · 모델: gpt-oss-safeguard</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/introducing-gpt-oss-safeguard\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
     },
     {
       "id": "9867b8e7caa181a2f52f9accc566c879e82423d8",
@@ -3765,6 +3801,26 @@
       "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2025년 10월 8일</div>\n        <div class=\"timeline__kind\">출시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--google\">Google</span>\n          <span class=\"badge badge--category\">모델 배포</span>\n        </div>\n        <h2 class=\"event-card__title\">Imagen</h2>\n        <p class=\"event-card__summary\">Imagen Virtual try-on lets you generate virtual try-on images from an image of a person and product photos that you provide, and is available in Preview. For more information, see Generate Virtual Try-On Images and Virtual Try-On API . T...</p>\n        <p class=\"event-card__meta\">제품: imagen · 모델: imagen</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://docs.cloud.google.com/vertex-ai/generative-ai/docs/image/generate-virtual-try-on-images\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
     },
     {
+      "id": "57faf1493d0ed01030c042a482fd53dea6536690",
+      "vendor": "openai",
+      "category": "blog_update",
+      "event_date": "2025-10-08",
+      "event_date_kind": "published",
+      "products": [],
+      "models": [],
+      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2025년 10월 8일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">블로그 업데이트</span>\n        </div>\n        <h2 class=\"event-card__title\">A People-First AI Fund: $50M to support nonprofits</h2>\n        <p class=\"event-card__summary\">Applications are now open for OpenAI’s People-First AI Fund, a $50M initiative supporting U.S. nonprofits advancing education, community innovation, and economic opportunity. Apply by October 8, 2025, for unrestricted grants that help co...</p>\n        \n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/people-first-ai-fund\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
+    },
+    {
+      "id": "0d2ba0bbec898d2ffe40bb65b68165200d8c8cfd",
+      "vendor": "openai",
+      "category": "blog_update",
+      "event_date": "2025-10-08",
+      "event_date_kind": "published",
+      "products": [],
+      "models": [],
+      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2025년 10월 8일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">블로그 업데이트</span>\n        </div>\n        <h2 class=\"event-card__title\">Supporting nonprofit and community innovation</h2>\n        <p class=\"event-card__summary\">OpenAI launches a $50M People-First AI Fund to help U.S. nonprofits scale impact with AI. Applications open Sept 8–Oct 8, 2025 for grants in education, healthcare, research, and more.</p>\n        \n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/supporting-nonprofit-and-community-innovation\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
+    },
+    {
       "id": "1ea5972ad827871d27f83f533e5031b32a962f52",
       "vendor": "openai",
       "category": "blog_update",
@@ -3773,26 +3829,6 @@
       "products": [],
       "models": [],
       "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2025년 10월 7일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">블로그 업데이트</span>\n        </div>\n        <h2 class=\"event-card__title\">Disrupting malicious uses of AI: October 2025</h2>\n        <p class=\"event-card__summary\">Discover how OpenAI is detecting and disrupting malicious uses of AI in our October 2025 report. Learn how we’re countering misuse, enforcing policies, and protecting users from real-world harms.</p>\n        \n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/global-affairs/disrupting-malicious-uses-of-ai-october-2025\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
-    },
-    {
-      "id": "8855c881b285dde88cbc4cb1086ddf280b9c40a6",
-      "vendor": "openai",
-      "category": "blog_update",
-      "event_date": "2025-10-07",
-      "event_date_kind": "published",
-      "products": [],
-      "models": [],
-      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2025년 10월 7일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">블로그 업데이트</span>\n        </div>\n        <h2 class=\"event-card__title\">Supporting nonprofit and community innovation</h2>\n        <p class=\"event-card__summary\">OpenAI launches a $50M People-First AI Fund to help U.S. nonprofits scale impact with AI. Applications open Sept 8–Oct 8, 2025 for grants in education, healthcare, research, and more.</p>\n        \n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/supporting-nonprofit-and-community-innovation\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
-    },
-    {
-      "id": "7c54f937e0efa738b05a8e396a6c099ac77af0ed",
-      "vendor": "openai",
-      "category": "blog_update",
-      "event_date": "2025-10-07",
-      "event_date_kind": "published",
-      "products": [],
-      "models": [],
-      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2025년 10월 7일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">블로그 업데이트</span>\n        </div>\n        <h2 class=\"event-card__title\">A People-First AI Fund: $50M to support nonprofits</h2>\n        <p class=\"event-card__summary\">Applications are now open for OpenAI’s People-First AI Fund, a $50M initiative supporting U.S. nonprofits advancing education, community innovation, and economic opportunity. Apply by October 8, 2025, for unrestricted grants that help co...</p>\n        \n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/people-first-ai-fund\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
     },
     {
       "id": "d12286f0ef0c5e840019a08082291ee819f45271",
@@ -3876,14 +3912,14 @@
       "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2025년 10월 6일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">블로그 업데이트</span>\n        </div>\n        <h2 class=\"event-card__title\">Introducing AgentKit, new Evals, and RFT for agents</h2>\n        <p class=\"event-card__summary\">Today, we’re releasing new tools to help developers go from prototype to production faster: AgentKit, expanded evals capabilities, and reinforcement fine-tuning for agents.</p>\n        \n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/introducing-agentkit\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
     },
     {
-      "id": "10176abbe78c8eeafdd8b4684c85315ba977f935",
+      "id": "d1ba38f514c88f86e7490b54277ffe0068c8e599",
       "vendor": "openai",
       "category": "blog_update",
-      "event_date": "2025-10-05",
+      "event_date": "2025-10-06",
       "event_date_kind": "published",
       "products": [],
       "models": [],
-      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2025년 10월 5일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">블로그 업데이트</span>\n        </div>\n        <h2 class=\"event-card__title\">Announcing OpenAI DevDay 2025</h2>\n        <p class=\"event-card__summary\">OpenAI DevDay returns on October 6, 2025 in San Francisco—bringing together 1,500+ developers to preview new tools, hear from OpenAI leaders, and shape the future of AI.</p>\n        \n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/announcing-devday-2025\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
+      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2025년 10월 6일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">블로그 업데이트</span>\n        </div>\n        <h2 class=\"event-card__title\">Announcing OpenAI DevDay 2025</h2>\n        <p class=\"event-card__summary\">OpenAI DevDay returns on October 6, 2025 in San Francisco—bringing together 1,500+ developers to preview new tools, hear from OpenAI leaders, and shape the future of AI.</p>\n        \n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/announcing-devday-2025\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
     },
     {
       "id": "6c0f2539275fd7590c6c7df6403b9ea95d631a2e",
@@ -3932,18 +3968,6 @@
       "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2025년 10월 1일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">블로그 업데이트</span>\n        </div>\n        <h2 class=\"event-card__title\">Samsung and SK join OpenAI’s Stargate initiative to advance global AI infrastructure</h2>\n        <p class=\"event-card__summary\">Samsung and SK join OpenAI’s Stargate initiative to expand global AI infrastructure, scaling advanced memory chip production and building next-gen data centers in Korea.</p>\n        \n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/samsung-and-sk-join-stargate\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
     },
     {
-      "id": "f2be6c8881828bf72c8e0c6114c1ab2d955a3957",
-      "vendor": "openai",
-      "category": "blog_update",
-      "event_date": "2025-09-30T00:00:00.000Z",
-      "event_date_kind": "published",
-      "products": [
-        "sora"
-      ],
-      "models": [],
-      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2025년 9월 30일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">블로그 업데이트</span>\n        </div>\n        <h2 class=\"event-card__title\">Sora 2 is here</h2>\n        <p class=\"event-card__summary\">Our latest video generation model is more physically accurate, realistic, and controllable than prior systems. It also features synchronized dialogue and sound effects. Create with it in the new Sora app.</p>\n        <p class=\"event-card__meta\">제품: sora</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/sora-2\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
-    },
-    {
       "id": "ec1165c9fe07ee733002ed15f0fe4f12141849cd",
       "vendor": "openai",
       "category": "blog_update",
@@ -3954,6 +3978,21 @@
       ],
       "models": [],
       "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2025년 9월 30일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">블로그 업데이트</span>\n        </div>\n        <h2 class=\"event-card__title\">Launching Sora responsibly</h2>\n        <p class=\"event-card__summary\">To address the novel safety challenges posed by a state-of-the-art video model as well as a new social creation platform, we’ve built Sora 2 and the Sora app with safety at the foundation. Our approach is anchored in concrete protections.</p>\n        <p class=\"event-card__meta\">제품: sora</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/launching-sora-responsibly\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
+    },
+    {
+      "id": "74faefc6e010b5311e277cbc98f47bce4d92e210",
+      "vendor": "openai",
+      "category": "model_release",
+      "event_date": "2025-09-30T00:00:00.000Z",
+      "event_date_kind": "published",
+      "products": [
+        "sora"
+      ],
+      "models": [
+        "sora",
+        "sora-2"
+      ],
+      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2025년 9월 30일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">모델 출시</span>\n        </div>\n        <h2 class=\"event-card__title\">Sora 2 is here</h2>\n        <p class=\"event-card__summary\">Our latest video generation model is more physically accurate, realistic, and controllable than prior systems. It also features synchronized dialogue and sound effects. Create with it in the new Sora app.</p>\n        <p class=\"event-card__meta\">제품: sora · 모델: sora, sora-2</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/sora-2\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
     },
     {
       "id": "2901f5a02819f6474a6abd6bbbf9b5f2d1684afd",
@@ -4659,10 +4698,13 @@
       "event_date": "2025-08-28T10:00:00.000Z",
       "event_date_kind": "published",
       "products": [
-        "gpt"
+        "gpt",
+        "gpt-realtime"
       ],
-      "models": [],
-      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2025년 8월 28일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">모델 출시</span>\n        </div>\n        <h2 class=\"event-card__title\">Introducing gpt-realtime and Realtime API updates</h2>\n        <p class=\"event-card__summary\">We’re releasing a more advanced speech-to-speech model and new API capabilities including MCP server support, image input, and SIP phone calling support.</p>\n        <p class=\"event-card__meta\">제품: gpt</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/introducing-gpt-realtime\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
+      "models": [
+        "gpt-realtime"
+      ],
+      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2025년 8월 28일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">모델 출시</span>\n        </div>\n        <h2 class=\"event-card__title\">Introducing gpt-realtime and Realtime API updates</h2>\n        <p class=\"event-card__summary\">We’re releasing a more advanced speech-to-speech model and new API capabilities including MCP server support, image input, and SIP phone calling support.</p>\n        <p class=\"event-card__meta\">제품: gpt, gpt-realtime · 모델: gpt-realtime</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/introducing-gpt-realtime\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
     },
     {
       "id": "7d8a5ea01814895dd7678c7fb9c733dd5fea2d08",
@@ -4956,7 +4998,8 @@
       "products": [
         "gpt",
         "gpt-4",
-        "gpt-4.1"
+        "gpt-4.1",
+        "o3"
       ],
       "models": [
         "gpt-4",
@@ -5012,10 +5055,13 @@
       "event_date": "2025-08-07T10:00:00.000Z",
       "event_date_kind": "published",
       "products": [
-        "gpt"
+        "gpt",
+        "gpt-5"
       ],
-      "models": [],
-      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2025년 8월 7일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">모델 출시</span>\n        </div>\n        <h2 class=\"event-card__title\">Introducing GPT-5 for developers</h2>\n        <p class=\"event-card__summary\">Introducing GPT-5 in our API platform—offering high reasoning performance, new controls for devs, and best-in-class results on real coding tasks.</p>\n        <p class=\"event-card__meta\">제품: gpt</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/introducing-gpt-5-for-developers\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
+      "models": [
+        "gpt-5"
+      ],
+      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2025년 8월 7일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">모델 출시</span>\n        </div>\n        <h2 class=\"event-card__title\">Introducing GPT-5 for developers</h2>\n        <p class=\"event-card__summary\">Introducing GPT-5 in our API platform—offering high reasoning performance, new controls for devs, and best-in-class results on real coding tasks.</p>\n        <p class=\"event-card__meta\">제품: gpt, gpt-5 · 모델: gpt-5</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/introducing-gpt-5-for-developers\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
     },
     {
       "id": "0e783901e58769d7e8f0008556ff743b98dae029",
@@ -5108,10 +5154,13 @@
       "event_date": "2025-08-07T00:00:00.000Z",
       "event_date_kind": "published",
       "products": [
-        "gpt"
+        "gpt",
+        "gpt-5"
       ],
-      "models": [],
-      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2025년 8월 7일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">모델 출시</span>\n        </div>\n        <h2 class=\"event-card__title\">Introducing GPT-5</h2>\n        <p class=\"event-card__summary\">We are introducing GPT‑5, our best AI system yet. GPT‑5 is a significant leap in intelligence over all our previous models, featuring state-of-the-art performance across coding, math, writing, health, visual perception, and more.</p>\n        <p class=\"event-card__meta\">제품: gpt</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/introducing-gpt-5\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
+      "models": [
+        "gpt-5"
+      ],
+      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2025년 8월 7일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">모델 출시</span>\n        </div>\n        <h2 class=\"event-card__title\">Introducing GPT-5</h2>\n        <p class=\"event-card__summary\">We are introducing GPT‑5, our best AI system yet. GPT‑5 is a significant leap in intelligence over all our previous models, featuring state-of-the-art performance across coding, math, writing, health, visual perception, and more.</p>\n        <p class=\"event-card__meta\">제품: gpt, gpt-5 · 모델: gpt-5</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/introducing-gpt-5\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
     },
     {
       "id": "a8b1b8560ac7ba55765b30ceb58ec5a550dcb9a9",
@@ -5173,16 +5222,19 @@
       "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2025년 8월 5일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">블로그 업데이트</span>\n        </div>\n        <h2 class=\"event-card__title\">Estimating worst case frontier risks of open weight LLMs</h2>\n        <p class=\"event-card__summary\">In this paper, we study the worst-case frontier risks of releasing gpt-oss. We introduce malicious fine-tuning (MFT), where we attempt to elicit maximum capabilities by fine-tuning gpt-oss to be as capable as possible in two domains: bio...</p>\n        <p class=\"event-card__meta\">제품: gpt</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/estimating-worst-case-frontier-risks-of-open-weight-llms\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
     },
     {
-      "id": "7e5e8437295de7e5cecdf9a21fd57f1a5638389d",
+      "id": "74b84428462dbcd37ed861a84afc651dc1b546c4",
       "vendor": "openai",
-      "category": "blog_update",
+      "category": "model_release",
       "event_date": "2025-08-05T00:00:00.000Z",
       "event_date_kind": "published",
       "products": [
-        "gpt"
+        "gpt",
+        "gpt-oss"
       ],
-      "models": [],
-      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2025년 8월 5일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">블로그 업데이트</span>\n        </div>\n        <h2 class=\"event-card__title\">gpt-oss-120b &amp; gpt-oss-20b Model Card</h2>\n        <p class=\"event-card__summary\">We introduce gpt-oss-120b and gpt-oss-20b, two open-weight reasoning models available under the Apache 2.0 license and our gpt-oss usage policy.</p>\n        <p class=\"event-card__meta\">제품: gpt</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/gpt-oss-model-card\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
+      "models": [
+        "gpt-oss"
+      ],
+      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2025년 8월 5일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">모델 출시</span>\n        </div>\n        <h2 class=\"event-card__title\">gpt-oss-120b &amp; gpt-oss-20b Model Card</h2>\n        <p class=\"event-card__summary\">We introduce gpt-oss-120b and gpt-oss-20b, two open-weight reasoning models available under the Apache 2.0 license and our gpt-oss usage policy.</p>\n        <p class=\"event-card__meta\">제품: gpt, gpt-oss · 모델: gpt-oss</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/gpt-oss-model-card\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
     },
     {
       "id": "573c870635c649ab01c7553fca4183518315ae3b",
@@ -5191,10 +5243,13 @@
       "event_date": "2025-08-05T00:00:00.000Z",
       "event_date_kind": "published",
       "products": [
-        "gpt"
+        "gpt",
+        "gpt-oss"
       ],
-      "models": [],
-      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2025년 8월 5일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">모델 출시</span>\n        </div>\n        <h2 class=\"event-card__title\">Introducing gpt-oss</h2>\n        <p class=\"event-card__summary\">We’re releasing gpt-oss-120b and gpt-oss-20b—two state-of-the-art open-weight language models that deliver strong real-world performance at low cost. Available under the flexible Apache 2.0 license, these models outperform similarly size...</p>\n        <p class=\"event-card__meta\">제품: gpt</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/introducing-gpt-oss\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
+      "models": [
+        "gpt-oss"
+      ],
+      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2025년 8월 5일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">모델 출시</span>\n        </div>\n        <h2 class=\"event-card__title\">Introducing gpt-oss</h2>\n        <p class=\"event-card__summary\">We’re releasing gpt-oss-120b and gpt-oss-20b—two state-of-the-art open-weight language models that deliver strong real-world performance at low cost. Available under the flexible Apache 2.0 license, these models outperform similarly size...</p>\n        <p class=\"event-card__meta\">제품: gpt, gpt-oss · 모델: gpt-oss</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/introducing-gpt-oss\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
     },
     {
       "id": "3a6a9316cd96663326082b548048381a0d08d1a6",
@@ -5345,7 +5400,8 @@
       "products": [
         "gpt",
         "gpt-4",
-        "gpt-4.1"
+        "gpt-4.1",
+        "o3"
       ],
       "models": [
         "gpt-4",
@@ -5839,7 +5895,8 @@
       "products": [
         "gpt",
         "gpt-4",
-        "gpt-4.1"
+        "gpt-4.1",
+        "o3"
       ],
       "models": [
         "gpt-4",
@@ -6119,7 +6176,9 @@
       "products": [
         "gpt",
         "gpt-4",
-        "gpt-4o"
+        "gpt-4o",
+        "o3",
+        "o4"
       ],
       "models": [
         "gpt-4",
@@ -6146,7 +6205,9 @@
       "products": [
         "gpt",
         "gpt-4",
-        "gpt-4.1"
+        "gpt-4.1",
+        "o3",
+        "o4"
       ],
       "models": [
         "gpt-4",
@@ -6391,9 +6452,12 @@
       "category": "blog_update",
       "event_date": "2025-05-16T08:00:00.000Z",
       "event_date_kind": "published",
-      "products": [],
+      "products": [
+        "o3",
+        "o4"
+      ],
       "models": [],
-      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2025년 5월 16일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">블로그 업데이트</span>\n        </div>\n        <h2 class=\"event-card__title\">Addendum to o3 and o4-mini system card: Codex</h2>\n        <p class=\"event-card__summary\">Codex is a cloud-based coding agent. Codex is powered by codex-1, a version of OpenAI o3 optimized for software engineering. codex-1 was trained using reinforcement learning on real-world coding tasks in a variety of environments to gene...</p>\n        \n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/o3-o4-mini-codex-system-card-addendum\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
+      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2025년 5월 16일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">블로그 업데이트</span>\n        </div>\n        <h2 class=\"event-card__title\">Addendum to o3 and o4-mini system card: Codex</h2>\n        <p class=\"event-card__summary\">Codex is a cloud-based coding agent. Codex is powered by codex-1, a version of OpenAI o3 optimized for software engineering. codex-1 was trained using reinforcement learning on real-world coding tasks in a variety of environments to gene...</p>\n        <p class=\"event-card__meta\">제품: o3, o4</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/o3-o4-mini-codex-system-card-addendum\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
     },
     {
       "id": "77b0831282f1a62a32c001cf25bea1ab31542a1a",
@@ -6677,10 +6741,11 @@
       "event_date_kind": "published",
       "products": [
         "chatgpt",
-        "gpt"
+        "gpt",
+        "o3"
       ],
       "models": [],
-      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2025년 4월 24일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">블로그 업데이트</span>\n        </div>\n        <h2 class=\"event-card__title\">New in ChatGPT for Business: April 2025</h2>\n        <p class=\"event-card__summary\">Watch hands-on demos of the lastest in ChatGPT for Business: o3, image generation, enhanced memory, and internal knowledge.</p>\n        <p class=\"event-card__meta\">제품: chatgpt, gpt</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/business/new-in-chatgpt-for-business-april-updates-2025\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
+      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2025년 4월 24일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">블로그 업데이트</span>\n        </div>\n        <h2 class=\"event-card__title\">New in ChatGPT for Business: April 2025</h2>\n        <p class=\"event-card__summary\">Watch hands-on demos of the lastest in ChatGPT for Business: o3, image generation, enhanced memory, and internal knowledge.</p>\n        <p class=\"event-card__meta\">제품: chatgpt, gpt, o3</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/business/new-in-chatgpt-for-business-april-updates-2025\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
     },
     {
       "id": "a3f448fce0b2741b53d95953e8fcae1fa16c7d84",
@@ -6752,19 +6817,12 @@
       "category": "blog_update",
       "event_date": "2025-04-16T10:00:00.000Z",
       "event_date_kind": "published",
-      "products": [],
+      "products": [
+        "o3",
+        "o4"
+      ],
       "models": [],
-      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2025년 4월 16일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">블로그 업데이트</span>\n        </div>\n        <h2 class=\"event-card__title\">OpenAI o3 and o4-mini System Card</h2>\n        <p class=\"event-card__summary\">OpenAI o3 and OpenAI o4-mini combine state-of-the-art reasoning with full tool capabilities—web browsing, Python, image and file analysis, image generation, canvas, automations, file search, and memory.</p>\n        \n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/o3-o4-mini-system-card\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
-    },
-    {
-      "id": "91fe5bc4413ab1b51dbfbc4ea50202d08921898a",
-      "vendor": "openai",
-      "category": "blog_update",
-      "event_date": "2025-04-16T10:00:00.000Z",
-      "event_date_kind": "published",
-      "products": [],
-      "models": [],
-      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2025년 4월 16일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">블로그 업데이트</span>\n        </div>\n        <h2 class=\"event-card__title\">Introducing OpenAI o3 and o4-mini</h2>\n        <p class=\"event-card__summary\">Our smartest and most capable models to date with full tool access</p>\n        \n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/introducing-o3-and-o4-mini\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
+      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2025년 4월 16일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">블로그 업데이트</span>\n        </div>\n        <h2 class=\"event-card__title\">OpenAI o3 and o4-mini System Card</h2>\n        <p class=\"event-card__summary\">OpenAI o3 and OpenAI o4-mini combine state-of-the-art reasoning with full tool capabilities—web browsing, Python, image and file analysis, image generation, canvas, automations, file search, and memory.</p>\n        <p class=\"event-card__meta\">제품: o3, o4</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/o3-o4-mini-system-card\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
     },
     {
       "id": "7ba44e5c3055581b113a65778d64938efdfc3ee0",
@@ -6772,9 +6830,28 @@
       "category": "blog_update",
       "event_date": "2025-04-16T10:00:00.000Z",
       "event_date_kind": "published",
-      "products": [],
+      "products": [
+        "o3",
+        "o4"
+      ],
       "models": [],
-      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2025년 4월 16일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">블로그 업데이트</span>\n        </div>\n        <h2 class=\"event-card__title\">Thinking with images</h2>\n        <p class=\"event-card__summary\">OpenAI o3 and o4-mini represent a significant breakthrough in visual perception by reasoning with images in their chain of thought.</p>\n        \n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/thinking-with-images\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
+      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2025년 4월 16일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">블로그 업데이트</span>\n        </div>\n        <h2 class=\"event-card__title\">Thinking with images</h2>\n        <p class=\"event-card__summary\">OpenAI o3 and o4-mini represent a significant breakthrough in visual perception by reasoning with images in their chain of thought.</p>\n        <p class=\"event-card__meta\">제품: o3, o4</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/thinking-with-images\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
+    },
+    {
+      "id": "4b768ea81f4b53a2501bc0948e83fbc38aa8b293",
+      "vendor": "openai",
+      "category": "model_release",
+      "event_date": "2025-04-16T10:00:00.000Z",
+      "event_date_kind": "published",
+      "products": [
+        "o3",
+        "o4"
+      ],
+      "models": [
+        "o3",
+        "o4-mini"
+      ],
+      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2025년 4월 16일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">모델 출시</span>\n        </div>\n        <h2 class=\"event-card__title\">Introducing OpenAI o3 and o4-mini</h2>\n        <p class=\"event-card__summary\">Our smartest and most capable models to date with full tool access</p>\n        <p class=\"event-card__meta\">제품: o3, o4 · 모델: o3, o4-mini</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/introducing-o3-and-o4-mini\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
     },
     {
       "id": "d34c927d7689fc4e18f6f000e6473f3e48e8a23e",
@@ -6822,10 +6899,9 @@
         "gpt-4.1"
       ],
       "models": [
-        "gpt-4",
         "gpt-4.1"
       ],
-      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2025년 4월 14일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">모델 출시</span>\n        </div>\n        <h2 class=\"event-card__title\">Introducing GPT-4.1 in the API</h2>\n        <p class=\"event-card__summary\">Introducing GPT-4.1 in the API—a new family of models with across-the-board improvements, including major gains in coding, instruction following, and long-context understanding. We’re also releasing our first nano model. Available to dev...</p>\n        <p class=\"event-card__meta\">제품: gpt, gpt-4, gpt-4.1 · 모델: gpt-4, gpt-4.1</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/gpt-4-1\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
+      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2025년 4월 14일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">모델 출시</span>\n        </div>\n        <h2 class=\"event-card__title\">Introducing GPT-4.1 in the API</h2>\n        <p class=\"event-card__summary\">Introducing GPT-4.1 in the API—a new family of models with across-the-board improvements, including major gains in coding, instruction following, and long-context understanding. We’re also releasing our first nano model. Available to dev...</p>\n        <p class=\"event-card__meta\">제품: gpt, gpt-4, gpt-4.1 · 모델: gpt-4.1</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/gpt-4-1\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
     },
     {
       "id": "fdc5089f3f42a422c903f1fbddacf29f6041bd69",
@@ -7243,14 +7319,14 @@
       "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2025년 3월 4일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">블로그 업데이트</span>\n        </div>\n        <h2 class=\"event-card__title\">Introducing NextGenAI</h2>\n        <p class=\"event-card__summary\">OpenAI commits $50M in funding and tools to leading institutions.</p>\n        \n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/introducing-nextgenai\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
     },
     {
-      "id": "396a8c6b23ee181709d4fce54e35601aea8d32d2",
+      "id": "7207223e859ffe29e057f1b976932ffb7f105ebf",
       "vendor": "openai",
       "category": "blog_update",
-      "event_date": "2025-03-03",
+      "event_date": "2025-03-04",
       "event_date_kind": "published",
       "products": [],
       "models": [],
-      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2025년 3월 3일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">블로그 업데이트</span>\n        </div>\n        <h2 class=\"event-card__title\">The court rejects Elon’s latest attempt to slow OpenAI down</h2>\n        <p class=\"event-card__summary\">We welcome the court’s March 4, 2025, decision rejecting Elon Musk’s latest attempt to slow down OpenAI for his personal benefit.</p>\n        \n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/court-rejects-elon\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
+      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2025년 3월 4일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">블로그 업데이트</span>\n        </div>\n        <h2 class=\"event-card__title\">The court rejects Elon’s latest attempt to slow OpenAI down</h2>\n        <p class=\"event-card__summary\">We welcome the court’s March 4, 2025, decision rejecting Elon Musk’s latest attempt to slow down OpenAI for his personal benefit.</p>\n        \n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/court-rejects-elon\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
     },
     {
       "id": "bd758ae805f38302b33edf9620bb2a7a04be72c7",
@@ -7318,12 +7394,13 @@
       "event_date_kind": "published",
       "products": [
         "gpt",
-        "gpt-4"
+        "gpt-4",
+        "gpt-4.5"
       ],
       "models": [
-        "gpt-4"
+        "gpt-4.5"
       ],
-      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2025년 2월 27일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">모델 출시</span>\n        </div>\n        <h2 class=\"event-card__title\">Introducing GPT-4.5</h2>\n        <p class=\"event-card__summary\">We’re releasing a research preview of GPT‑4.5—our largest and best model for chat yet. GPT‑4.5 is a step forward in scaling up pre-training and post-training.</p>\n        <p class=\"event-card__meta\">제품: gpt, gpt-4 · 모델: gpt-4</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/introducing-gpt-4-5\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
+      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2025년 2월 27일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">모델 출시</span>\n        </div>\n        <h2 class=\"event-card__title\">Introducing GPT-4.5</h2>\n        <p class=\"event-card__summary\">We’re releasing a research preview of GPT‑4.5—our largest and best model for chat yet. GPT‑4.5 is a step forward in scaling up pre-training and post-training.</p>\n        <p class=\"event-card__meta\">제품: gpt, gpt-4, gpt-4.5 · 모델: gpt-4.5</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/introducing-gpt-4-5\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
     },
     {
       "id": "2a9d258dfc934dcbea65c409b786b31bb959050e",
@@ -7332,10 +7409,11 @@
       "event_date": "2025-02-27T09:30:00.000Z",
       "event_date_kind": "published",
       "products": [
-        "o1"
+        "o1",
+        "o3"
       ],
       "models": [],
-      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2025년 2월 27일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">블로그 업데이트</span>\n        </div>\n        <h2 class=\"event-card__title\">Building an autonomous financial analyst with o1 and o3-mini</h2>\n        <p class=\"event-card__summary\">Endex builds the future of financial analysis, powered by OpenAI’s reasoning models.</p>\n        <p class=\"event-card__meta\">제품: o1</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/endex\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
+      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2025년 2월 27일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">블로그 업데이트</span>\n        </div>\n        <h2 class=\"event-card__title\">Building an autonomous financial analyst with o1 and o3-mini</h2>\n        <p class=\"event-card__summary\">Endex builds the future of financial analysis, powered by OpenAI’s reasoning models.</p>\n        <p class=\"event-card__meta\">제품: o1, o3</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/endex\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
     },
     {
       "id": "88fc5dc6a9c248a463d0c358a9bcec1f5ee022b9",
@@ -7728,24 +7806,30 @@
       "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2025년 2월 2일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">블로그 업데이트</span>\n        </div>\n        <h2 class=\"event-card__title\">Introducing deep research</h2>\n        <p class=\"event-card__summary\">An agent that uses reasoning to synthesize large amounts of online information and complete multi-step research tasks for you. Available to Pro users today, Plus and Team next.</p>\n        \n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/introducing-deep-research\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
     },
     {
+      "id": "bc38c9646f4c7af9f433567bec97f3ad71f5297d",
+      "vendor": "openai",
+      "category": "model_release",
+      "event_date": "2025-01-31T11:00:00.000Z",
+      "event_date_kind": "published",
+      "products": [
+        "o3"
+      ],
+      "models": [
+        "o3-mini"
+      ],
+      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2025년 1월 31일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">모델 출시</span>\n        </div>\n        <h2 class=\"event-card__title\">OpenAI o3-mini</h2>\n        <p class=\"event-card__summary\">Pushing the frontier of cost-effective reasoning.</p>\n        <p class=\"event-card__meta\">제품: o3 · 모델: o3-mini</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/openai-o3-mini\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
+    },
+    {
       "id": "7184f45430e9ad38e5f916a35bad7441661f2d40",
       "vendor": "openai",
       "category": "blog_update",
       "event_date": "2025-01-31T11:00:00.000Z",
       "event_date_kind": "published",
-      "products": [],
+      "products": [
+        "o3"
+      ],
       "models": [],
-      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2025년 1월 31일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">블로그 업데이트</span>\n        </div>\n        <h2 class=\"event-card__title\">OpenAI o3-mini System Card</h2>\n        <p class=\"event-card__summary\">This report outlines the safety work carried out for the OpenAI o3-mini model, including safety evaluations, external red teaming, and Preparedness Framework evaluations.</p>\n        \n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/o3-mini-system-card\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
-    },
-    {
-      "id": "1aa9dff481e9b810fabae16c35caa6f701c3a261",
-      "vendor": "openai",
-      "category": "blog_update",
-      "event_date": "2025-01-31T11:00:00.000Z",
-      "event_date_kind": "published",
-      "products": [],
-      "models": [],
-      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2025년 1월 31일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">블로그 업데이트</span>\n        </div>\n        <h2 class=\"event-card__title\">OpenAI o3-mini</h2>\n        <p class=\"event-card__summary\">Pushing the frontier of cost-effective reasoning.</p>\n        \n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/openai-o3-mini\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
+      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2025년 1월 31일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">블로그 업데이트</span>\n        </div>\n        <h2 class=\"event-card__title\">OpenAI o3-mini System Card</h2>\n        <p class=\"event-card__summary\">This report outlines the safety work carried out for the OpenAI o3-mini model, including safety evaluations, external red teaming, and Preparedness Framework evaluations.</p>\n        <p class=\"event-card__meta\">제품: o3</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/o3-mini-system-card\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
     },
     {
       "id": "e0dfcd35eed9f6bb51d3a8c0a2d78b30719dd735",
@@ -8056,16 +8140,18 @@
       "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2024년 12월 9일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--google\">Google</span>\n          <span class=\"badge badge--category\">모델 출시</span>\n        </div>\n        <h2 class=\"event-card__title\">Imagen 3 editing model Generally Available to approved users</h2>\n        <p class=\"event-card__summary\">Imagen 3 editing model Generally Available to approved users The Imagen 3 Editing model is now available to approved users. This includes the following model: imagen-3.0-capability This model offers the following additional features: Inp...</p>\n        <p class=\"event-card__meta\">제품: imagen · 모델: imagen-3, imagen-3.0</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://docs.cloud.google.com/vertex-ai/generative-ai/docs/image/edit-inpainting\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
     },
     {
-      "id": "f4d6406a4eda668d1648781012619d1ec8b9f92d",
+      "id": "3242b7ffc3c721c95f74b95e317b983bfc6ecf4d",
       "vendor": "openai",
-      "category": "blog_update",
+      "category": "model_release",
       "event_date": "2024-12-09T10:00:00.000Z",
       "event_date_kind": "published",
       "products": [
         "sora"
       ],
-      "models": [],
-      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2024년 12월 9일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">블로그 업데이트</span>\n        </div>\n        <h2 class=\"event-card__title\">Sora is here</h2>\n        <p class=\"event-card__summary\">Our video generation model, Sora, is now available to use at sora.com. Users can generate videos up to 1080p resolution, up to 20 sec long, and in widescreen, vertical or square aspect ratios. You can bring your own assets to extend, rem...</p>\n        <p class=\"event-card__meta\">제품: sora</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/sora-is-here\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
+      "models": [
+        "sora"
+      ],
+      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2024년 12월 9일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">모델 출시</span>\n        </div>\n        <h2 class=\"event-card__title\">Sora is here</h2>\n        <p class=\"event-card__summary\">Our video generation model, Sora, is now available to use at sora.com. Users can generate videos up to 1080p resolution, up to 20 sec long, and in widescreen, vertical or square aspect ratios. You can bring your own assets to extend, rem...</p>\n        <p class=\"event-card__meta\">제품: sora · 모델: sora</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/sora-is-here\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
     },
     {
       "id": "aa0aa45e78537c9f021b981d0085b433743335a4",
@@ -8827,16 +8913,18 @@
       "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2024년 9월 16일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">블로그 업데이트</span>\n        </div>\n        <h2 class=\"event-card__title\">An update on our safety &amp; security practices</h2>\n        <p class=\"event-card__summary\">An update on our safety &amp; security practices</p>\n        \n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/update-on-safety-and-security-practices\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
     },
     {
-      "id": "f97c2227da815bb56e6c0aa97dba34f744cdb926",
+      "id": "06e53e54f2abddb71694920b6efc57c39f7f26b7",
       "vendor": "openai",
-      "category": "blog_update",
+      "category": "model_release",
       "event_date": "2024-09-12T10:03:00.000Z",
       "event_date_kind": "published",
       "products": [
         "o1"
       ],
-      "models": [],
-      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2024년 9월 12일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">블로그 업데이트</span>\n        </div>\n        <h2 class=\"event-card__title\">Introducing OpenAI o1</h2>\n        <p class=\"event-card__summary\">Introducing OpenAI o1</p>\n        <p class=\"event-card__meta\">제품: o1</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/introducing-openai-o1-preview\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
+      "models": [
+        "o1"
+      ],
+      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2024년 9월 12일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">모델 출시</span>\n        </div>\n        <h2 class=\"event-card__title\">Introducing OpenAI o1</h2>\n        <p class=\"event-card__summary\">Introducing OpenAI o1</p>\n        <p class=\"event-card__meta\">제품: o1 · 모델: o1</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/introducing-openai-o1-preview\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
     },
     {
       "id": "a67385531b5e0646140df2cdba415961339a820e",
@@ -8851,9 +8939,9 @@
       "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2024년 9월 12일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">블로그 업데이트</span>\n        </div>\n        <h2 class=\"event-card__title\">Learning to reason with LLMs</h2>\n        <p class=\"event-card__summary\">We are introducing OpenAI o1, a new large language model trained with reinforcement learning to perform complex reasoning. o1 thinks before it answers—it can produce a long internal chain of thought before responding to the user.</p>\n        <p class=\"event-card__meta\">제품: o1</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/learning-to-reason-with-llms\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
     },
     {
-      "id": "8d9865e4f36d178fe34500894f50714f5341fd10",
+      "id": "98996792430aac0f5cecfceb97961d0998465d86",
       "vendor": "openai",
-      "category": "blog_update",
+      "category": "model_release",
       "event_date": "2024-09-12T10:01:00.000Z",
       "event_date_kind": "published",
       "products": [
@@ -8862,7 +8950,7 @@
       "models": [
         "o1-mini"
       ],
-      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2024년 9월 12일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">블로그 업데이트</span>\n        </div>\n        <h2 class=\"event-card__title\">OpenAI o1-mini</h2>\n        <p class=\"event-card__summary\">Advancing cost-efficient reasoning</p>\n        <p class=\"event-card__meta\">제품: o1 · 모델: o1-mini</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/openai-o1-mini-advancing-cost-efficient-reasoning\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
+      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2024년 9월 12일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">모델 출시</span>\n        </div>\n        <h2 class=\"event-card__title\">OpenAI o1-mini</h2>\n        <p class=\"event-card__summary\">Advancing cost-efficient reasoning</p>\n        <p class=\"event-card__meta\">제품: o1 · 모델: o1-mini</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/openai-o1-mini-advancing-cost-efficient-reasoning\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
     },
     {
       "id": "9261f675d65f4d6eeba04368c0aa529c226d0ed1",
@@ -9031,9 +9119,9 @@
       "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2024년 8월 20일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">블로그 업데이트</span>\n        </div>\n        <h2 class=\"event-card__title\">OpenAI partners with Condé Nast</h2>\n        <p class=\"event-card__summary\">Condé Nast</p>\n        \n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/conde-nast\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
     },
     {
-      "id": "c231efa269fa145214088098226356b4a86f8013",
+      "id": "45b5f6ff34b4526bc8b6b4c29263fb02c2453279",
       "vendor": "openai",
-      "category": "blog_update",
+      "category": "model_release",
       "event_date": "2024-08-20T10:00:00.000Z",
       "event_date_kind": "published",
       "products": [
@@ -9042,10 +9130,9 @@
         "gpt-4o"
       ],
       "models": [
-        "gpt-4",
         "gpt-4o"
       ],
-      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2024년 8월 20일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">블로그 업데이트</span>\n        </div>\n        <h2 class=\"event-card__title\">Fine-tuning now available for GPT-4o</h2>\n        <p class=\"event-card__summary\">Fine-tune custom versions of GPT-4o to increase performance and accuracy for your applications</p>\n        <p class=\"event-card__meta\">제품: gpt, gpt-4, gpt-4o · 모델: gpt-4, gpt-4o</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/gpt-4o-fine-tuning\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
+      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2024년 8월 20일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">모델 출시</span>\n        </div>\n        <h2 class=\"event-card__title\">Fine-tuning now available for GPT-4o</h2>\n        <p class=\"event-card__summary\">Fine-tune custom versions of GPT-4o to increase performance and accuracy for your applications</p>\n        <p class=\"event-card__meta\">제품: gpt, gpt-4, gpt-4o · 모델: gpt-4o</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/gpt-4o-fine-tuning\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
     },
     {
       "id": "0f2c909e1ab0661997a08875979efad4bdd098f3",
@@ -9258,9 +9345,9 @@
       "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2024년 7월 24일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">블로그 업데이트</span>\n        </div>\n        <h2 class=\"event-card__title\">Improving Model Safety Behavior with Rule-Based Rewards</h2>\n        <p class=\"event-card__summary\">We&#39;ve developed and applied a new method leveraging Rule-Based Rewards (RBRs) that aligns models to behave safely without extensive human data collection.</p>\n        \n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/improving-model-safety-behavior-with-rule-based-rewards\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
     },
     {
-      "id": "88294ea842c2d2fa7a85d9d58cef2f59892ab102",
+      "id": "db2f9a643a1351372f5085320de91f350f1be089",
       "vendor": "openai",
-      "category": "blog_update",
+      "category": "model_release",
       "event_date": "2024-07-18T10:00:00.000Z",
       "event_date_kind": "published",
       "products": [
@@ -9269,10 +9356,9 @@
         "gpt-4o"
       ],
       "models": [
-        "gpt-4",
-        "gpt-4o"
+        "gpt-4o-mini"
       ],
-      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2024년 7월 18일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">블로그 업데이트</span>\n        </div>\n        <h2 class=\"event-card__title\">GPT-4o mini: advancing cost-efficient intelligence</h2>\n        <p class=\"event-card__summary\">Introducing the most cost-efficient small model in the market</p>\n        <p class=\"event-card__meta\">제품: gpt, gpt-4, gpt-4o · 모델: gpt-4, gpt-4o</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/gpt-4o-mini-advancing-cost-efficient-intelligence\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
+      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2024년 7월 18일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">모델 출시</span>\n        </div>\n        <h2 class=\"event-card__title\">GPT-4o mini: advancing cost-efficient intelligence</h2>\n        <p class=\"event-card__summary\">Introducing the most cost-efficient small model in the market</p>\n        <p class=\"event-card__meta\">제품: gpt, gpt-4, gpt-4o · 모델: gpt-4o-mini</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/gpt-4o-mini-advancing-cost-efficient-intelligence\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
     },
     {
       "id": "78986a5aff8faddd5b8d17f1da81b4c9613acb5a",
@@ -9926,10 +10012,9 @@
         "gpt-4o"
       ],
       "models": [
-        "gpt-4",
         "gpt-4o"
       ],
-      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2024년 5월 13일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">모델 출시</span>\n        </div>\n        <h2 class=\"event-card__title\">Introducing GPT-4o and more tools to ChatGPT free users</h2>\n        <p class=\"event-card__summary\">Introducing GPT-4o and more tools to ChatGPT free users We are launching our newest flagship model and making more capabilities available for free in ChatGPT.</p>\n        <p class=\"event-card__meta\">제품: chatgpt, gpt, gpt-4 · 모델: gpt-4, gpt-4o</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/gpt-4o-and-more-tools-to-chatgpt-free\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
+      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2024년 5월 13일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">모델 출시</span>\n        </div>\n        <h2 class=\"event-card__title\">Introducing GPT-4o and more tools to ChatGPT free users</h2>\n        <p class=\"event-card__summary\">Introducing GPT-4o and more tools to ChatGPT free users We are launching our newest flagship model and making more capabilities available for free in ChatGPT.</p>\n        <p class=\"event-card__meta\">제품: chatgpt, gpt, gpt-4 · 모델: gpt-4o</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/gpt-4o-and-more-tools-to-chatgpt-free\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
     },
     {
       "id": "aa40627728b0d0e8baae1944ca9a84583b23803c",
@@ -10584,9 +10669,10 @@
         "gpt-4"
       ],
       "models": [
-        "gpt-4"
+        "gpt-3.5-turbo",
+        "gpt-4-turbo"
       ],
-      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2024년 1월 25일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">모델 출시</span>\n        </div>\n        <h2 class=\"event-card__title\">New embedding models and API updates</h2>\n        <p class=\"event-card__summary\">We are launching a new generation of embedding models, new GPT-4 Turbo and moderation models, new API usage management tools, and soon, lower pricing on GPT-3.5 Turbo.</p>\n        <p class=\"event-card__meta\">제품: gpt, gpt-3.5, gpt-4 · 모델: gpt-4</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/new-embedding-models-and-api-updates\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
+      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2024년 1월 25일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">모델 출시</span>\n        </div>\n        <h2 class=\"event-card__title\">New embedding models and API updates</h2>\n        <p class=\"event-card__summary\">We are launching a new generation of embedding models, new GPT-4 Turbo and moderation models, new API usage management tools, and soon, lower pricing on GPT-3.5 Turbo.</p>\n        <p class=\"event-card__meta\">제품: gpt, gpt-3.5, gpt-4 · 모델: gpt-3.5-turbo, gpt-4-turbo</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/new-embedding-models-and-api-updates\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
     },
     {
       "id": "026888129451189aeb1738f087b476809e1b785b",
@@ -10791,9 +10877,9 @@
       "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2023년 11월 6일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">블로그 업데이트</span>\n        </div>\n        <h2 class=\"event-card__title\">Introducing GPTs</h2>\n        <p class=\"event-card__summary\">You can now create custom versions of ChatGPT that combine instructions, extra knowledge, and any combination of skills.</p>\n        <p class=\"event-card__meta\">제품: chatgpt, gpt</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/introducing-gpts\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
     },
     {
-      "id": "00cd1757514ab7b4298361623527f5c1a0d8f31c",
+      "id": "151784bf4361227b11350ca8c9e54f33b20e5f94",
       "vendor": "openai",
-      "category": "model_release",
+      "category": "blog_update",
       "event_date": "2023-11-06T08:00:00.000Z",
       "event_date_kind": "published",
       "products": [
@@ -10803,7 +10889,7 @@
       "models": [
         "gpt-4"
       ],
-      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2023년 11월 6일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">모델 출시</span>\n        </div>\n        <h2 class=\"event-card__title\">New models and developer products announced at DevDay</h2>\n        <p class=\"event-card__summary\">GPT-4 Turbo with 128K context and lower prices, the new Assistants API, GPT-4 Turbo with Vision, DALL·E 3 API, and more.</p>\n        <p class=\"event-card__meta\">제품: gpt, gpt-4 · 모델: gpt-4</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/new-models-and-developer-products-announced-at-devday\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
+      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2023년 11월 6일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">블로그 업데이트</span>\n        </div>\n        <h2 class=\"event-card__title\">New models and developer products announced at DevDay</h2>\n        <p class=\"event-card__summary\">GPT-4 Turbo with 128K context and lower prices, the new Assistants API, GPT-4 Turbo with Vision, DALL·E 3 API, and more.</p>\n        <p class=\"event-card__meta\">제품: gpt, gpt-4 · 모델: gpt-4</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/new-models-and-developer-products-announced-at-devday\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
     },
     {
       "id": "d2fa8b660414292ba0daf3addb0ed3e7e741e317",
@@ -11324,21 +11410,6 @@
       "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2023년 3월 17일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">블로그 업데이트</span>\n        </div>\n        <h2 class=\"event-card__title\">GPTs are GPTs: An early look at the labor market impact potential of large language models</h2>\n        <p class=\"event-card__summary\">요약이 없습니다.</p>\n        <p class=\"event-card__meta\">제품: gpt</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/gpts-are-gpts\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
     },
     {
-      "id": "ea00e4acee38dc2cda32a7cca6c4e9b0279cf0ba",
-      "vendor": "openai",
-      "category": "blog_update",
-      "event_date": "2023-03-14T07:00:00.000Z",
-      "event_date_kind": "published",
-      "products": [
-        "gpt",
-        "gpt-4"
-      ],
-      "models": [
-        "gpt-4"
-      ],
-      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2023년 3월 14일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">블로그 업데이트</span>\n        </div>\n        <h2 class=\"event-card__title\">GPT-4</h2>\n        <p class=\"event-card__summary\">We’ve created GPT-4, the latest milestone in OpenAI’s effort in scaling up deep learning. GPT-4 is a large multimodal model (accepting image and text inputs, emitting text outputs) that, while less capable than humans in many real-world ...</p>\n        <p class=\"event-card__meta\">제품: gpt, gpt-4 · 모델: gpt-4</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/gpt-4-research\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
-    },
-    {
       "id": "b71d1f5109df57a8f4cbf10005a0bf8f6d1f24f5",
       "vendor": "openai",
       "category": "blog_update",
@@ -11397,6 +11468,21 @@
         "gpt-4"
       ],
       "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2023년 3월 14일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">블로그 업데이트</span>\n        </div>\n        <h2 class=\"event-card__title\">Streamlining financial solutions for safety and growth</h2>\n        <p class=\"event-card__summary\">Stripe leverages GPT-4 to streamline user experience and combat fraud.</p>\n        <p class=\"event-card__meta\">제품: gpt, gpt-4 · 모델: gpt-4</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/stripe\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
+    },
+    {
+      "id": "3416f59c90006f931932255af031c039b2dff15b",
+      "vendor": "openai",
+      "category": "model_release",
+      "event_date": "2023-03-14T07:00:00.000Z",
+      "event_date_kind": "published",
+      "products": [
+        "gpt",
+        "gpt-4"
+      ],
+      "models": [
+        "gpt-4"
+      ],
+      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2023년 3월 14일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">모델 출시</span>\n        </div>\n        <h2 class=\"event-card__title\">GPT-4</h2>\n        <p class=\"event-card__summary\">We’ve created GPT-4, the latest milestone in OpenAI’s effort in scaling up deep learning. GPT-4 is a large multimodal model (accepting image and text inputs, emitting text outputs) that, while less capable than humans in many real-world ...</p>\n        <p class=\"event-card__meta\">제품: gpt, gpt-4 · 모델: gpt-4</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/gpt-4-research\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
     },
     {
       "id": "135c87cc81f3419cf73a1867d0b3cd61d5635407",
@@ -12311,16 +12397,21 @@
       "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2019년 11월 21일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">블로그 업데이트</span>\n        </div>\n        <h2 class=\"event-card__title\">Safety Gym</h2>\n        <p class=\"event-card__summary\">We’re releasing Safety Gym, a suite of environments and tools for measuring progress towards reinforcement learning agents that respect safety constraints while training.</p>\n        \n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/safety-gym\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
     },
     {
-      "id": "f7188141be2dc57baa9d1425179505a562c8061b",
+      "id": "f736ece823b64d625f1e64ff74d0b289b16048a7",
       "vendor": "openai",
-      "category": "blog_update",
+      "category": "model_release",
       "event_date": "2019-11-05T08:00:00.000Z",
       "event_date_kind": "published",
       "products": [
-        "gpt"
+        "gpt",
+        "gpt-2",
+        "gpt-2.1"
       ],
-      "models": [],
-      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2019년 11월 5일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">블로그 업데이트</span>\n        </div>\n        <h2 class=\"event-card__title\">GPT-2: 1.5B release</h2>\n        <p class=\"event-card__summary\">As the final model release of GPT-2’s staged release, we’re releasing the largest version (1.5B parameters) of GPT-2 along with code and model weights to facilitate detection of outputs of GPT-2 models. While there have been larger langu...</p>\n        <p class=\"event-card__meta\">제품: gpt</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/gpt-2-1-5b-release\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
+      "models": [
+        "gpt-2",
+        "gpt-2.1"
+      ],
+      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2019년 11월 5일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">모델 출시</span>\n        </div>\n        <h2 class=\"event-card__title\">GPT-2: 1.5B release</h2>\n        <p class=\"event-card__summary\">As the final model release of GPT-2’s staged release, we’re releasing the largest version (1.5B parameters) of GPT-2 along with code and model weights to facilitate detection of outputs of GPT-2 models. While there have been larger langu...</p>\n        <p class=\"event-card__meta\">제품: gpt, gpt-2, gpt-2.1 · 모델: gpt-2, gpt-2.1</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/gpt-2-1-5b-release\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
     },
     {
       "id": "dd562b0f588c778c22c76d9d1866b5c66ac8ed9a",
@@ -12375,16 +12466,21 @@
       "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2019년 8월 22일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">블로그 업데이트</span>\n        </div>\n        <h2 class=\"event-card__title\">Testing robustness against unforeseen adversaries</h2>\n        <p class=\"event-card__summary\">We’ve developed a method to assess whether a neural network classifier can reliably defend against adversarial attacks not seen during training. Our method yields a new metric, UAR (Unforeseen Attack Robustness), which evaluates the robu...</p>\n        \n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/testing-robustness\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
     },
     {
-      "id": "3d0211a6f972e802f3e31f35e3f170f832861b51",
+      "id": "44a680c2c38b25d1167a35c8b31030fed641db7c",
       "vendor": "openai",
-      "category": "blog_update",
+      "category": "model_release",
       "event_date": "2019-08-20T07:00:00.000Z",
       "event_date_kind": "published",
       "products": [
-        "gpt"
+        "gpt",
+        "gpt-2",
+        "gpt-2.6"
       ],
-      "models": [],
-      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2019년 8월 20일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">블로그 업데이트</span>\n        </div>\n        <h2 class=\"event-card__title\">GPT-2: 6-month follow-up</h2>\n        <p class=\"event-card__summary\">We’re releasing the 774 million parameter GPT-2 language model after the release of our small 124M model in February, staged release of our medium 355M model in May, and subsequent research with partners and the AI community into the mod...</p>\n        <p class=\"event-card__meta\">제품: gpt</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/gpt-2-6-month-follow-up\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
+      "models": [
+        "gpt-2",
+        "gpt-2.6"
+      ],
+      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2019년 8월 20일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">모델 출시</span>\n        </div>\n        <h2 class=\"event-card__title\">GPT-2: 6-month follow-up</h2>\n        <p class=\"event-card__summary\">We’re releasing the 774 million parameter GPT-2 language model after the release of our small 124M model in February, staged release of our medium 355M model in May, and subsequent research with partners and the AI community into the mod...</p>\n        <p class=\"event-card__meta\">제품: gpt, gpt-2, gpt-2.6 · 모델: gpt-2, gpt-2.6</p>\n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/gpt-2-6-month-follow-up\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
     },
     {
       "id": "c10a4c11f5f649bae065a33f5d4f6262efbd22b2",
@@ -12447,14 +12543,14 @@
       "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2019년 5월 3일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">블로그 업데이트</span>\n        </div>\n        <h2 class=\"event-card__title\">Transfer of adversarial robustness between perturbation types</h2>\n        <p class=\"event-card__summary\">요약이 없습니다.</p>\n        \n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/transfer-of-adversarial-robustness-between-perturbation-types\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
     },
     {
-      "id": "7262e0f4e9d97933f2c5e39a476357bc45d6e3c3",
+      "id": "fe8d44954209e95f1d7b3bb14b0815820f47da2a",
       "vendor": "openai",
       "category": "blog_update",
-      "event_date": "2019-04-26",
+      "event_date": "2019-04-27",
       "event_date_kind": "published",
       "products": [],
       "models": [],
-      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2019년 4월 26일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">블로그 업데이트</span>\n        </div>\n        <h2 class=\"event-card__title\">OpenAI Robotics Symposium 2019</h2>\n        <p class=\"event-card__summary\">We hosted the first OpenAI Robotics Symposium on April 27, 2019.</p>\n        \n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/symposium-2019\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
+      "html": "\n    <li class=\"timeline__item\">\n      <div class=\"timeline__date\">\n        <div class=\"timeline__day\">2019년 4월 27일</div>\n        <div class=\"timeline__kind\">게시일</div>\n      </div>\n      <article class=\"event-card\">\n        <div class=\"event-card__badges\">\n          <span class=\"badge badge--vendor badge--openai\">OpenAI</span>\n          <span class=\"badge badge--category\">블로그 업데이트</span>\n        </div>\n        <h2 class=\"event-card__title\">OpenAI Robotics Symposium 2019</h2>\n        <p class=\"event-card__summary\">We hosted the first OpenAI Robotics Symposium on April 27, 2019.</p>\n        \n        <div class=\"event-card__links\">\n          <a href=\"https://openai.com/index/symposium-2019\" target=\"_blank\" rel=\"noreferrer\">원문</a>\n          \n        </div>\n      </article>\n    </li>\n  "
     },
     {
       "id": "db8d4725eec4c1fcc44d2cb2a82aa37ebc39f885",

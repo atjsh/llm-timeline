@@ -12,22 +12,55 @@ const slugify = (value: string) =>
 const truncate = (value: string, length: number) =>
   value.length <= length ? value : `${value.slice(0, length - 3)}...`;
 
-const normalizeDate = (value: string): { iso: string; precision: DatePrecision } | null => {
-  const parsed = Date.parse(value);
+const parseDateUtcMaybe = (value: string) => {
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+  const hasTime = /[T\s]\d{1,2}:\d{2}/.test(trimmed);
+  if (hasTime) {
+    const parsed = Date.parse(trimmed);
+    if (Number.isNaN(parsed)) return null;
+    return new Date(parsed);
+  }
+
+  const isoMatch = /^(\d{4})-(\d{2})-(\d{2})$/.exec(trimmed);
+  if (isoMatch) {
+    const [, year, month, day] = isoMatch;
+    return new Date(Date.UTC(Number(year), Number(month) - 1, Number(day)));
+  }
+
+  const numericMatch = /^(\d{1,2})[/-](\d{1,2})[/-](\d{2,4})$/.exec(trimmed);
+  if (numericMatch) {
+    const [, month, day, yearValue] = numericMatch;
+    const year = yearValue.length === 2 ? 2000 + Number(yearValue) : Number(yearValue);
+    return new Date(Date.UTC(year, Number(month) - 1, Number(day)));
+  }
+
+  const monthMatch =
+    /^(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:tember)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\s+(\d{1,2}),\s*(\d{4})$/i.exec(
+      trimmed
+    );
+  if (monthMatch) {
+    const monthNames = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
+    const monthIndex = monthNames.indexOf(monthMatch[1].slice(0, 3).toLowerCase());
+    if (monthIndex !== -1) {
+      return new Date(Date.UTC(Number(monthMatch[3]), monthIndex, Number(monthMatch[2])));
+    }
+  }
+
+  const parsed = Date.parse(trimmed);
   if (Number.isNaN(parsed)) return null;
-  const date = new Date(parsed);
+  return new Date(parsed);
+};
+
+const normalizeDate = (value: string): { iso: string; precision: DatePrecision } | null => {
+  const date = parseDateUtcMaybe(value);
+  if (!date) return null;
   if (Number.isNaN(date.getTime())) return null;
   const hasTime = /[T\s]\d{1,2}:\d{2}/.test(value);
   return {
     iso: hasTime ? date.toISOString() : date.toISOString().slice(0, 10),
     precision: hasTime ? "datetime" : "date",
   };
-};
-
-const monthNameToDate = (value: string) => {
-  const parsed = Date.parse(value);
-  if (Number.isNaN(parsed)) return null;
-  return new Date(parsed);
 };
 
 const knownProducts = [
@@ -38,6 +71,8 @@ const knownProducts = [
   "gpt-3.5",
   "gpt-4.1",
   "o1",
+  "o3",
+  "o4",
   "dall-e",
   "whisper",
   "sora",
@@ -94,7 +129,7 @@ const extractDateCandidates = (text: string): DateCandidate[] => {
   let match: RegExpExecArray | null;
   while ((match = dateRegex.exec(lower)) !== null) {
     const hit = match[1];
-    const normalized = monthNameToDate(match[0]) ? normalizeDate(match[0]) : normalizeDate(hit);
+    const normalized = normalizeDate(hit);
     if (!normalized) continue;
     const windowStart = Math.max(0, match.index - 80);
     const windowEnd = Math.min(text.length, match.index + hit.length + 80);
@@ -118,22 +153,35 @@ const dedupe = <T>(items: T[], key: (value: T) => string): T[] => {
 
 const normalizeFeedCategories = (categories: string[] | undefined) => (categories ?? []).map((value) => value.toLowerCase().trim());
 
+const openAiCanonicalUrlAliases: Record<string, string> = {
+  "https://openai.com/index/gpt-4": "https://openai.com/index/gpt-4-research",
+};
+
 const normalizeCanonicalUrl = (value: string) => {
   const trimmed = value.trim();
   if (!trimmed) return "";
   try {
     const url = new URL(trimmed);
-    return `${url.origin}${url.pathname.replace(/\/+$/, "")}`;
+    const normalized = `${url.origin}${url.pathname.replace(/\/+$/, "")}`;
+    return openAiCanonicalUrlAliases[normalized] ?? normalized;
   } catch {
-    return trimmed.replace(/\/+$/, "");
+    const normalized = trimmed.replace(/\/+$/, "");
+    return openAiCanonicalUrlAliases[normalized] ?? normalized;
   }
 };
 
+const canonicalUrlForEvent = (value: string) => {
+  const trimmed = value.trim();
+  if (!trimmed) return "";
+  const normalized = normalizeCanonicalUrl(trimmed);
+  return normalized !== trimmed.replace(/\/+$/, "") ? normalized : trimmed;
+};
+
 const openAiModelReleaseTitleRegex =
-  /\b(hello gpt-[a-z0-9.-]+|introducing gpt-[a-z0-9.-]+|introducing gpt-oss-[a-z0-9.-]+|introducing o[0-9][a-z0-9.-]*|introducing sora(?:\s*\d+(?:\.\d+)?)?|new embedding models?|new and improved embedding model|new models and developer products announced at devday|function calling and other api updates)\b/i;
+  /\b(hello gpt-[a-z0-9.-]+|introducing gpt-[a-z0-9.-]+|introducing gpt-oss-[a-z0-9.-]+|introducing (?:openai\s+)?o[0-9][a-z0-9.\s-]*|introducing (?:openai\s+)?sora(?:\s*\d+(?:\.\d+)?)?|new embedding models?|new and improved embedding model|new models and developer products announced at devday|function calling and other api updates)\b/i;
 
 const openAiNonReleaseTitleRegex =
-  /\b(system card|technical report|partnership|agreement|acquire|acquisition|research partnership|forum|red teaming network)\b/i;
+  /\b(system card|technical report|addendum|acknowledg(?:e)?ments?|contributions|partnership|agreement|acquire|acquisition|research partnership|forum|red teaming network)\b/i;
 
 const openAiDirectRetirementTitleRegex =
   /^(?:retiring|deprecating)\b|^(?:retirement|deprecation)\s+of\b/i;
@@ -173,6 +221,29 @@ const openAiChatGptFeatureUrlHints = [
   "/index/improvements-to-data-analysis-in-chatgpt",
   "/index/new-tools-for-chatgpt-enterprise",
 ];
+
+const openAiStandaloneLaunchBareTitleRegex =
+  /^(?:openai\s+)?(?:gpt(?:[-\s]+(?:oss|realtime|[0-9]+(?:[.-][0-9]+)?[a-z]?))(?:[-\s]+(?:mini|nano|turbo|instant|thinking|codex(?:[-\s]+spark)?|spark|pro|max|search|safeguard))?|o[0-9](?:[-\s]+(?:mini|preview|pro|operator|codex|thinking|instant|max))?|sora(?:\s+\d+(?:\.\d+)?)?)$/i;
+
+const openAiStandaloneLaunchDescriptorTitleRegex =
+  /^(?:openai\s+)?(?:gpt(?:[-\s]+(?:oss|realtime|[0-9]+(?:[.-][0-9]+)?[a-z]?))(?:[-\s]+(?:mini|nano|turbo|instant|thinking|codex(?:[-\s]+spark)?|spark|pro|max|search|safeguard))?|o[0-9](?:[-\s]+(?:mini|preview|pro|operator|codex|thinking|instant|max))?|sora(?:\s+\d+(?:\.\d+)?)?)\s*:\s*(?:an?\s+)?(?:advancing|smoother|smarter|faster|more useful|more conversational|more capable|cost-efficient|reasoning|intelligence|built|available|preview|release)\b/i;
+
+const openAiStandaloneLaunchIsHereTitleRegex =
+  /^(?:sora(?:\s+\d+(?:\.\d+)?)?|(?:openai\s+)?(?:gpt(?:[-\s]+(?:oss|realtime|[0-9]+(?:[.-][0-9]+)?[a-z]?))(?:[-\s]+(?:mini|nano|turbo|instant|thinking|codex(?:[-\s]+spark)?|spark|pro|max|search|safeguard))?|o[0-9](?:[-\s]+(?:mini|preview|pro|operator|codex|thinking|instant|max))?)) is here\b/i;
+
+const openAiMixedRoundupTitleRegex =
+  /\b(api general availability|fine-tuning and api updates|and new tools for developers|and new tools\b|and developer products)\b/i;
+
+const openAiStandaloneLaunchSummaryRegex =
+  /\b(we(?:'|’)ve created|we(?:'|’)re releasing|introducing|now available|available(?:\s+(?:today|now|to use|for developers))?|research preview|preview|our (?:video generation|newest|latest|smartest|most capable|most knowledgeable|cost-efficient|small) model|our smartest and most capable models? to date|pushing the frontier of cost-effective reasoning|advancing cost-efficient|cost-efficient intelligence)\b/i;
+
+const openAiGptModelRegex =
+  /\bgpt(?:[-\s]+(?:oss|realtime|[0-9]+(?:[.-][0-9]+)?[a-z]?))(?:[-\s]+(?:mini|nano|turbo|instant|thinking|codex|spark|pro|max|search|safeguard|operator|vision)){0,3}\b/gi;
+
+const openAiOSeriesModelRegex =
+  /\bo[0-9](?:[-\s]+(?:mini|preview|pro|operator|codex|thinking|instant|max)){0,3}\b/gi;
+
+const openAiSoraModelRegex = /\bsora(?:\s+\d+(?:\.\d+)?)?\b/gi;
 
 const anthropicSourcePriority: Record<string, number> = {
   "anthropic-github-releases": 10,
@@ -233,23 +304,123 @@ type AnthropicNormalizationMetadata = {
   models: string[];
 };
 
+const openAiCanonicalSlugFrom = (canonicalUrl: string) => {
+  try {
+    return new URL(canonicalUrl).pathname.split("/").filter(Boolean).at(-1) ?? "";
+  } catch {
+    return canonicalUrl.split("/").filter(Boolean).at(-1) ?? "";
+  }
+};
+
+const normalizeOpenAiModelToken = (value: string) =>
+  value
+    .toLowerCase()
+    .replace(/[^a-z0-9.\s-]+/g, " ")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/(^-|-$)/g, "")
+    .replace(/^openai-/, "")
+    .replace(/\bgpt-(\d+)-(\d+)(?=-|$)/g, "gpt-$1.$2")
+    .replace(/\bo(\d+)-preview\b/g, "o$1")
+    .replace(/-+/g, "-")
+    .replace(/(^-|-$)/g, "");
+
+const extractOpenAiModels = (item: ParsedSourceItem, text: string, mode: "primary" | "full" = "full") => {
+  const canonicalUrl = normalizeCanonicalUrl(item.canonicalUrl);
+  const segments = [item.title];
+  if (mode === "full") {
+    segments.push(text);
+  }
+  try {
+    const url = new URL(canonicalUrl);
+    const pathSegments = decodeURIComponent(url.pathname)
+      .split("/")
+      .map((value) => value.trim())
+      .filter(Boolean);
+    segments.push(...pathSegments);
+    for (let index = 0; index < pathSegments.length - 1; index += 1) {
+      segments.push(`${pathSegments[index]} ${pathSegments[index + 1]}`);
+    }
+  } catch {
+    segments.push(canonicalUrl);
+  }
+
+  const models: string[] = [];
+  for (const segment of segments) {
+    let match: RegExpExecArray | null;
+    while ((match = openAiGptModelRegex.exec(segment)) !== null) {
+      models.push(normalizeOpenAiModelToken(match[0]));
+    }
+    while ((match = openAiOSeriesModelRegex.exec(segment)) !== null) {
+      models.push(normalizeOpenAiModelToken(match[0]));
+    }
+    while ((match = openAiSoraModelRegex.exec(segment)) !== null) {
+      models.push(normalizeOpenAiModelToken(match[0]));
+    }
+  }
+
+  return dedupe(
+    models.filter(
+      (value) =>
+        value.startsWith("gpt-") ||
+        value.startsWith("o") ||
+        value === "sora" ||
+        /^sora-\d+(?:\.\d+)?$/.test(value)
+    ),
+    (value) => value
+  ).sort();
+};
+
+const extractOpenAiProductsFromModels = (models: string[]) => {
+  const products: string[] = [];
+  for (const model of models) {
+    if (model.startsWith("gpt-")) {
+      products.push("gpt");
+      const family = /^(gpt-(?:oss|realtime|\d+(?:\.\d+)?[a-z]?))/i.exec(model)?.[1];
+      if (family) products.push(family);
+      continue;
+    }
+    if (/^o\d\b/i.test(model)) {
+      const family = /^(o\d)/i.exec(model)?.[1];
+      if (family) products.push(family);
+      continue;
+    }
+    if (model === "sora" || model.startsWith("sora-")) {
+      products.push("sora");
+    }
+  }
+  return dedupe(products, (value) => value).sort();
+};
+
 const inferOpenAiRssCategory = (item: ParsedSourceItem): EventCategory => {
   const categories = normalizeFeedCategories(item.feedCategories);
   const title = item.title.toLowerCase();
   const canonicalUrl = normalizeCanonicalUrl(item.canonicalUrl);
+  const canonicalSlug = openAiCanonicalSlugFrom(canonicalUrl);
   const hasProductNewsCategory = categories.some((value) => value === "product" || value === "product news" || value === "release");
   const hasAllowedContextCategory =
     hasProductNewsCategory || categories.length === 0 || categories.includes("research");
   const isDirectRetirementAnnouncement =
     (openAiDirectRetirementTitleRegex.test(item.title) || openAiRetirementUrlHints.some((value) => canonicalUrl.includes(value))) &&
     openAiRetirementEntityRegex.test(item.title);
+  const hasStandaloneLaunchUrlSignal = /^(?:introducing-)?(?:gpt|openai-o[0-9]|o[0-9]|sora)\b/i.test(canonicalSlug);
+  const hasStandaloneLaunchSummary = openAiStandaloneLaunchSummaryRegex.test(`${item.title}\n${item.summary}`);
+  const isStandaloneLaunch =
+    hasAllowedContextCategory &&
+    !openAiMixedRoundupTitleRegex.test(title) &&
+    !/\/(?:business|global-affairs)\//i.test(canonicalUrl) &&
+    (openAiModelReleaseTitleRegex.test(title) ||
+      openAiStandaloneLaunchBareTitleRegex.test(item.title) ||
+      openAiStandaloneLaunchDescriptorTitleRegex.test(item.title) ||
+      openAiStandaloneLaunchIsHereTitleRegex.test(item.title) ||
+      (hasStandaloneLaunchUrlSignal && hasStandaloneLaunchSummary));
 
   if (openAiChatGptFlagshipReleaseUrls.has(canonicalUrl)) return "model_release";
   if (isDirectRetirementAnnouncement) return "deprecation";
   if (openAiChatGptTierLaunchUrls.has(canonicalUrl)) return "blog_update";
   if (openAiChatGptFeatureUrlHints.some((value) => canonicalUrl.includes(value))) return "blog_update";
   if (openAiNonReleaseTitleRegex.test(title)) return "blog_update";
-  if (openAiModelReleaseTitleRegex.test(title) && hasAllowedContextCategory) return "model_release";
+  if (isStandaloneLaunch) return "model_release";
   return "blog_update";
 };
 
@@ -540,6 +711,7 @@ export const normalizeSourceItems = (source: SourceRow, items: ParsedSourceItem[
   const normalized = [];
   const vendorProducts = extractTerms(`${source.vendor} ${source.name}`, knownProducts);
   for (const item of items) {
+    const canonicalUrl = canonicalUrlForEvent(item.canonicalUrl);
     const combined = `${item.title}\n${item.summary}`.trim();
     const googleMetadata = source.vendor === "google" ? inferGoogleMetadata(source, item, combined) : null;
     const anthropicMetadata = source.vendor === "anthropic" ? inferAnthropicMetadata(source, item, combined) : null;
@@ -553,11 +725,19 @@ export const normalizeSourceItems = (source: SourceRow, items: ParsedSourceItem[
       : [];
     const baseCategory = vendorMetadata?.category ?? inferCategory(source, item, combined, source.default_category);
     const category = isExplicitDeprecation(source, item) ? "deprecation" : baseCategory;
+    const openAiModels = source.vendor === "openai" && category === "model_release" ? extractOpenAiModels(item, combined) : [];
+    const openAiProducts =
+      source.vendor === "openai" && category === "model_release" ? extractOpenAiProductsFromModels(openAiModels) : [];
     const extractedProducts =
       source.vendor === "anthropic"
         ? extractTerms(combined, anthropicDeveloperProducts)
-        : extractTerms(combined, knownProducts.concat(vendorProducts));
-    const extractedModels = source.vendor === "anthropic" ? [] : extractTerms(combined, knownModels);
+        : extractTerms(combined, knownProducts.concat(vendorProducts)).concat(openAiProducts);
+    const extractedModels =
+      source.vendor === "anthropic"
+        ? []
+        : source.vendor === "openai" && category === "model_release"
+        ? openAiModels
+        : extractTerms(combined, knownModels);
     const productHints = dedupe(
       extractedProducts.concat(vendorMetadata?.products ?? []),
       (v) => v
@@ -583,7 +763,6 @@ export const normalizeSourceItems = (source: SourceRow, items: ParsedSourceItem[
 
       const normalizedDate = normalizeDate(date) || { iso: new Date().toISOString().slice(0, 10), precision: "date" as DatePrecision };
       const evidenceExcerpt = truncate(item.summary.replace(/\s+/g, " "), 240);
-      const canonicalUrl = item.canonicalUrl.trim();
       const dedupeDate = normalizedDate.iso.slice(0, 10);
       const id = createHash("sha1")
         .update(
