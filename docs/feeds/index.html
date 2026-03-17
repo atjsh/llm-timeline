@@ -564,6 +564,8 @@
     --timeline-axis-width: 2px;
     --timeline-marker-size: 18px;
     --timeline-marker-top: 20px;
+    --timeline-date-width: 100px;
+    --timeline-gutter-width: 56px;
     list-style: none;
     margin: 0;
     padding: 8px 0 0;
@@ -770,18 +772,23 @@
     }
 
     .timeline {
-      --timeline-axis-left: 130px;
+      --timeline-axis-left: calc(var(--timeline-date-width) + (var(--timeline-gutter-width) / 2) - (var(--timeline-axis-width) / 2));
     }
 
     .timeline__item {
-      grid-template-columns: 100px minmax(0, 1fr);
-      gap: 24px;
+      grid-template-columns: var(--timeline-date-width) var(--timeline-gutter-width) minmax(0, 1fr);
+      gap: 0;
       padding: 12px 0 22px;
     }
 
     .timeline__date {
+      grid-column: 1;
       padding-top: 8px;
       text-align: right;
+    }
+
+    .event-card {
+      grid-column: 3;
     }
   }
 </style>

@@ -166,10 +166,21 @@ try {
   assert.doesNotMatch(feedsHtml, /Unused Source/);
   assert.match(feedsHtml, /\*,\s*\*::before,\s*\*::after\s*\{\s*box-sizing: border-box;/);
   assert.match(feedsHtml, /--timeline-axis-left: 20px;/);
+  assert.match(feedsHtml, /--timeline-date-width: 100px;/);
+  assert.match(feedsHtml, /--timeline-gutter-width: 56px;/);
   assert.match(
     feedsHtml,
     /left: calc\(var\(--timeline-axis-left\) \+ \(var\(--timeline-axis-width\) \/ 2\) - \(var\(--timeline-marker-size\) \/ 2\)\);/
   );
+  assert.match(
+    feedsHtml,
+    /@media \(min-width: 720px\)[\s\S]*--timeline-axis-left: calc\(var\(--timeline-date-width\) \+ \(var\(--timeline-gutter-width\) \/ 2\) - \(var\(--timeline-axis-width\) \/ 2\)\);/
+  );
+  assert.match(
+    feedsHtml,
+    /@media \(min-width: 720px\)[\s\S]*grid-template-columns: var\(--timeline-date-width\) var\(--timeline-gutter-width\) minmax\(0, 1fr\);/
+  );
+  assert.match(feedsHtml, /\.event-card\s*\{[\s\S]*grid-column: 3;/);
   assert.match(feedsHtml, /Heatmap/);
   assert.match(feedsHtml, /Release activity by day/);
   assert.match(feedsHtml, /data-chart-root/);

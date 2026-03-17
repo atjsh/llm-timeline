@@ -147,10 +147,21 @@ assert.match(defaultPage.body, /type="checkbox" name="category" value="model_rel
 assert.match(defaultPage.body, /\*,\s*\*::before,\s*\*::after\s*\{\s*box-sizing: border-box;/);
 assert.match(defaultPage.body, /\.controls input\[type="date"\][\s\S]*inline-size: 100%/);
 assert.match(defaultPage.body, /--timeline-axis-left: 20px;/);
+assert.match(defaultPage.body, /--timeline-date-width: 100px;/);
+assert.match(defaultPage.body, /--timeline-gutter-width: 56px;/);
 assert.match(
   defaultPage.body,
   /left: calc\(var\(--timeline-axis-left\) \+ \(var\(--timeline-axis-width\) \/ 2\) - \(var\(--timeline-marker-size\) \/ 2\)\);/
 );
+assert.match(
+  defaultPage.body,
+  /@media \(min-width: 720px\)[\s\S]*--timeline-axis-left: calc\(var\(--timeline-date-width\) \+ \(var\(--timeline-gutter-width\) \/ 2\) - \(var\(--timeline-axis-width\) \/ 2\)\);/
+);
+assert.match(
+  defaultPage.body,
+  /@media \(min-width: 720px\)[\s\S]*grid-template-columns: var\(--timeline-date-width\) var\(--timeline-gutter-width\) minmax\(0, 1fr\);/
+);
+assert.match(defaultPage.body, /\.event-card\s*\{[\s\S]*grid-column: 3;/);
 assert.match(defaultPage.body, /OpenAI &lt;Launch&gt; &quot;Alpha&quot; &amp; more/);
 assert.doesNotMatch(defaultPage.body, /<script>alert\("x"\)<\/script>/);
 assert.match(defaultPage.body, /Introducing Claude Opus 4\.6/);
