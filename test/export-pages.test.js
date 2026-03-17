@@ -148,14 +148,15 @@ try {
   assert.match(rootHtml, /\.\/feeds\//);
 
   const feedsHtml = readFileSync(join(outDir, "feeds", "index.html"), "utf8");
-  assert.match(feedsHtml, /LLM timeline/);
-  assert.match(feedsHtml, /Exported [A-Z][a-z]{2} \d{1,2}, \d{4}/);
+  assert.match(feedsHtml, /<html lang="ko">/);
+  assert.match(feedsHtml, /LLM 타임라인/);
+  assert.match(feedsHtml, /내보낸 날짜 \d{4}년 \d{1,2}월 \d{1,2}일/);
   assert.match(feedsHtml, /https:\/\/github\.com\/atjsh\/llm-timeline/);
-  assert.match(feedsHtml, /GitHub \(source code\)/);
-  assert.match(feedsHtml, /A Node\.js script collects source data from RSS\/Atom feeds, GitHub releases, HTML changelog pages, and Anthropic sitemap crawls\./);
+  assert.match(feedsHtml, /GitHub \(소스 코드\)/);
+  assert.match(feedsHtml, /Node\.js 스크립트가 RSS\/Atom 피드, GitHub 릴리스, HTML 변경 로그 페이지, Anthropic 사이트맵 크롤링에서 데이터를 수집합니다\./);
   assert.match(feedsHtml, /<code>events\.json<\/code>/);
   assert.match(feedsHtml, /<details class="hero__sources">/);
-  assert.match(feedsHtml, /<summary>Sources used for this snapshot \(3\)<\/summary>/);
+  assert.match(feedsHtml, /<summary>이 스냅샷에 사용된 소스 \(3\)<\/summary>/);
   assert.match(feedsHtml, /OpenAI Blog/);
   assert.match(feedsHtml, /Anthropic Releases/);
   assert.match(feedsHtml, /Google Gemini API Changelog/);
@@ -181,8 +182,8 @@ try {
     /@media \(min-width: 720px\)[\s\S]*grid-template-columns: var\(--timeline-date-width\) var\(--timeline-gutter-width\) minmax\(0, 1fr\);/
   );
   assert.match(feedsHtml, /\.event-card\s*\{[\s\S]*grid-column: 3;/);
-  assert.match(feedsHtml, /Heatmap/);
-  assert.match(feedsHtml, /Release activity by day/);
+  assert.match(feedsHtml, /히트맵/);
+  assert.match(feedsHtml, /날짜별 릴리스 활동/);
   assert.match(feedsHtml, /data-chart-root/);
   assert.match(feedsHtml, /data-chart-scroll/);
   assert.match(feedsHtml, /data-chart-day="2026-03-10"/);
@@ -194,6 +195,8 @@ try {
   assert.doesNotMatch(feedsHtml, /Current JSON/);
   assert.doesNotMatch(feedsHtml, /Current ICS/);
   assert.doesNotMatch(feedsHtml, /Source Status/);
+  assert.match(feedsHtml, /더 보기/);
+  assert.match(feedsHtml, /원문/);
   assert.doesNotMatch(feedsHtml, /Static Snapshot/);
   assert.doesNotMatch(feedsHtml, /Snapshot entry/);
   assert.doesNotMatch(feedsHtml, /\/feeds\/items/);
@@ -208,7 +211,8 @@ try {
   const payload = JSON.parse(readFileSync(join(outDir, "assets", "events.json"), "utf8"));
   assert.equal(payload.events.length, 4);
   assert.equal(typeof payload.exported_at, "string");
-  assert.match(payload.events[0].html, /Source/);
+  assert.match(payload.events[0].html, /원문/);
+  assert.match(payload.events[0].html, /제품:|모델:/);
   assert.doesNotMatch(payload.events[0].html, /JSON<\/a>/);
 } finally {
   rmSync(outDir, { recursive: true, force: true });

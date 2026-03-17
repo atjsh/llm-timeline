@@ -141,7 +141,8 @@ const getJson = async (path) => {
 const defaultPage = await getHtml("/feeds");
 assert.equal(defaultPage.response.status, 200);
 assert.match(defaultPage.response.headers.get("content-type") ?? "", /^text\/html/i);
-assert.match(defaultPage.body, /LLM Feeds/);
+assert.match(defaultPage.body, /<html lang="ko">/);
+assert.match(defaultPage.body, /LLM 타임라인/);
 assert.match(defaultPage.body, /type="checkbox" name="vendor" value="openai"/);
 assert.match(defaultPage.body, /type="checkbox" name="category" value="model_release" checked/);
 assert.match(defaultPage.body, /\*,\s*\*::before,\s*\*::after\s*\{\s*box-sizing: border-box;/);
@@ -166,10 +167,12 @@ assert.match(defaultPage.body, /OpenAI &lt;Launch&gt; &quot;Alpha&quot; &amp; mo
 assert.doesNotMatch(defaultPage.body, /<script>alert\("x"\)<\/script>/);
 assert.match(defaultPage.body, /Introducing Claude Opus 4\.6/);
 assert.doesNotMatch(defaultPage.body, /Gemini tooling update/);
-assert.match(defaultPage.body, /Current JSON/);
-assert.match(defaultPage.body, /Current ICS/);
-assert.match(defaultPage.body, /Heatmap/);
-assert.match(defaultPage.body, /Release activity by day/);
+assert.match(defaultPage.body, /현재 JSON/);
+assert.match(defaultPage.body, /현재 ICS/);
+assert.match(defaultPage.body, /히트맵/);
+assert.match(defaultPage.body, /날짜별 릴리스 활동/);
+assert.match(defaultPage.body, /벤더/);
+assert.match(defaultPage.body, /카테고리/);
 assert.match(defaultPage.body, /data-chart-root/);
 assert.match(defaultPage.body, /data-chart-scroll/);
 assert.match(defaultPage.body, /data-chart-day="2026-03-10"/);
@@ -202,13 +205,13 @@ const pagedApiResult = db.getEvents({
 assert.ok(pagedApiResult.nextCursor);
 
 const firstPage = await getHtml("/feeds?category=model_release&limit=1");
-assert.match(firstPage.body, /Load more/);
+assert.match(firstPage.body, /더 보기/);
 assert.match(firstPage.body, /data-feeds-loader/);
-assert.match(firstPage.body, /Older/);
+assert.match(firstPage.body, /이전/);
 assert.match(firstPage.body, /data-summary-heading/);
 
 const secondPage = await getHtml(`/feeds?category=model_release&limit=1&cursor=${encodeURIComponent(pagedApiResult.nextCursor)}`);
-assert.match(secondPage.body, /Newest/);
+assert.match(secondPage.body, /최신/);
 
 const fragment = await getJson(`/feeds/items?category=model_release&limit=1&cursor=${encodeURIComponent(pagedApiResult.nextCursor)}`);
 assert.equal(fragment.response.status, 200);
@@ -240,8 +243,8 @@ assert.match(allCategoriesPage.body, /Gemini tooling update/);
 const dateFocusedPage = await getHtml("/feeds?category=model_release&since=2026-03-10&until=2026-03-10");
 assert.match(dateFocusedPage.body, /Introducing Claude Opus 4\.6/);
 assert.doesNotMatch(dateFocusedPage.body, /OpenAI &lt;Launch&gt;/);
-assert.match(dateFocusedPage.body, /Focused: Mar 10, 2026/);
-assert.match(dateFocusedPage.body, /Clear date focus/);
+assert.match(dateFocusedPage.body, /선택됨: 2026년 3월 10일/);
+assert.match(dateFocusedPage.body, /날짜 선택 해제/);
 
 const htmlReleaseNotePage = await getHtml("/feeds?vendor=openai&category=release_note&limit=20");
 assert.match(htmlReleaseNotePage.body, /v2\.26\.0/);
@@ -251,7 +254,7 @@ assert.doesNotMatch(htmlReleaseNotePage.body, /&lt;a href=/);
 assert.doesNotMatch(htmlReleaseNotePage.body, /href=&quot;https:\/\/github\.com\/openai\/openai-python\/compare\/v2\.25\.0\.\.\.v2\.26\.0&quot;/);
 
 const emptyPage = await getHtml("/feeds?vendor=openai&category=deprecation");
-assert.match(emptyPage.body, /No events matched the current filters/);
+assert.match(emptyPage.body, /현재 필터와 일치하는 이벤트가 없습니다/);
 
 const focusedEventsApi = await getJson("/events?vendor=anthropic&category=model_release&since=2026-03-10&until=2026-03-10&limit=20");
 assert.equal(focusedEventsApi.body.data.length, 1);

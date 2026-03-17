@@ -43,7 +43,7 @@ assert.deepEqual(
 );
 assert.deepEqual(
   dailyChart?.monthLabels.map((label) => ({ key: label.key, label: label.label, column: label.column })),
-  [{ key: "2026-03", label: "Mar '26", column: 0 }]
+  [{ key: "2026-03", label: "2026년 3월", column: 0 }]
 );
 
 const yearBoundaryChart = buildFeedsChartModel(
@@ -55,5 +55,5 @@ const yearBoundaryChart = buildFeedsChartModel(
 
 assert.deepEqual(
   yearBoundaryChart?.monthLabels.map((label) => label.label),
-  ["Dec '25", "Jan '26"]
+  ["2025년 12월", "2026년 1월"]
 );

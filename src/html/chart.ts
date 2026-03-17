@@ -36,20 +36,20 @@ export interface FeedsChartModel {
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-const fullDayFormatter = new Intl.DateTimeFormat("en-US", {
-  month: "short",
-  day: "numeric",
+const fullDayFormatter = new Intl.DateTimeFormat("ko-KR", {
   year: "numeric",
+  month: "long",
+  day: "numeric",
   timeZone: "UTC",
 });
 
-const shortMonthFormatter = new Intl.DateTimeFormat("en-US", {
+const shortMonthFormatter = new Intl.DateTimeFormat("ko-KR", {
   month: "short",
   timeZone: "UTC",
 });
 
-const shortYearFormatter = new Intl.DateTimeFormat("en-US", {
-  year: "2-digit",
+const yearFormatter = new Intl.DateTimeFormat("ko-KR", {
+  year: "numeric",
   timeZone: "UTC",
 });
 
@@ -69,9 +69,8 @@ const formatFullDay = (day: string) => fullDayFormatter.format(new Date(`${day}T
 const formatMonthAxisLabel = (day: string, previousYear: string | null) => {
   const date = new Date(`${day}T00:00:00.000Z`);
   const month = shortMonthFormatter.format(date);
-  const year = shortYearFormatter.format(date);
   const yearKey = day.slice(0, 4);
-  return previousYear === yearKey ? month : `${month} '${year}`;
+  return previousYear === yearKey ? month : `${yearFormatter.format(date)} ${month}`;
 };
 
 const weekdayIndex = (value: number) => {
@@ -86,10 +85,10 @@ const addDays = (value: number, days: number) => value + days * DAY_MS;
 const formatSelectionLabel = (sinceDay: string | null, untilDay: string | null) => {
   if (sinceDay && untilDay) {
     if (sinceDay === untilDay) return formatFullDay(sinceDay);
-    return `${formatFullDay(sinceDay)} to ${formatFullDay(untilDay)}`;
+    return `${formatFullDay(sinceDay)} ~ ${formatFullDay(untilDay)}`;
   }
-  if (sinceDay) return `From ${formatFullDay(sinceDay)}`;
-  if (untilDay) return `Through ${formatFullDay(untilDay)}`;
+  if (sinceDay) return `${formatFullDay(sinceDay)}부터`;
+  if (untilDay) return `${formatFullDay(untilDay)}까지`;
   return null;
 };
 
@@ -161,7 +160,7 @@ export const buildFeedsChartModel = (
         level: inRange ? levelForCount(count, maxCount) : 0,
         active: activeDay === day,
         inRange,
-        ariaLabel: `${formatFullDay(day)}: ${count} event${count === 1 ? "" : "s"}`,
+        ariaLabel: `${formatFullDay(day)}: 이벤트 ${count}개`,
       });
     }
 

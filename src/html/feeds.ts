@@ -64,7 +64,8 @@ export interface StaticFeedsPageInput {
   sources: StaticFeedsSourceSummary[];
 }
 
-const pageTitle = "LLM Feeds";
+const pageTitle = "LLM 타임라인";
+const htmlLang = "ko";
 
 const vendorLabels: Record<string, string> = {
   openai: "OpenAI",
@@ -72,12 +73,82 @@ const vendorLabels: Record<string, string> = {
   google: "Google",
 };
 
-const dateFormatter = new Intl.DateTimeFormat("en-US", {
-  month: "short",
-  day: "numeric",
+const categoryLabels: Record<EventCategory, string> = {
+  model_release: "모델 출시",
+  model_rollout: "모델 배포",
+  deprecation: "지원 종료",
+  release_note: "릴리스 노트",
+  tech_guide: "기술 가이드",
+  blog_update: "블로그 업데이트",
+};
+
+const dateKindLabels: Record<EventDateKind, string> = {
+  published: "게시일",
+  effective: "적용일",
+  rollout: "배포일",
+  deprecation: "지원 종료일",
+  release: "출시일",
+};
+
+const ui = {
+  all: "전체",
+  liveHeroEyebrow: "SQLite 미리보기",
+  liveHeroCopy:
+    "정규화된 events 테이블에서 여러 LLM 공급자의 이벤트를 모아 보여줍니다. 필터를 사용해 Hono 서버 안에서 출시, 배포, 릴리스 노트, 지원 종료를 바로 살펴볼 수 있습니다.",
+  currentJson: "현재 JSON",
+  currentIcs: "현재 ICS",
+  sourceStatus: "소스 상태",
+  source: "원문",
+  json: "JSON",
+  vendor: "벤더",
+  category: "카테고리",
+  product: "제품",
+  model: "모델",
+  since: "시작일",
+  until: "종료일",
+  perPage: "페이지당",
+  applyFilters: "필터 적용",
+  reset: "초기화",
+  newest: "최신",
+  older: "이전",
+  chartEyebrow: "히트맵",
+  chartTitle: "날짜별 릴리스 활동",
+  chartCopy:
+    "진한 칸일수록 해당 날짜의 이벤트가 많습니다. 날짜를 선택하면 전체 기록은 그대로 둔 채 타임라인을 그 날짜에 맞춰 좁힙니다.",
+  clearDateFocus: "날짜 선택 해제",
+  chartAriaLabel: "시간에 따른 이벤트 수를 보여주는 GitHub 스타일 일별 히트맵",
+  less: "적음",
+  more: "많음",
+  loadMore: "더 보기",
+  untitled: "제목 없음",
+  noSummary: "요약이 없습니다.",
+  staticRepoLink: "GitHub (소스 코드)",
+  staticHowItWorksHtml:
+    'Node.js 스크립트가 RSS/Atom 피드, GitHub 릴리스, HTML 변경 로그 페이지, Anthropic 사이트맵 크롤링에서 데이터를 수집합니다. 각 항목은 SQLite에 저장된 뒤 정적 HTML 페이지와 <code>events.json</code>으로 내보내지며, 브라우저가 그 파일로 히트맵, 필터, 타임라인을 렌더링합니다.',
+  staticSnapshotJavascript:
+    "이 정적 스냅샷은 JavaScript를 켜면 필터와 더 보기 기능을 사용할 수 있습니다.",
+} as const;
+
+const dateFormatter = new Intl.DateTimeFormat("ko-KR", {
   year: "numeric",
+  month: "long",
+  day: "numeric",
   timeZone: "UTC",
 });
+
+const renderSummaryHeading = (count: number, hasMore: boolean) =>
+  `이벤트 ${count}개를 표시합니다${hasMore ? ". 이전 페이지가 더 있습니다." : "."}`;
+
+const renderChartSelectionText = (chart: FeedsChartModel) =>
+  chart.selectionLabel
+    ? `선택됨: ${chart.selectionLabel}`
+    : `현재 날짜 필터를 제외한 조건에서 이벤트 ${chart.totalCount}개를 표시하고 있습니다.`;
+
+const renderSourceSummaryLabel = (count: number) => `이 스냅샷에 사용된 소스 (${count})`;
+
+const localizedCategoryLabel = (value: EventCategory) => categoryLabels[value] ?? humanizeToken(value);
+
+const localizedDateKindLabel = (value: EventDateKind) => dateKindLabels[value] ?? humanizeToken(value);
 
 const escapeHtml = (value: string) =>
   value
@@ -156,8 +227,7 @@ const formatUtcDate = (value: string) => {
   return escapeHtml(dateFormatter.format(new Date(parsed)));
 };
 
-const formatEventDateKind = (value: EventRow["event_date_kind"]) =>
-  value === "published" ? "Published" : humanizeToken(value);
+const formatEventDateKind = (value: EventRow["event_date_kind"]) => localizedDateKindLabel(value);
 
 const renderSelectOptions = (
   options: Array<{ value: string; label: string }>,
@@ -213,23 +283,23 @@ const activeFilterChips = (state: FeedsPageState) => {
   const chips: Array<{ label: string; value: string }> = [];
   if (state.vendors.length) {
     for (const vendor of state.vendors) {
-      chips.push({ label: "Vendor", value: vendorLabels[vendor] ?? humanizeToken(vendor) });
+      chips.push({ label: ui.vendor, value: vendorLabels[vendor] ?? humanizeToken(vendor) });
     }
   } else {
-    chips.push({ label: "Vendor", value: "All" });
+    chips.push({ label: ui.vendor, value: ui.all });
   }
   if (state.categories.length) {
     for (const category of state.categories) {
-      chips.push({ label: "Category", value: humanizeToken(category) });
+      chips.push({ label: ui.category, value: localizedCategoryLabel(category) });
     }
   } else {
-    chips.push({ label: "Category", value: "All" });
+    chips.push({ label: ui.category, value: ui.all });
   }
-  if (state.product) chips.push({ label: "Product", value: state.product });
-  if (state.model) chips.push({ label: "Model", value: state.model });
-  if (state.since) chips.push({ label: "Since", value: state.since });
-  if (state.until) chips.push({ label: "Until", value: state.until });
-  chips.push({ label: "Per page", value: String(state.limit) });
+  if (state.product) chips.push({ label: ui.product, value: state.product });
+  if (state.model) chips.push({ label: ui.model, value: state.model });
+  if (state.since) chips.push({ label: ui.since, value: state.since });
+  if (state.until) chips.push({ label: ui.until, value: state.until });
+  chips.push({ label: ui.perPage, value: String(state.limit) });
   return chips;
 };
 
@@ -237,7 +307,7 @@ const renderTimelineItemHtml = (event: EventRow, options: { includeJsonLink?: bo
   const includeJsonLink = options.includeJsonLink !== false;
   const summary = renderSummaryText(event);
   const vendorLabel = vendorLabels[event.vendor] ?? humanizeToken(event.vendor);
-  const categoryLabel = humanizeToken(event.category);
+  const categoryLabel = localizedCategoryLabel(event.category);
   const sourceHref = safeHref(event.canonical_url);
   const jsonHref = includeJsonLink ? safeHref(`/events/${encodeURIComponent(event.id)}`) : null;
   const models = event.models.slice(0, 3);
@@ -254,18 +324,18 @@ const renderTimelineItemHtml = (event: EventRow, options: { includeJsonLink?: bo
           <span class="badge badge--vendor badge--${escapeHtml(event.vendor)}">${escapeHtml(vendorLabel)}</span>
           <span class="badge badge--category">${escapeHtml(categoryLabel)}</span>
         </div>
-        <h2 class="event-card__title">${escapeHtml(event.title || "(untitled)")}</h2>
-        <p class="event-card__summary">${escapeHtml(summary || "No summary available.")}</p>
+        <h2 class="event-card__title">${escapeHtml(event.title || ui.untitled)}</h2>
+        <p class="event-card__summary">${escapeHtml(summary || ui.noSummary)}</p>
         ${
           products.length || models.length
             ? `<p class="event-card__meta">${
-                products.length ? `Products: ${escapeHtml(products.join(", "))}` : ""
-              }${products.length && models.length ? " · " : ""}${models.length ? `Models: ${escapeHtml(models.join(", "))}` : ""}</p>`
+                products.length ? `${ui.product}: ${escapeHtml(products.join(", "))}` : ""
+              }${products.length && models.length ? " · " : ""}${models.length ? `${ui.model}: ${escapeHtml(models.join(", "))}` : ""}</p>`
             : ""
         }
         <div class="event-card__links">
-          <a href="${sourceHref}" target="_blank" rel="noreferrer">Source</a>
-          ${jsonHref ? `<a href="${jsonHref}" target="_blank" rel="noreferrer">JSON</a>` : ""}
+          <a href="${sourceHref}" target="_blank" rel="noreferrer">${ui.source}</a>
+          ${jsonHref ? `<a href="${jsonHref}" target="_blank" rel="noreferrer">${ui.json}</a>` : ""}
         </div>
       </article>
     </li>
@@ -298,7 +368,7 @@ const renderStaticSourceList = (sources: StaticFeedsSourceSummary[]) => {
 
   return `
         <details class="hero__sources">
-          <summary>Sources used for this snapshot (${sources.length})</summary>
+          <summary>${renderSourceSummaryLabel(sources.length)}</summary>
           <ul class="hero__sources-list">
             ${sources
               .map((source) => {
@@ -316,9 +386,6 @@ const renderStaticSourceList = (sources: StaticFeedsSourceSummary[]) => {
         </details>
   `;
 };
-
-const renderSummaryHeading = (count: number, hasMore: boolean) =>
-  `Showing ${count} event${count === 1 ? "" : "s"}${hasMore ? " with older pages available" : ""}.`;
 
 const renderFilterSummaryChips = (state: FeedsPageState) =>
   activeFilterChips(state)
@@ -340,7 +407,7 @@ const renderForm = (
   }));
   const categoryOptions = ALLOWED_CATEGORIES.map((category) => ({
     value: category,
-    label: humanizeToken(category),
+    label: localizedCategoryLabel(category),
   }));
 
   return `
@@ -348,37 +415,37 @@ const renderForm = (
         <form method="get" action="${safeHref(options.action)}"${options.formAttribute ? ` ${options.formAttribute}` : ""}>
           <div class="controls__grid">
             <fieldset class="checkbox-fieldset">
-              <legend class="checkbox-fieldset__legend">Vendor</legend>
+              <legend class="checkbox-fieldset__legend">${ui.vendor}</legend>
               <input type="hidden" name="vendor" value="all" />
               <div class="checkbox-grid">
                 ${renderCheckboxOptions("vendor", vendorOptions, state.vendors)}
               </div>
             </fieldset>
             <fieldset class="checkbox-fieldset">
-              <legend class="checkbox-fieldset__legend">Category</legend>
+              <legend class="checkbox-fieldset__legend">${ui.category}</legend>
               <input type="hidden" name="category" value="all" />
               <div class="checkbox-grid">
                 ${renderCheckboxOptions("category", categoryOptions, state.categories)}
               </div>
             </fieldset>
             <label>
-              Product
-              <input type="text" name="product" value="${escapeHtml(state.product)}" placeholder="e.g. chatgpt" />
+              ${ui.product}
+              <input type="text" name="product" value="${escapeHtml(state.product)}" placeholder="예: chatgpt" />
             </label>
             <label>
-              Model
-              <input type="text" name="model" value="${escapeHtml(state.model)}" placeholder="e.g. claude-opus-4.6" />
+              ${ui.model}
+              <input type="text" name="model" value="${escapeHtml(state.model)}" placeholder="예: claude-opus-4.6" />
             </label>
             <label>
-              Since
+              ${ui.since}
               <input type="date" name="since" value="${escapeHtml(state.since)}" />
             </label>
             <label>
-              Until
+              ${ui.until}
               <input type="date" name="until" value="${escapeHtml(state.until)}" />
             </label>
             <label>
-              Per page
+              ${ui.perPage}
               <select name="limit">${renderSelectOptions(
                 [
                   { value: "25", label: "25" },
@@ -390,9 +457,9 @@ const renderForm = (
             </label>
           </div>
           <div class="controls__actions">
-            <button type="submit">Apply filters</button>
-            <a href="${safeHref(options.resetHref)}" data-reset-link>Reset</a>
-            ${options.newestHref ? `<a href="${safeHref(options.newestHref)}">Newest</a>` : ""}
+            <button type="submit">${ui.applyFilters}</button>
+            <a href="${safeHref(options.resetHref)}" data-reset-link>${ui.reset}</a>
+            ${options.newestHref ? `<a href="${safeHref(options.newestHref)}">${ui.newest}</a>` : ""}
           </div>
         </form>
       </section>
@@ -408,7 +475,7 @@ const renderSummarySection = (state: FeedsPageState, count: number, hasMore: boo
       </section>
 `;
 
-const heatmapWeekdayLabels = ["Mon", "", "Wed", "", "Fri", "", ""];
+const heatmapWeekdayLabels = ["월", "", "수", "", "금", "", ""];
 
 const renderHeatmapCellsHtml = (chart: FeedsChartModel, state: FeedsPageState, basePath: string) =>
   chart.weeks
@@ -450,13 +517,13 @@ const renderChartSection = (
       <section class="chart-shell" data-chart-root>
         <div class="chart__header">
           <div>
-            <p class="chart__eyebrow">Heatmap</p>
-            <h2 class="chart__title">Release activity by day</h2>
-            <p class="chart__copy">Darker squares mark busier release days. Select a day to focus the timeline while keeping the full history visible.</p>
+            <p class="chart__eyebrow">${ui.chartEyebrow}</p>
+            <h2 class="chart__title">${ui.chartTitle}</h2>
+            <p class="chart__copy">${ui.chartCopy}</p>
           </div>
           <div class="chart__meta">
-            <p class="chart__selection">${escapeHtml(chart.selectionLabel ? `Focused: ${chart.selectionLabel}` : `Showing all ${chart.totalCount} events across the current non-date filters.`)}</p>
-            ${clearHref ? `<a class="chart__clear" href="${safeHref(clearHref)}" data-chart-clear>Clear date focus</a>` : ""}
+            <p class="chart__selection">${escapeHtml(renderChartSelectionText(chart))}</p>
+            ${clearHref ? `<a class="chart__clear" href="${safeHref(clearHref)}" data-chart-clear>${ui.clearDateFocus}</a>` : ""}
           </div>
         </div>
         <div class="chart-scroll" data-chart-scroll>
@@ -473,17 +540,17 @@ const renderChartSection = (
             <div class="heatmap__weekdays" aria-hidden="true">
               ${heatmapWeekdayLabels.map((label) => `<span>${escapeHtml(label)}</span>`).join("")}
             </div>
-            <div class="heatmap__grid" role="img" aria-label="GitHub-style day heatmap of event counts over time">
+            <div class="heatmap__grid" role="img" aria-label="${ui.chartAriaLabel}">
               ${renderHeatmapCellsHtml(chart, state, options.basePath)}
             </div>
             <div class="heatmap__legend" aria-hidden="true">
-              <span>Less</span>
+              <span>${ui.less}</span>
               <span class="heatmap__legend-cell heatmap__legend-cell--0"></span>
               <span class="heatmap__legend-cell heatmap__legend-cell--1"></span>
               <span class="heatmap__legend-cell heatmap__legend-cell--2"></span>
               <span class="heatmap__legend-cell heatmap__legend-cell--3"></span>
               <span class="heatmap__legend-cell heatmap__legend-cell--4"></span>
-              <span>More</span>
+              <span>${ui.more}</span>
             </div>
           </div>
         </div>
@@ -512,8 +579,8 @@ const renderNoscriptPagination = (olderHref: string | null, newestHref: string |
   return `
         <noscript>
           <nav class="pagination pagination--fallback">
-            ${newestHref ? `<a href="${safeHref(newestHref)}">Newest</a>` : ""}
-            ${olderHref ? `<a href="${safeHref(olderHref)}">Older</a>` : ""}
+            ${newestHref ? `<a href="${safeHref(newestHref)}">${ui.newest}</a>` : ""}
+            ${olderHref ? `<a href="${safeHref(olderHref)}">${ui.older}</a>` : ""}
           </nav>
         </noscript>
   `;
@@ -531,8 +598,8 @@ const renderLoaderSection = (input: FeedsPageInput) => {
           data-loaded-count="${input.events.length}"
         >
           <div class="feed-loader__controls">
-            <button type="button" class="feed-loader__button" data-load-more>Load more</button>
-            <p class="feed-loader__status" data-loader-status aria-live="polite">Scroll for older events or tap Load more.</p>
+            <button type="button" class="feed-loader__button" data-load-more>${ui.loadMore}</button>
+            <p class="feed-loader__status" data-loader-status aria-live="polite">아래로 스크롤하거나 '${ui.loadMore}'를 눌러 이전 이벤트를 불러오세요.</p>
           </div>
           <div class="feed-loader__sentinel" data-loader-sentinel aria-hidden="true"></div>
         </div>
@@ -547,6 +614,15 @@ const liveInlineScript = `
   const chartScroll = document.querySelector("[data-chart-scroll]");
   const chartScrollStorageKey = "llm-timeline:heatmap-scroll-left";
   const pageScrollStorageKey = "llm-timeline:page-scroll-y";
+  const locale = ${JSON.stringify({
+    loadMore: ui.loadMore,
+    loaderEnd: "타임라인의 끝까지 도달했습니다.",
+    loaderLoadingManual: "이벤트를 더 불러오는 중...",
+    loaderLoadingAuto: "이전 이벤트를 불러오는 중...",
+    loaderLoadedMore: "이벤트를 더 불러왔습니다.",
+    loaderLoadError: "이전 이벤트를 불러오지 못했습니다. '더 보기'를 눌러 다시 시도하세요.",
+    loaderTapMore: "'더 보기'를 눌러 이전 이벤트를 계속 살펴보세요.",
+  })};
 
   const restoreChartFocus = () => {
     try {
@@ -608,7 +684,7 @@ const liveInlineScript = `
   let observer = null;
 
   const summaryText = (count, more) => {
-    return "Showing " + count + " event" + (count === 1 ? "" : "s") + (more ? " with older pages available." : ".");
+    return "이벤트 " + count + "개를 표시합니다" + (more ? ". 이전 페이지가 더 있습니다." : ".");
   };
 
   const setStatus = (message) => {
@@ -624,7 +700,7 @@ const liveInlineScript = `
     loader.dataset.hasMore = String(hasMore);
     loader.dataset.loadedCount = String(loadedCount);
     if (!hasMore && !loading) {
-      setStatus("You've reached the end of the timeline.");
+      setStatus(locale.loaderEnd);
       if (observer) {
         observer.disconnect();
       }
@@ -637,7 +713,7 @@ const liveInlineScript = `
     }
     loading = true;
     updateControls();
-    setStatus(trigger === "manual" ? "Loading more events..." : "Loading older events...");
+    setStatus(trigger === "manual" ? locale.loaderLoadingManual : locale.loaderLoadingAuto);
 
     try {
       const url = new URL(loader.dataset.fragmentBase || "", window.location.href);
@@ -660,9 +736,9 @@ const liveInlineScript = `
       loadedCount += Number(payload.returned_count || 0);
       nextCursor = typeof payload.next_cursor === "string" ? payload.next_cursor : "";
       hasMore = Boolean(payload.has_more && nextCursor);
-      setStatus(hasMore ? "Loaded more events." : "You've reached the end of the timeline.");
+      setStatus(hasMore ? locale.loaderLoadedMore : locale.loaderEnd);
     } catch {
-      setStatus("Couldn't load older events. Tap Load more to retry.");
+      setStatus(locale.loaderLoadError);
     } finally {
       loading = false;
       updateControls();
@@ -683,7 +759,7 @@ const liveInlineScript = `
     });
     observer.observe(sentinel);
   } else {
-    setStatus("Tap Load more to continue browsing older events.");
+    setStatus(locale.loaderTapMore);
   }
 
   updateControls();
@@ -724,7 +800,39 @@ const renderStaticInlineScript = () => `
   const allowedVendors = ${JSON.stringify(ALLOWED_VENDORS)};
   const allowedCategories = ${JSON.stringify(ALLOWED_CATEGORIES)};
   const vendorLabels = ${JSON.stringify(vendorLabels)};
+  const categoryLabels = ${JSON.stringify(categoryLabels)};
   const heatmapWeekdayLabels = ${JSON.stringify(heatmapWeekdayLabels)};
+  const locale = ${JSON.stringify({
+    all: ui.all,
+    vendor: ui.vendor,
+    category: ui.category,
+    product: ui.product,
+    model: ui.model,
+    since: ui.since,
+    until: ui.until,
+    perPage: ui.perPage,
+    chartEyebrow: ui.chartEyebrow,
+    chartTitle: ui.chartTitle,
+    chartCopy: ui.chartCopy,
+    clearDateFocus: ui.clearDateFocus,
+    chartAriaLabel: ui.chartAriaLabel,
+    less: ui.less,
+    more: ui.more,
+    loadMore: ui.loadMore,
+    summaryPrefix: "이벤트 ",
+    summarySuffix: "개를 표시합니다",
+    summaryMore: ". 이전 페이지가 더 있습니다.",
+    chartFocused: "선택됨: ",
+    chartAllPrefix: "현재 날짜 필터를 제외한 조건에서 이벤트 ",
+    chartAllSuffix: "개를 표시하고 있습니다.",
+    loaderNoMatch: "현재 필터와 일치하는 이벤트가 없습니다.",
+    loaderEnd: "타임라인의 끝까지 도달했습니다.",
+    loaderScroll: `아래로 스크롤하거나 '${ui.loadMore}'를 눌러 이전 이벤트를 불러오세요.`,
+    loaderLoadingManual: "이벤트를 더 불러오는 중...",
+    loaderLoadingAuto: "이전 이벤트를 불러오는 중...",
+    staticLoadingSnapshot: "스냅샷을 불러오는 중...",
+    staticSnapshotError: "정적 스냅샷 데이터를 불러오지 못했습니다.",
+  })};
   const defaultCategories = ["model_release"];
   const defaultLimit = Number(root.dataset.defaultLimit || "50");
   const dataHref = root.dataset.dataHref || "";
@@ -756,18 +864,18 @@ const renderStaticInlineScript = () => `
     });
   };
 
-  const fullDayFormatter = new Intl.DateTimeFormat("en-US", {
-    month: "short",
-    day: "numeric",
+  const fullDayFormatter = new Intl.DateTimeFormat("ko-KR", {
     year: "numeric",
+    month: "long",
+    day: "numeric",
     timeZone: "UTC",
   });
-  const shortMonthFormatter = new Intl.DateTimeFormat("en-US", {
+  const shortMonthFormatter = new Intl.DateTimeFormat("ko-KR", {
     month: "short",
     timeZone: "UTC",
   });
-  const shortYearFormatter = new Intl.DateTimeFormat("en-US", {
-    year: "2-digit",
+  const yearFormatter = new Intl.DateTimeFormat("ko-KR", {
+    year: "numeric",
     timeZone: "UTC",
   });
 
@@ -784,6 +892,8 @@ const renderStaticInlineScript = () => `
       .replace(/_/g, " ")
       .replace(/\\b\\w/g, (match) => match.toUpperCase());
 
+  const localizedCategoryLabel = (value) => categoryLabels[value] || humanizeToken(value);
+
   const toDayString = (value) => {
     const trimmed = String(value || "").trim();
     const match = trimmed.match(/^(\\d{4}-\\d{2}-\\d{2})/);
@@ -799,9 +909,8 @@ const renderStaticInlineScript = () => `
   const formatMonthAxisLabel = (day, previousYear) => {
     const date = new Date(day + "T00:00:00.000Z");
     const month = shortMonthFormatter.format(date);
-    const year = shortYearFormatter.format(date);
     const yearKey = day.slice(0, 4);
-    return previousYear === yearKey ? month : month + " '" + year;
+    return previousYear === yearKey ? month : yearFormatter.format(date) + " " + month;
   };
 
   const weekdayIndex = (value) => {
@@ -816,10 +925,10 @@ const renderStaticInlineScript = () => `
   const formatSelectionLabel = (sinceDay, untilDay) => {
     if (sinceDay && untilDay) {
       if (sinceDay === untilDay) return formatFullDay(sinceDay);
-      return formatFullDay(sinceDay) + " to " + formatFullDay(untilDay);
+      return formatFullDay(sinceDay) + " ~ " + formatFullDay(untilDay);
     }
-    if (sinceDay) return "From " + formatFullDay(sinceDay);
-    if (untilDay) return "Through " + formatFullDay(untilDay);
+    if (sinceDay) return formatFullDay(sinceDay) + "부터";
+    if (untilDay) return formatFullDay(untilDay) + "까지";
     return "";
   };
 
@@ -933,7 +1042,7 @@ const renderStaticInlineScript = () => `
   };
 
   const summaryText = (count, hasMore) => {
-    return "Showing " + count + " event" + (count === 1 ? "" : "s") + (hasMore ? " with older pages available." : ".");
+    return locale.summaryPrefix + count + locale.summarySuffix + (hasMore ? locale.summaryMore : ".");
   };
 
   const setStatus = (message) => {
@@ -945,23 +1054,23 @@ const renderStaticInlineScript = () => `
     const values = [];
     if (state.vendors.length) {
       for (const vendor of state.vendors) {
-        values.push({ label: "Vendor", value: vendorLabels[vendor] || humanizeToken(vendor) });
+        values.push({ label: locale.vendor, value: vendorLabels[vendor] || humanizeToken(vendor) });
       }
     } else {
-      values.push({ label: "Vendor", value: "All" });
+      values.push({ label: locale.vendor, value: locale.all });
     }
     if (state.categories.length) {
       for (const category of state.categories) {
-        values.push({ label: "Category", value: humanizeToken(category) });
+        values.push({ label: locale.category, value: localizedCategoryLabel(category) });
       }
     } else {
-      values.push({ label: "Category", value: "All" });
+      values.push({ label: locale.category, value: locale.all });
     }
-    if (state.product) values.push({ label: "Product", value: state.product });
-    if (state.model) values.push({ label: "Model", value: state.model });
-    if (state.since) values.push({ label: "Since", value: state.since });
-    if (state.until) values.push({ label: "Until", value: state.until });
-    values.push({ label: "Per page", value: String(state.limit) });
+    if (state.product) values.push({ label: locale.product, value: state.product });
+    if (state.model) values.push({ label: locale.model, value: state.model });
+    if (state.since) values.push({ label: locale.since, value: state.since });
+    if (state.until) values.push({ label: locale.until, value: state.until });
+    values.push({ label: locale.perPage, value: String(state.limit) });
 
     for (const chipValue of values) {
       const chip = document.createElement("span");
@@ -1047,7 +1156,7 @@ const renderStaticInlineScript = () => `
           level: inRange ? levelForCount(count, maxCount) : 0,
           active: activeDay === day,
           inRange,
-          ariaLabel: formatFullDay(day) + ": " + count + " event" + (count === 1 ? "" : "s"),
+          ariaLabel: formatFullDay(day) + ": 이벤트 " + count + "개",
         });
       }
       weeks.push({
@@ -1119,17 +1228,17 @@ const renderStaticInlineScript = () => `
     return [
       '<div class="chart__header">',
       "<div>",
-      '<p class="chart__eyebrow">Heatmap</p>',
-      '<h2 class="chart__title">Release activity by day</h2>',
-      '<p class="chart__copy">Darker squares mark busier release days. Select a day to focus the timeline while keeping the full history visible.</p>',
+      '<p class="chart__eyebrow">' + escapeHtml(locale.chartEyebrow) + '</p>',
+      '<h2 class="chart__title">' + escapeHtml(locale.chartTitle) + '</h2>',
+      '<p class="chart__copy">' + escapeHtml(locale.chartCopy) + '</p>',
       "</div>",
       '<div class="chart__meta">',
       '<p class="chart__selection">' +
         (chart.selectionLabel
-          ? "Focused: " + escapeHtml(chart.selectionLabel)
-          : "Showing all " + chart.totalCount + " events across the current non-date filters.") +
+          ? escapeHtml(locale.chartFocused + chart.selectionLabel)
+          : escapeHtml(locale.chartAllPrefix + chart.totalCount + locale.chartAllSuffix)) +
         "</p>",
-      clearHref ? '<a class="chart__clear" href="' + escapeHtml(clearHref) + '" data-chart-clear>Clear date focus</a>' : "",
+      clearHref ? '<a class="chart__clear" href="' + escapeHtml(clearHref) + '" data-chart-clear>' + escapeHtml(locale.clearDateFocus) + '</a>' : "",
       "</div>",
       "</div>",
       '<div class="chart-scroll" data-chart-scroll>',
@@ -1151,10 +1260,10 @@ const renderStaticInlineScript = () => `
       '<div class="heatmap__weekdays" aria-hidden="true">',
       heatmapWeekdayLabels.map((label) => "<span>" + escapeHtml(label) + "</span>").join(""),
       "</div>",
-      '<div class="heatmap__grid" role="img" aria-label="GitHub-style day heatmap of event counts over time">',
+      '<div class="heatmap__grid" role="img" aria-label="' + escapeHtml(locale.chartAriaLabel) + '">',
       cells.join(""),
       "</div>",
-      '<div class="heatmap__legend" aria-hidden="true"><span>Less</span><span class="heatmap__legend-cell heatmap__legend-cell--0"></span><span class="heatmap__legend-cell heatmap__legend-cell--1"></span><span class="heatmap__legend-cell heatmap__legend-cell--2"></span><span class="heatmap__legend-cell heatmap__legend-cell--3"></span><span class="heatmap__legend-cell heatmap__legend-cell--4"></span><span>More</span></div>',
+      '<div class="heatmap__legend" aria-hidden="true"><span>' + escapeHtml(locale.less) + '</span><span class="heatmap__legend-cell heatmap__legend-cell--0"></span><span class="heatmap__legend-cell heatmap__legend-cell--1"></span><span class="heatmap__legend-cell heatmap__legend-cell--2"></span><span class="heatmap__legend-cell heatmap__legend-cell--3"></span><span class="heatmap__legend-cell heatmap__legend-cell--4"></span><span>' + escapeHtml(locale.more) + '</span></div>',
       "</div>",
       "</div>",
     ].join("");
@@ -1169,15 +1278,15 @@ const renderStaticInlineScript = () => `
     button.hidden = !hasMore;
     sentinel.hidden = !hasMore;
     if (filteredEvents.length === 0 && !loading && allEvents !== null) {
-      setStatus("No events matched the current filters.");
+      setStatus(locale.loaderNoMatch);
       return;
     }
     if (!loading && !hasMore && allEvents !== null) {
-      setStatus("You have reached the end of the timeline.");
+      setStatus(locale.loaderEnd);
       return;
     }
     if (!loading && hasMore) {
-      setStatus("Scroll for older events or tap Load more.");
+      setStatus(locale.loaderScroll);
     }
   };
 
@@ -1237,7 +1346,7 @@ const renderStaticInlineScript = () => `
     }
     loading = true;
     updateControls();
-    setStatus(trigger === "manual" ? "Loading more events..." : "Loading older events...");
+    setStatus(trigger === "manual" ? locale.loaderLoadingManual : locale.loaderLoadingAuto);
     renderVisibleEvents(true);
     loading = false;
     updateControls();
@@ -1306,7 +1415,7 @@ const renderStaticInlineScript = () => `
   syncForm(currentState);
   setChips(currentState);
   loader.hidden = false;
-  setStatus("Loading snapshot...");
+  setStatus(locale.staticLoadingSnapshot);
 
   fetch(new URL(dataHref, window.location.href).toString(), {
     headers: {
@@ -1327,7 +1436,7 @@ const renderStaticInlineScript = () => `
     })
     .catch(() => {
       loader.hidden = false;
-      setStatus("Could not load the static snapshot data.");
+      setStatus(locale.staticSnapshotError);
       button.hidden = true;
       sentinel.hidden = true;
     });
@@ -2129,7 +2238,7 @@ export const renderFeedsPage = (input: FeedsPageInput) => {
   const newestHref = state.cursor ? buildPageHref(state, { cursor: "" }) : null;
 
   return `<!DOCTYPE html>
-<html lang="en">
+<html lang="${htmlLang}">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -2139,13 +2248,13 @@ export const renderFeedsPage = (input: FeedsPageInput) => {
   <body>
     <main class="page">
       <section class="hero">
-        <p class="hero__eyebrow">SQLite Preview</p>
+        <p class="hero__eyebrow">${ui.liveHeroEyebrow}</p>
         <h1>${pageTitle}</h1>
-        <p>Mixed-provider release timeline pulled from the normalized events table. Use the filters to browse launches, rollouts, release notes, and deprecations without leaving the Hono server.</p>
+        <p>${ui.liveHeroCopy}</p>
         <div class="hero__links">
-          <a href="${safeHref(input.eventsJsonHref)}" target="_blank" rel="noreferrer">Current JSON</a>
-          <a href="${safeHref(input.calendarHref)}" target="_blank" rel="noreferrer">Current ICS</a>
-          <a href="${safeHref(input.sourcesHref)}" target="_blank" rel="noreferrer">Source Status</a>
+          <a href="${safeHref(input.eventsJsonHref)}" target="_blank" rel="noreferrer">${ui.currentJson}</a>
+          <a href="${safeHref(input.calendarHref)}" target="_blank" rel="noreferrer">${ui.currentIcs}</a>
+          <a href="${safeHref(input.sourcesHref)}" target="_blank" rel="noreferrer">${ui.sourceStatus}</a>
         </div>
       </section>
 
@@ -2155,7 +2264,7 @@ export const renderFeedsPage = (input: FeedsPageInput) => {
       ${renderTimelineSection({
         events: input.events,
         timelineHtml: renderTimelineItemsHtml(input.events),
-        emptyMessage: "No events matched the current filters. Try widening the date range, switching category, or clearing product/model filters.",
+        emptyMessage: "현재 필터와 일치하는 이벤트가 없습니다. 날짜 범위를 넓히거나 카테고리를 바꾸거나 제품/모델 필터를 비워 보세요.",
         afterTimelineHtml: `${renderLoaderSection(input)}${renderNoscriptPagination(olderHref, newestHref)}`,
       })}
     </main>
@@ -2167,7 +2276,7 @@ export const renderFeedsPage = (input: FeedsPageInput) => {
 export const renderStaticFeedsPage = (input: StaticFeedsPageInput) => {
   const state = input.state;
   return `<!DOCTYPE html>
-<html lang="en">
+<html lang="${htmlLang}">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -2177,12 +2286,12 @@ export const renderStaticFeedsPage = (input: StaticFeedsPageInput) => {
   <body>
     <main class="page">
       <section class="hero">
-        <h1>LLM timeline</h1>
-        <p>Exported ${formatUtcDate(input.exportedAt)}</p>
+        <h1>${pageTitle}</h1>
+        <p>내보낸 날짜 ${formatUtcDate(input.exportedAt)}</p>
         <div class="hero__links">
-          <a href="https://github.com/atjsh/llm-timeline" target="_blank" rel="noreferrer">GitHub (source code)</a>
+          <a href="https://github.com/atjsh/llm-timeline" target="_blank" rel="noreferrer">${ui.staticRepoLink}</a>
         </div>
-        <p>A Node.js script collects source data from RSS/Atom feeds, GitHub releases, HTML changelog pages, and Anthropic sitemap crawls. Each item is saved in SQLite, then exported as a static HTML page plus <code>events.json</code>. Your browser uses that file to render the heatmap, filters, and timeline.</p>
+        <p>${ui.staticHowItWorksHtml}</p>
         ${renderStaticSourceList(input.sources)}
       </section>
 
@@ -2200,16 +2309,16 @@ export const renderStaticFeedsPage = (input: StaticFeedsPageInput) => {
         <ol class="timeline" data-timeline${input.events.length ? "" : " hidden"}>${renderTimelineItemsHtml(input.events, {
           includeJsonLink: false,
         })}</ol>
-        <p class="empty-state" data-empty-state${input.events.length ? " hidden" : ""}>No events matched the current filters. Try widening the date range, switching category, or clearing product/model filters.</p>
+        <p class="empty-state" data-empty-state${input.events.length ? " hidden" : ""}>현재 필터와 일치하는 이벤트가 없습니다. 날짜 범위를 넓히거나 카테고리를 바꾸거나 제품/모델 필터를 비워 보세요.</p>
         <div class="feed-loader" data-static-loader hidden>
           <div class="feed-loader__controls">
-            <button type="button" class="feed-loader__button" data-load-more>Load more</button>
-            <p class="feed-loader__status" data-loader-status aria-live="polite">Loading snapshot...</p>
+            <button type="button" class="feed-loader__button" data-load-more>${ui.loadMore}</button>
+            <p class="feed-loader__status" data-loader-status aria-live="polite">스냅샷을 불러오는 중...</p>
           </div>
           <div class="feed-loader__sentinel" data-loader-sentinel aria-hidden="true"></div>
         </div>
         <noscript>
-          <p class="feed-loader__status">This static snapshot supports filtering and loading older pages with JavaScript enabled.</p>
+          <p class="feed-loader__status">${ui.staticSnapshotJavascript}</p>
         </noscript>
       </section>
     </main>
