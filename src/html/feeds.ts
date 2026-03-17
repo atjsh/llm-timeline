@@ -2053,6 +2053,9 @@ export const renderStaticFeedsPage = (input: StaticFeedsPageInput) => {
       <section class="hero">
         <h1>LLM timeline</h1>
         <p>Exported ${formatUtcDate(input.exportedAt)}</p>
+        <div class="hero__links">
+          <a href="https://github.com/atjsh/llm-timeline" target="_blank" rel="noreferrer">GitHub repo</a>
+        </div>
       </section>
 
       ${renderForm(state, { action: "./", resetHref: "./", formAttribute: 'data-feeds-form' })}
