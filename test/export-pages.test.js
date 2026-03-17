@@ -142,8 +142,10 @@ try {
   const feedsHtml = readFileSync(join(outDir, "feeds", "index.html"), "utf8");
   assert.match(feedsHtml, /LLM timeline/);
   assert.match(feedsHtml, /Exported [A-Z][a-z]{2} \d{1,2}, \d{4}/);
+  assert.match(feedsHtml, /Heatmap/);
   assert.match(feedsHtml, /Release activity by day/);
   assert.match(feedsHtml, /data-chart-root/);
+  assert.match(feedsHtml, /data-chart-scroll/);
   assert.match(feedsHtml, /data-chart-day="2026-03-10"/);
   assert.match(feedsHtml, /heatmap__grid/);
   assert.match(feedsHtml, /data-data-href="\.\.\/assets\/events\.json"/);

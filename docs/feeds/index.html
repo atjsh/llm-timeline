@@ -702,7 +702,7 @@
     <main class="page">
       <section class="hero">
         <h1>LLM timeline</h1>
-        <p>Exported Mar 16, 2026</p>
+        <p>Exported Mar 17, 2026</p>
       </section>
 
       
@@ -801,7 +801,7 @@
       <section class="chart-shell" data-chart-root>
         <div class="chart__header">
           <div>
-            <p class="chart__eyebrow">Release Lawn</p>
+            <p class="chart__eyebrow">Heatmap</p>
             <h2 class="chart__title">Release activity by day</h2>
             <p class="chart__copy">Darker squares mark busier release days. Select a day to focus the timeline while keeping the full history visible.</p>
           </div>
@@ -810,7 +810,7 @@
             
           </div>
         </div>
-        <div class="chart-scroll">
+        <div class="chart-scroll" data-chart-scroll>
           <div class="heatmap" style="--heatmap-weeks:172">
             <div class="heatmap__corner" aria-hidden="true"></div>
             <div class="heatmap__months">
@@ -1912,6 +1912,25 @@
   let loading = false;
   let observer = null;
 
+  const captureChartScrollState = () => {
+    const currentChartScroll = chartRoot.querySelector("[data-chart-scroll]");
+    if (!(currentChartScroll instanceof HTMLElement)) return null;
+    return {
+      left: currentChartScroll.scrollLeft,
+      top: currentChartScroll.scrollTop,
+    };
+  };
+
+  const restoreChartScrollState = (scrollState) => {
+    if (!scrollState) return;
+    requestAnimationFrame(() => {
+      const nextChartScroll = chartRoot.querySelector("[data-chart-scroll]");
+      if (!(nextChartScroll instanceof HTMLElement)) return;
+      nextChartScroll.scrollLeft = scrollState.left;
+      nextChartScroll.scrollTop = scrollState.top;
+    });
+  };
+
   const fullDayFormatter = new Intl.DateTimeFormat("en-US", {
     month: "short",
     day: "numeric",
@@ -2275,7 +2294,7 @@
     return [
       '<div class="chart__header">',
       "<div>",
-      '<p class="chart__eyebrow">Release Lawn</p>',
+      '<p class="chart__eyebrow">Heatmap</p>',
       '<h2 class="chart__title">Release activity by day</h2>',
       '<p class="chart__copy">Darker squares mark busier release days. Select a day to focus the timeline while keeping the full history visible.</p>',
       "</div>",
@@ -2288,7 +2307,7 @@
       clearHref ? '<a class="chart__clear" href="' + escapeHtml(clearHref) + '" data-chart-clear>Clear date focus</a>' : "",
       "</div>",
       "</div>",
-      '<div class="chart-scroll">',
+      '<div class="chart-scroll" data-chart-scroll>',
       '<div class="heatmap" style="--heatmap-weeks:' + chart.weeks.length + '">',
       '<div class="heatmap__corner" aria-hidden="true"></div>',
       '<div class="heatmap__months">',
@@ -2352,7 +2371,7 @@
     emptyState.hidden = filteredEvents.length !== 0;
   };
 
-  const renderChart = () => {
+  const renderChart = (scrollState) => {
     if (!allEvents) return;
     const chart = buildChartModel(baseFilteredEvents, currentState);
     if (!chart) {
@@ -2362,9 +2381,11 @@
     }
     chartRoot.hidden = false;
     chartRoot.innerHTML = buildChartHtml(chart, currentState);
+    restoreChartScrollState(scrollState);
   };
 
-  const applyState = (state, pushHistory) => {
+  const applyState = (state, pushHistory, options = {}) => {
+    const scrollState = options.preserveChartScroll ? captureChartScrollState() : null;
     currentState = state;
     syncForm(state);
     if (!allEvents) {
@@ -2375,7 +2396,7 @@
     baseFilteredEvents = allEvents.filter((event) => matchesCoreState(event, state));
     filteredEvents = baseFilteredEvents.filter((event) => matchesState(event, state));
     visibleCount = 0;
-    renderChart();
+    renderChart(scrollState);
     renderVisibleEvents(false);
     updateControls();
     if (pushHistory) {
@@ -2407,7 +2428,7 @@
     if (!(target instanceof HTMLAnchorElement)) return;
     event.preventDefault();
     if (target.hasAttribute("data-chart-clear")) {
-      applyState({ ...currentState, since: "", until: "" }, true);
+      applyState({ ...currentState, since: "", until: "" }, true, { preserveChartScroll: true });
       return;
     }
     const day = target.dataset.chartDay || "";
@@ -2417,7 +2438,8 @@
         since: day,
         until: day,
       },
-      true
+      true,
+      { preserveChartScroll: true }
     );
   });
 

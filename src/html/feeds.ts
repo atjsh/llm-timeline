@@ -417,7 +417,7 @@ const renderChartSection = (
       <section class="chart-shell" data-chart-root>
         <div class="chart__header">
           <div>
-            <p class="chart__eyebrow">Release Lawn</p>
+            <p class="chart__eyebrow">Heatmap</p>
             <h2 class="chart__title">Release activity by day</h2>
             <p class="chart__copy">Darker squares mark busier release days. Select a day to focus the timeline while keeping the full history visible.</p>
           </div>
@@ -426,7 +426,7 @@ const renderChartSection = (
             ${clearHref ? `<a class="chart__clear" href="${safeHref(clearHref)}" data-chart-clear>Clear date focus</a>` : ""}
           </div>
         </div>
-        <div class="chart-scroll">
+        <div class="chart-scroll" data-chart-scroll>
           <div class="heatmap" style="--heatmap-weeks:${chart.weeks.length}">
             <div class="heatmap__corner" aria-hidden="true"></div>
             <div class="heatmap__months">
@@ -511,6 +511,52 @@ const liveInlineScript = `
   const timeline = document.querySelector("[data-timeline]");
   const loader = document.querySelector("[data-feeds-loader]");
   const summary = document.querySelector("[data-summary-heading]");
+  const chartScroll = document.querySelector("[data-chart-scroll]");
+  const chartScrollStorageKey = "llm-timeline:heatmap-scroll-left";
+  const pageScrollStorageKey = "llm-timeline:page-scroll-y";
+
+  const restoreChartFocus = () => {
+    try {
+      const savedChartLeft = Number(sessionStorage.getItem(chartScrollStorageKey));
+      const savedPageTop = Number(sessionStorage.getItem(pageScrollStorageKey));
+      sessionStorage.removeItem(chartScrollStorageKey);
+      sessionStorage.removeItem(pageScrollStorageKey);
+      if (!Number.isFinite(savedChartLeft) && !Number.isFinite(savedPageTop)) {
+        return;
+      }
+      requestAnimationFrame(() => {
+        if (chartScroll instanceof HTMLElement && Number.isFinite(savedChartLeft)) {
+          chartScroll.scrollLeft = savedChartLeft;
+        }
+        if (Number.isFinite(savedPageTop)) {
+          window.scrollTo(0, savedPageTop);
+        }
+      });
+    } catch {
+      // Ignore storage failures and keep default browser behavior.
+    }
+  };
+
+  const persistChartFocus = () => {
+    try {
+      if (chartScroll instanceof HTMLElement) {
+        sessionStorage.setItem(chartScrollStorageKey, String(chartScroll.scrollLeft));
+      }
+      sessionStorage.setItem(pageScrollStorageKey, String(window.scrollY));
+    } catch {
+      // Ignore storage failures and keep default browser behavior.
+    }
+  };
+
+  restoreChartFocus();
+
+  document.addEventListener("click", (event) => {
+    const target = event.target instanceof Element ? event.target.closest("[data-chart-day], [data-chart-clear]") : null;
+    if (target instanceof HTMLAnchorElement) {
+      persistChartFocus();
+    }
+  });
+
   if (!(timeline instanceof HTMLElement) || !(summary instanceof HTMLElement) || !(loader instanceof HTMLElement)) {
     return;
   }
@@ -657,6 +703,25 @@ const renderStaticInlineScript = () => `
   let currentState = null;
   let loading = false;
   let observer = null;
+
+  const captureChartScrollState = () => {
+    const currentChartScroll = chartRoot.querySelector("[data-chart-scroll]");
+    if (!(currentChartScroll instanceof HTMLElement)) return null;
+    return {
+      left: currentChartScroll.scrollLeft,
+      top: currentChartScroll.scrollTop,
+    };
+  };
+
+  const restoreChartScrollState = (scrollState) => {
+    if (!scrollState) return;
+    requestAnimationFrame(() => {
+      const nextChartScroll = chartRoot.querySelector("[data-chart-scroll]");
+      if (!(nextChartScroll instanceof HTMLElement)) return;
+      nextChartScroll.scrollLeft = scrollState.left;
+      nextChartScroll.scrollTop = scrollState.top;
+    });
+  };
 
   const fullDayFormatter = new Intl.DateTimeFormat("en-US", {
     month: "short",
@@ -1021,7 +1086,7 @@ const renderStaticInlineScript = () => `
     return [
       '<div class="chart__header">',
       "<div>",
-      '<p class="chart__eyebrow">Release Lawn</p>',
+      '<p class="chart__eyebrow">Heatmap</p>',
       '<h2 class="chart__title">Release activity by day</h2>',
       '<p class="chart__copy">Darker squares mark busier release days. Select a day to focus the timeline while keeping the full history visible.</p>',
       "</div>",
@@ -1034,7 +1099,7 @@ const renderStaticInlineScript = () => `
       clearHref ? '<a class="chart__clear" href="' + escapeHtml(clearHref) + '" data-chart-clear>Clear date focus</a>' : "",
       "</div>",
       "</div>",
-      '<div class="chart-scroll">',
+      '<div class="chart-scroll" data-chart-scroll>',
       '<div class="heatmap" style="--heatmap-weeks:' + chart.weeks.length + '">',
       '<div class="heatmap__corner" aria-hidden="true"></div>',
       '<div class="heatmap__months">',
@@ -1098,7 +1163,7 @@ const renderStaticInlineScript = () => `
     emptyState.hidden = filteredEvents.length !== 0;
   };
 
-  const renderChart = () => {
+  const renderChart = (scrollState) => {
     if (!allEvents) return;
     const chart = buildChartModel(baseFilteredEvents, currentState);
     if (!chart) {
@@ -1108,9 +1173,11 @@ const renderStaticInlineScript = () => `
     }
     chartRoot.hidden = false;
     chartRoot.innerHTML = buildChartHtml(chart, currentState);
+    restoreChartScrollState(scrollState);
   };
 
-  const applyState = (state, pushHistory) => {
+  const applyState = (state, pushHistory, options = {}) => {
+    const scrollState = options.preserveChartScroll ? captureChartScrollState() : null;
     currentState = state;
     syncForm(state);
     if (!allEvents) {
@@ -1121,7 +1188,7 @@ const renderStaticInlineScript = () => `
     baseFilteredEvents = allEvents.filter((event) => matchesCoreState(event, state));
     filteredEvents = baseFilteredEvents.filter((event) => matchesState(event, state));
     visibleCount = 0;
-    renderChart();
+    renderChart(scrollState);
     renderVisibleEvents(false);
     updateControls();
     if (pushHistory) {
@@ -1153,7 +1220,7 @@ const renderStaticInlineScript = () => `
     if (!(target instanceof HTMLAnchorElement)) return;
     event.preventDefault();
     if (target.hasAttribute("data-chart-clear")) {
-      applyState({ ...currentState, since: "", until: "" }, true);
+      applyState({ ...currentState, since: "", until: "" }, true, { preserveChartScroll: true });
       return;
     }
     const day = target.dataset.chartDay || "";
@@ -1163,7 +1230,8 @@ const renderStaticInlineScript = () => `
         since: day,
         until: day,
       },
-      true
+      true,
+      { preserveChartScroll: true }
     );
   });
 
