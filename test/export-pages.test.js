@@ -71,6 +71,14 @@ db.upsertSources([
     url: "https://ai.google.dev/gemini-api/docs/changelog",
     parser: "google_gemini_api_html",
   },
+  {
+    id: "unused-source",
+    vendor: "openai",
+    name: "Unused Source",
+    url: "https://example.com/unused.xml",
+    parser: "rss_atom",
+    enabled: false,
+  },
 ]);
 
 insertEvent(db, {
@@ -146,6 +154,16 @@ try {
   assert.match(feedsHtml, /GitHub \(source code\)/);
   assert.match(feedsHtml, /A Node\.js script collects source data from RSS\/Atom feeds, GitHub releases, HTML changelog pages, and Anthropic sitemap crawls\./);
   assert.match(feedsHtml, /<code>events\.json<\/code>/);
+  assert.match(feedsHtml, /<details class="hero__sources">/);
+  assert.match(feedsHtml, /<summary>Sources used for this snapshot \(3\)<\/summary>/);
+  assert.match(feedsHtml, /OpenAI Blog/);
+  assert.match(feedsHtml, /Anthropic Releases/);
+  assert.match(feedsHtml, /Google Gemini API Changelog/);
+  assert.match(feedsHtml, /https:\/\/openai\.com\/news\/rss\.xml/);
+  assert.match(feedsHtml, /https:\/\/platform\.claude\.com\/docs\/en\/release-notes\/overview/);
+  assert.match(feedsHtml, /https:\/\/ai\.google\.dev\/gemini-api\/docs\/changelog/);
+  assert.match(feedsHtml, /Official Gemini API changelog with model launches, rollouts, and deprecations\./);
+  assert.doesNotMatch(feedsHtml, /Unused Source/);
   assert.match(feedsHtml, /\*,\s*\*::before,\s*\*::after\s*\{\s*box-sizing: border-box;/);
   assert.match(feedsHtml, /--timeline-axis-left: 20px;/);
   assert.match(

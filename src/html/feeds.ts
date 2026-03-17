@@ -46,6 +46,14 @@ export interface StaticFeedsEventSnapshot {
   html: string;
 }
 
+export interface StaticFeedsSourceSummary {
+  id: string;
+  vendor: Vendor;
+  name: string;
+  url: string;
+  description?: string;
+}
+
 export interface StaticFeedsPageInput {
   events: EventRow[];
   hasMore: boolean;
@@ -53,6 +61,7 @@ export interface StaticFeedsPageInput {
   chart: FeedsChartModel | null;
   dataHref: string;
   exportedAt: string;
+  sources: StaticFeedsSourceSummary[];
 }
 
 const pageTitle = "LLM Feeds";
@@ -283,6 +292,30 @@ export const buildChartFromEvents = (
   events: Array<{ event_date: string }>,
   selection: { since?: string | null; until?: string | null } = {}
 ) => buildFeedsChartModel(buildDailyCountsFromEvents(events), selection);
+
+const renderStaticSourceList = (sources: StaticFeedsSourceSummary[]) => {
+  if (!sources.length) return "";
+
+  return `
+        <details class="hero__sources">
+          <summary>Sources used for this snapshot (${sources.length})</summary>
+          <ul class="hero__sources-list">
+            ${sources
+              .map((source) => {
+                const vendorLabel = vendorLabels[source.vendor] ?? humanizeToken(source.vendor);
+                return `
+              <li class="hero__sources-item">
+                <p class="hero__sources-title"><strong>${escapeHtml(source.name)}</strong> <span>${escapeHtml(vendorLabel)}</span></p>
+                <p class="hero__sources-link"><a href="${safeHref(source.url)}" target="_blank" rel="noreferrer">${escapeHtml(source.url)}</a></p>
+                ${source.description ? `<p class="hero__sources-description">${escapeHtml(source.description)}</p>` : ""}
+              </li>
+                `;
+              })
+              .join("")}
+          </ul>
+        </details>
+  `;
+};
 
 const renderSummaryHeading = (count: number, hasMore: boolean) =>
   `Showing ${count} event${count === 1 ? "" : "s"}${hasMore ? " with older pages available" : ""}.`;
@@ -1388,6 +1421,83 @@ const styles = `
     margin-top: 20px;
   }
 
+  .hero__sources {
+    margin-top: 18px;
+    border-radius: 18px;
+    border: 1px solid rgba(214, 205, 191, 0.9);
+    background: rgba(255, 255, 255, 0.55);
+    overflow: hidden;
+  }
+
+  .hero__sources summary {
+    cursor: pointer;
+    list-style: none;
+    padding: 14px 16px;
+    font: 700 0.92rem/1.4 "Helvetica Neue", Arial, sans-serif;
+  }
+
+  .hero__sources summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .hero__sources-list {
+    list-style: none;
+    margin: 0;
+    padding: 0 16px 16px;
+    display: grid;
+    gap: 14px;
+  }
+
+  .hero__sources-item {
+    padding-top: 14px;
+    border-top: 1px solid rgba(214, 205, 191, 0.7);
+  }
+
+  .hero__sources-item:first-child {
+    border-top: 0;
+    padding-top: 0;
+  }
+
+  .hero__sources-title,
+  .hero__sources-link,
+  .hero__sources-description {
+    margin: 0;
+    max-width: none;
+    color: var(--muted);
+    font-size: 0.94rem;
+    line-height: 1.5;
+  }
+
+  .hero__sources-title {
+    color: var(--ink);
+  }
+
+  .hero__sources-title span {
+    color: var(--muted);
+    font-weight: 500;
+  }
+
+  .hero__sources-link {
+    margin-top: 4px;
+  }
+
+  .hero__sources-link a {
+    display: inline;
+    min-height: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    text-decoration: underline;
+    text-underline-offset: 0.18em;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  .hero__sources-description {
+    margin-top: 4px;
+  }
+
   .hero__links a,
   .controls__actions a,
   .controls__actions button,
@@ -2066,6 +2176,7 @@ export const renderStaticFeedsPage = (input: StaticFeedsPageInput) => {
           <a href="https://github.com/atjsh/llm-timeline" target="_blank" rel="noreferrer">GitHub (source code)</a>
         </div>
         <p>A Node.js script collects source data from RSS/Atom feeds, GitHub releases, HTML changelog pages, and Anthropic sitemap crawls. Each item is saved in SQLite, then exported as a static HTML page plus <code>events.json</code>. Your browser uses that file to render the heatmap, filters, and timeline.</p>
+        ${renderStaticSourceList(input.sources)}
       </section>
 
       ${renderForm(state, { action: "./", resetHref: "./", formAttribute: 'data-feeds-form' })}

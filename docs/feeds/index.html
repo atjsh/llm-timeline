@@ -91,6 +91,83 @@
     margin-top: 20px;
   }
 
+  .hero__sources {
+    margin-top: 18px;
+    border-radius: 18px;
+    border: 1px solid rgba(214, 205, 191, 0.9);
+    background: rgba(255, 255, 255, 0.55);
+    overflow: hidden;
+  }
+
+  .hero__sources summary {
+    cursor: pointer;
+    list-style: none;
+    padding: 14px 16px;
+    font: 700 0.92rem/1.4 "Helvetica Neue", Arial, sans-serif;
+  }
+
+  .hero__sources summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .hero__sources-list {
+    list-style: none;
+    margin: 0;
+    padding: 0 16px 16px;
+    display: grid;
+    gap: 14px;
+  }
+
+  .hero__sources-item {
+    padding-top: 14px;
+    border-top: 1px solid rgba(214, 205, 191, 0.7);
+  }
+
+  .hero__sources-item:first-child {
+    border-top: 0;
+    padding-top: 0;
+  }
+
+  .hero__sources-title,
+  .hero__sources-link,
+  .hero__sources-description {
+    margin: 0;
+    max-width: none;
+    color: var(--muted);
+    font-size: 0.94rem;
+    line-height: 1.5;
+  }
+
+  .hero__sources-title {
+    color: var(--ink);
+  }
+
+  .hero__sources-title span {
+    color: var(--muted);
+    font-weight: 500;
+  }
+
+  .hero__sources-link {
+    margin-top: 4px;
+  }
+
+  .hero__sources-link a {
+    display: inline;
+    min-height: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    text-decoration: underline;
+    text-underline-offset: 0.18em;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  .hero__sources-description {
+    margin-top: 4px;
+  }
+
   .hero__links a,
   .controls__actions a,
   .controls__actions button,
@@ -718,6 +795,68 @@
           <a href="https://github.com/atjsh/llm-timeline" target="_blank" rel="noreferrer">GitHub (source code)</a>
         </div>
         <p>A Node.js script collects source data from RSS/Atom feeds, GitHub releases, HTML changelog pages, and Anthropic sitemap crawls. Each item is saved in SQLite, then exported as a static HTML page plus <code>events.json</code>. Your browser uses that file to render the heatmap, filters, and timeline.</p>
+        
+        <details class="hero__sources">
+          <summary>Sources used for this snapshot (9)</summary>
+          <ul class="hero__sources-list">
+            
+              <li class="hero__sources-item">
+                <p class="hero__sources-title"><strong>Anthropic GitHub Releases</strong> <span>Anthropic</span></p>
+                <p class="hero__sources-link"><a href="https://github.com/anthropics/anthropic-sdk-python/releases.atom" target="_blank" rel="noreferrer">https://github.com/anthropics/anthropic-sdk-python/releases.atom</a></p>
+                <p class="hero__sources-description">Official Anthropic SDK release announcements.</p>
+              </li>
+                
+              <li class="hero__sources-item">
+                <p class="hero__sources-title"><strong>Anthropic News</strong> <span>Anthropic</span></p>
+                <p class="hero__sources-link"><a href="https://www.anthropic.com/news" target="_blank" rel="noreferrer">https://www.anthropic.com/news</a></p>
+                <p class="hero__sources-description">Anthropic newsroom source for rich model launch articles.</p>
+              </li>
+                
+              <li class="hero__sources-item">
+                <p class="hero__sources-title"><strong>Claude API Release Notes</strong> <span>Anthropic</span></p>
+                <p class="hero__sources-link"><a href="https://platform.claude.com/docs/en/release-notes/overview" target="_blank" rel="noreferrer">https://platform.claude.com/docs/en/release-notes/overview</a></p>
+                <p class="hero__sources-description">Claude Developer Platform release notes and API milestones.</p>
+              </li>
+                
+              <li class="hero__sources-item">
+                <p class="hero__sources-title"><strong>Google Gemini API Changelog</strong> <span>Google</span></p>
+                <p class="hero__sources-link"><a href="https://ai.google.dev/gemini-api/docs/changelog?hl=en" target="_blank" rel="noreferrer">https://ai.google.dev/gemini-api/docs/changelog?hl=en</a></p>
+                <p class="hero__sources-description">Official Gemini API changelog with model launches, rollouts, and deprecations.</p>
+              </li>
+                
+              <li class="hero__sources-item">
+                <p class="hero__sources-title"><strong>Google Gemini Blog RSS</strong> <span>Google</span></p>
+                <p class="hero__sources-link"><a href="https://blog.google/products-and-platforms/products/gemini/rss/" target="_blank" rel="noreferrer">https://blog.google/products-and-platforms/products/gemini/rss/</a></p>
+                <p class="hero__sources-description">Official Google Blog feed for Gemini announcements and model posts.</p>
+              </li>
+                
+              <li class="hero__sources-item">
+                <p class="hero__sources-title"><strong>Google Gen AI JS SDK Releases</strong> <span>Google</span></p>
+                <p class="hero__sources-link"><a href="https://github.com/googleapis/js-genai/releases.atom" target="_blank" rel="noreferrer">https://github.com/googleapis/js-genai/releases.atom</a></p>
+                <p class="hero__sources-description">Official Google Gen AI JavaScript SDK release feed.</p>
+              </li>
+                
+              <li class="hero__sources-item">
+                <p class="hero__sources-title"><strong>Vertex Generative AI Release Notes</strong> <span>Google</span></p>
+                <p class="hero__sources-link"><a href="https://docs.cloud.google.com/vertex-ai/generative-ai/docs/release-notes?hl=en" target="_blank" rel="noreferrer">https://docs.cloud.google.com/vertex-ai/generative-ai/docs/release-notes?hl=en</a></p>
+                <p class="hero__sources-description">Generative AI on Vertex AI release notes for Gemini, Veo, and Imagen.</p>
+              </li>
+                
+              <li class="hero__sources-item">
+                <p class="hero__sources-title"><strong>OpenAI Blog RSS</strong> <span>OpenAI</span></p>
+                <p class="hero__sources-link"><a href="https://openai.com/news/rss.xml" target="_blank" rel="noreferrer">https://openai.com/news/rss.xml</a></p>
+                <p class="hero__sources-description">OpenAI news and product updates.</p>
+              </li>
+                
+              <li class="hero__sources-item">
+                <p class="hero__sources-title"><strong>OpenAI SDK Releases</strong> <span>OpenAI</span></p>
+                <p class="hero__sources-link"><a href="https://github.com/openai/openai-python/releases.atom" target="_blank" rel="noreferrer">https://github.com/openai/openai-python/releases.atom</a></p>
+                <p class="hero__sources-description">Official repository releases for OpenAI SDK components.</p>
+              </li>
+                
+          </ul>
+        </details>
+  
       </section>
 
       

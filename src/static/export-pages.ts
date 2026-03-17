@@ -1,12 +1,14 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { TimelineDatabase } from "../db/sqlite.js";
+import { sourceManifest } from "../sources/manifest.js";
 import {
   buildChartFromEvents,
   createStaticFeedsEventSnapshot,
   renderStaticFeedsPage,
   type FeedsPageState,
   type StaticFeedsEventSnapshot,
+  type StaticFeedsSourceSummary,
 } from "../html/feeds.js";
 import type { EventRow } from "../types.js";
 
@@ -72,6 +74,28 @@ const collectAllEvents = (db: TimelineDatabase) => {
   }
 
   return events;
+};
+
+const collectStaticSources = (db: TimelineDatabase, events: EventRow[]): StaticFeedsSourceSummary[] => {
+  const sourceIds = new Set(events.map((event) => event.source_id));
+  const descriptions = new Map(sourceManifest.map((source) => [source.id, source.description]));
+
+  return db
+    .listSources()
+    .map((entry) => entry.source)
+    .filter((source) => source.enabled && sourceIds.has(source.id))
+    .sort((left, right) => {
+      const vendorDiff = left.vendor.localeCompare(right.vendor);
+      if (vendorDiff !== 0) return vendorDiff;
+      return left.name.localeCompare(right.name);
+    })
+    .map((source) => ({
+      id: source.id,
+      vendor: source.vendor,
+      name: source.name,
+      url: source.url,
+      description: descriptions.get(source.id) ?? undefined,
+    }));
 };
 
 const renderIndexHtml = () => `<!DOCTYPE html>
@@ -158,6 +182,7 @@ export const exportPages = ({ db, outDir = "docs" }: ExportPagesOptions): Export
   const assetsDir = join(resolvedOutDir, "assets");
   const exportedAt = new Date().toISOString();
   const events = collectAllEvents(db);
+  const sources = collectStaticSources(db, events);
   const staticPayload: StaticFeedsExportPayload = {
     exported_at: exportedAt,
     events: events.map((event) => createStaticFeedsEventSnapshot(event)),
@@ -180,6 +205,7 @@ export const exportPages = ({ db, outDir = "docs" }: ExportPagesOptions): Export
       chart: buildChartFromEvents(defaultEvents, defaultState),
       dataHref: "../assets/events.json",
       exportedAt,
+      sources,
     }),
     "utf8"
   );
