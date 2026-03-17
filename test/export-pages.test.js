@@ -146,6 +146,13 @@ try {
   const rootHtml = readFileSync(join(outDir, "index.html"), "utf8");
   assert.match(rootHtml, /Redirecting to the static timeline preview/);
   assert.match(rootHtml, /\.\/feeds\//);
+  assert.match(
+    rootHtml,
+    /font-family: -apple-system, BlinkMacSystemFont, avenir next, avenir,\s*segoe ui, helvetica neue, helvetica, Cantarell, Ubuntu, roboto, noto,\s*arial, sans-serif;/
+  );
+  assert.doesNotMatch(rootHtml, /font-family: "Georgia", "Times New Roman", serif;/);
+  assert.doesNotMatch(rootHtml, /linear-gradient\(180deg/);
+  assert.doesNotMatch(rootHtml, /box-shadow:/);
 
   const feedsHtml = readFileSync(join(outDir, "feeds", "index.html"), "utf8");
   assert.match(feedsHtml, /<html lang="ko">/);
@@ -166,6 +173,16 @@ try {
   assert.match(feedsHtml, /Official Gemini API changelog with model launches, rollouts, and deprecations\./);
   assert.doesNotMatch(feedsHtml, /Unused Source/);
   assert.match(feedsHtml, /\*,\s*\*::before,\s*\*::after\s*\{\s*box-sizing: border-box;/);
+  assert.match(
+    feedsHtml,
+    /font-family: -apple-system, BlinkMacSystemFont, avenir next, avenir, segoe ui, helvetica neue, helvetica, Cantarell, Ubuntu, roboto, noto, arial, sans-serif;/
+  );
+  assert.match(
+    feedsHtml,
+    /\.hero,\s*\.controls,\s*\.chart-shell,\s*\.summary,\s*\.timeline-shell\s*\{[\s\S]*background: var\(--surface\);[\s\S]*border-radius: 16px;/
+  );
+  assert.match(feedsHtml, /\.hero\s*\{[\s\S]*background: var\(--surface-strong\);/);
+  assert.match(feedsHtml, /\.event-card\s*\{[\s\S]*border-radius: 14px;[\s\S]*background: rgba\(255, 255, 255, 0\.24\);/);
   assert.match(feedsHtml, /--timeline-axis-left: 20px;/);
   assert.match(feedsHtml, /--timeline-date-width: 132px;/);
   assert.match(feedsHtml, /--timeline-gutter-width: 56px;/);
@@ -192,6 +209,10 @@ try {
   assert.match(feedsHtml, /data-feeds-form/);
   assert.match(feedsHtml, /OpenAI Alpha/);
   assert.match(feedsHtml, /Introducing Claude Opus 4\.6/);
+  assert.doesNotMatch(feedsHtml, /font-family: "Georgia", "Times New Roman", serif;/);
+  assert.doesNotMatch(feedsHtml, /backdrop-filter:/);
+  assert.doesNotMatch(feedsHtml, /linear-gradient\(180deg/);
+  assert.doesNotMatch(feedsHtml, /box-shadow:/);
   assert.doesNotMatch(feedsHtml, /Current JSON/);
   assert.doesNotMatch(feedsHtml, /Current ICS/);
   assert.doesNotMatch(feedsHtml, /Source Status/);

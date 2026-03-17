@@ -146,6 +146,19 @@ assert.match(defaultPage.body, /LLM API 타임라인/);
 assert.match(defaultPage.body, /type="checkbox" name="vendor" value="openai"/);
 assert.match(defaultPage.body, /type="checkbox" name="category" value="model_release" checked/);
 assert.match(defaultPage.body, /\*,\s*\*::before,\s*\*::after\s*\{\s*box-sizing: border-box;/);
+assert.match(
+  defaultPage.body,
+  /font-family: -apple-system, BlinkMacSystemFont, avenir next, avenir, segoe ui, helvetica neue, helvetica, Cantarell, Ubuntu, roboto, noto, arial, sans-serif;/
+);
+assert.match(
+  defaultPage.body,
+  /\.hero,\s*\.controls,\s*\.chart-shell,\s*\.summary,\s*\.timeline-shell\s*\{[\s\S]*background: var\(--surface\);[\s\S]*border-radius: 16px;/
+);
+assert.match(defaultPage.body, /\.hero\s*\{[\s\S]*background: var\(--surface-strong\);/);
+assert.match(
+  defaultPage.body,
+  /\.badge--openai\s*\{[\s\S]*background: var\(--openai-tint\);[\s\S]*color: var\(--openai\);/
+);
 assert.match(defaultPage.body, /\.controls input\[type="date"\][\s\S]*inline-size: 100%/);
 assert.match(defaultPage.body, /--timeline-axis-left: 20px;/);
 assert.match(defaultPage.body, /--timeline-date-width: 132px;/);
@@ -169,6 +182,10 @@ assert.match(defaultPage.body, /OpenAI &lt;Launch&gt; &quot;Alpha&quot; &amp; mo
 assert.doesNotMatch(defaultPage.body, /<script>alert\("x"\)<\/script>/);
 assert.match(defaultPage.body, /Introducing Claude Opus 4\.6/);
 assert.doesNotMatch(defaultPage.body, /Gemini tooling update/);
+assert.doesNotMatch(defaultPage.body, /font-family: "Georgia", "Times New Roman", serif;/);
+assert.doesNotMatch(defaultPage.body, /backdrop-filter:/);
+assert.doesNotMatch(defaultPage.body, /linear-gradient\(180deg/);
+assert.doesNotMatch(defaultPage.body, /box-shadow:/);
 assert.match(defaultPage.body, /현재 JSON/);
 assert.match(defaultPage.body, /현재 ICS/);
 assert.match(defaultPage.body, /히트맵/);

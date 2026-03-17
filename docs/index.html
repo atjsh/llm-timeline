@@ -7,15 +7,19 @@
     <style>
       :root {
         color-scheme: light;
-        --bg: #f3efe6;
-        --panel: #fffdf8;
+        --bg: #f4f1eb;
+        --surface: #f8f4ee;
+        --surface-strong: #fcfaf6;
         --ink: #1f1a16;
-        --muted: #6f675f;
-        --line: #d6cdbf;
-        --accent: #9d5b3b;
+        --muted: #645d55;
+        --line: #d9cfbf;
+        --line-strong: #c8baa4;
+        --accent: #8b5a42;
       }
 
-      * {
+      *,
+      *::before,
+      *::after {
         box-sizing: border-box;
       }
 
@@ -25,20 +29,25 @@
         display: grid;
         place-items: center;
         padding: 24px;
-        background:
-          radial-gradient(circle at top left, rgba(157, 91, 59, 0.14), transparent 30%),
-          linear-gradient(180deg, #f7f3ea 0%, var(--bg) 100%);
+        background: var(--bg);
         color: var(--ink);
-        font-family: "Georgia", "Times New Roman", serif;
+        font-family: -apple-system, BlinkMacSystemFont, avenir next, avenir,
+          segoe ui, helvetica neue, helvetica, Cantarell, Ubuntu, roboto, noto,
+          arial, sans-serif;
       }
 
       main {
         max-width: 40rem;
         padding: 28px;
-        border-radius: 24px;
-        background: rgba(255, 253, 248, 0.92);
-        border: 1px solid rgba(214, 205, 191, 0.9);
+        border-radius: 16px;
+        background: var(--surface);
+        border: 1px solid var(--line);
         text-align: center;
+      }
+
+      h1 {
+        margin: 0;
+        letter-spacing: -0.03em;
       }
 
       p {
@@ -48,15 +57,20 @@
 
       a {
         display: inline-flex;
-        min-height: 42px;
+        min-height: 40px;
         align-items: center;
         justify-content: center;
-        border-radius: 999px;
-        padding: 0 16px;
+        border-radius: 10px;
+        padding: 0 14px;
         color: inherit;
         text-decoration: none;
-        background: rgba(157, 91, 59, 0.12);
-        border: 1px solid rgba(157, 91, 59, 0.24);
+        background: var(--surface-strong);
+        border: 1px solid var(--line);
+      }
+
+      a:hover {
+        background: rgba(255, 255, 255, 0.35);
+        border-color: var(--line-strong);
       }
     </style>
     <meta http-equiv="refresh" content="0; url=./feeds/" />
