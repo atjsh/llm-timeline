@@ -1372,6 +1372,15 @@ const styles = `
     line-height: 1.6;
   }
 
+  .hero code {
+    display: inline-block;
+    border-radius: 999px;
+    padding: 2px 8px;
+    background: rgba(31, 26, 22, 0.07);
+    color: var(--ink);
+    font: 600 0.88rem/1.2 "SFMono-Regular", Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  }
+
   .hero__links {
     display: flex;
     flex-wrap: wrap;
@@ -2056,6 +2065,7 @@ export const renderStaticFeedsPage = (input: StaticFeedsPageInput) => {
         <div class="hero__links">
           <a href="https://github.com/atjsh/llm-timeline" target="_blank" rel="noreferrer">GitHub (source code)</a>
         </div>
+        <p>A Node.js script collects source data from RSS/Atom feeds, GitHub releases, HTML changelog pages, and Anthropic sitemap crawls. Each item is saved in SQLite, then exported as a static HTML page plus <code>events.json</code>. Your browser uses that file to render the heatmap, filters, and timeline.</p>
       </section>
 
       ${renderForm(state, { action: "./", resetHref: "./", formAttribute: 'data-feeds-form' })}
