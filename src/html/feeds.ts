@@ -2306,7 +2306,7 @@ export const renderStaticFeedsPage = (input: StaticFeedsPageInput) => {
     <main class="page">
       <section class="hero">
         <h1>${pageTitle}</h1>
-        <p>내보낸 날짜 ${formatUtcDate(input.exportedAt)}</p>
+        <p>기준일: ${formatUtcDate(input.exportedAt)}</p>
         <div class="hero__links">
           <a href="https://github.com/atjsh/llm-timeline" target="_blank" rel="noreferrer">${ui.staticRepoLink}</a>
         </div>

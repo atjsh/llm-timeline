@@ -157,7 +157,7 @@ try {
   const feedsHtml = readFileSync(join(outDir, "feeds", "index.html"), "utf8");
   assert.match(feedsHtml, /<html lang="ko">/);
   assert.match(feedsHtml, /LLM API 타임라인/);
-  assert.match(feedsHtml, /내보낸 날짜 \d{4}년 \d{1,2}월 \d{1,2}일/);
+  assert.match(feedsHtml, /기준일: \d{4}년 \d{1,2}월 \d{1,2}일/);
   assert.match(feedsHtml, /https:\/\/github\.com\/atjsh\/llm-timeline/);
   assert.match(feedsHtml, /GitHub \(소스 코드\)/);
   assert.match(feedsHtml, /Node\.js 스크립트가 RSS\/Atom 피드, GitHub 릴리스, HTML 변경 로그 페이지, Anthropic 사이트맵 크롤링에서 데이터를 수집합니다\./);
