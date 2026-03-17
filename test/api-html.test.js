@@ -144,7 +144,13 @@ assert.match(defaultPage.response.headers.get("content-type") ?? "", /^text\/htm
 assert.match(defaultPage.body, /LLM Feeds/);
 assert.match(defaultPage.body, /type="checkbox" name="vendor" value="openai"/);
 assert.match(defaultPage.body, /type="checkbox" name="category" value="model_release" checked/);
+assert.match(defaultPage.body, /\*,\s*\*::before,\s*\*::after\s*\{\s*box-sizing: border-box;/);
 assert.match(defaultPage.body, /\.controls input\[type="date"\][\s\S]*inline-size: 100%/);
+assert.match(defaultPage.body, /--timeline-axis-left: 20px;/);
+assert.match(
+  defaultPage.body,
+  /left: calc\(var\(--timeline-axis-left\) \+ \(var\(--timeline-axis-width\) \/ 2\) - \(var\(--timeline-marker-size\) \/ 2\)\);/
+);
 assert.match(defaultPage.body, /OpenAI &lt;Launch&gt; &quot;Alpha&quot; &amp; more/);
 assert.doesNotMatch(defaultPage.body, /<script>alert\("x"\)<\/script>/);
 assert.match(defaultPage.body, /Introducing Claude Opus 4\.6/);

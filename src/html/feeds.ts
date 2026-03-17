@@ -1316,7 +1316,9 @@ const styles = `
     --shadow: 0 18px 48px rgba(41, 29, 20, 0.08);
   }
 
-  * {
+  *,
+  *::before,
+  *::after {
     box-sizing: border-box;
   }
 
@@ -1769,6 +1771,10 @@ const styles = `
   }
 
   .timeline {
+    --timeline-axis-left: 20px;
+    --timeline-axis-width: 2px;
+    --timeline-marker-size: 18px;
+    --timeline-marker-top: 20px;
     list-style: none;
     margin: 0;
     padding: 8px 0 0;
@@ -1780,8 +1786,8 @@ const styles = `
     position: absolute;
     top: 0;
     bottom: 0;
-    left: 20px;
-    width: 2px;
+    left: var(--timeline-axis-left);
+    width: var(--timeline-axis-width);
     background: linear-gradient(180deg, rgba(157, 91, 59, 0.25), rgba(157, 91, 59, 0.05));
   }
 
@@ -1795,10 +1801,10 @@ const styles = `
   .timeline__item::before {
     content: "";
     position: absolute;
-    left: 12px;
-    top: 20px;
-    width: 18px;
-    height: 18px;
+    left: calc(var(--timeline-axis-left) + (var(--timeline-axis-width) / 2) - (var(--timeline-marker-size) / 2));
+    top: var(--timeline-marker-top);
+    width: var(--timeline-marker-size);
+    height: var(--timeline-marker-size);
     border-radius: 50%;
     background: var(--panel);
     border: 4px solid var(--accent);
@@ -1974,18 +1980,14 @@ const styles = `
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
-    .timeline::before {
-      left: 130px;
+    .timeline {
+      --timeline-axis-left: 130px;
     }
 
     .timeline__item {
       grid-template-columns: 100px minmax(0, 1fr);
       gap: 24px;
       padding: 12px 0 22px;
-    }
-
-    .timeline__item::before {
-      left: 121px;
     }
 
     .timeline__date {
