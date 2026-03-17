@@ -143,7 +143,7 @@ try {
   assert.match(feedsHtml, /LLM timeline/);
   assert.match(feedsHtml, /Exported [A-Z][a-z]{2} \d{1,2}, \d{4}/);
   assert.match(feedsHtml, /https:\/\/github\.com\/atjsh\/llm-timeline/);
-  assert.match(feedsHtml, /GitHub repo/);
+  assert.match(feedsHtml, /GitHub \(source code\)/);
   assert.match(feedsHtml, /\*,\s*\*::before,\s*\*::after\s*\{\s*box-sizing: border-box;/);
   assert.match(feedsHtml, /--timeline-axis-left: 20px;/);
   assert.match(

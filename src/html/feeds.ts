@@ -2054,7 +2054,7 @@ export const renderStaticFeedsPage = (input: StaticFeedsPageInput) => {
         <h1>LLM timeline</h1>
         <p>Exported ${formatUtcDate(input.exportedAt)}</p>
         <div class="hero__links">
-          <a href="https://github.com/atjsh/llm-timeline" target="_blank" rel="noreferrer">GitHub repo</a>
+          <a href="https://github.com/atjsh/llm-timeline" target="_blank" rel="noreferrer">GitHub (source code)</a>
         </div>
       </section>
 
