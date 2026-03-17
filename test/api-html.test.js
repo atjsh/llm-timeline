@@ -142,13 +142,15 @@ const defaultPage = await getHtml("/feeds");
 assert.equal(defaultPage.response.status, 200);
 assert.match(defaultPage.response.headers.get("content-type") ?? "", /^text\/html/i);
 assert.match(defaultPage.body, /<html lang="ko">/);
-assert.match(defaultPage.body, /LLM 타임라인/);
+assert.match(defaultPage.body, /LLM API 타임라인/);
 assert.match(defaultPage.body, /type="checkbox" name="vendor" value="openai"/);
 assert.match(defaultPage.body, /type="checkbox" name="category" value="model_release" checked/);
 assert.match(defaultPage.body, /\*,\s*\*::before,\s*\*::after\s*\{\s*box-sizing: border-box;/);
 assert.match(defaultPage.body, /\.controls input\[type="date"\][\s\S]*inline-size: 100%/);
 assert.match(defaultPage.body, /--timeline-axis-left: 20px;/);
-assert.match(defaultPage.body, /--timeline-date-width: 100px;/);
+assert.match(defaultPage.body, /--timeline-date-width: 132px;/);
+assert.match(defaultPage.body, /\.timeline__day\s*\{[\s\S]*white-space: nowrap/);
+assert.match(defaultPage.body, /\.timeline__kind\s*\{[\s\S]*white-space: nowrap/);
 assert.match(defaultPage.body, /--timeline-gutter-width: 56px;/);
 assert.match(
   defaultPage.body,

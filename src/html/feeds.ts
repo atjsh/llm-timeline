@@ -64,7 +64,7 @@ export interface StaticFeedsPageInput {
   sources: StaticFeedsSourceSummary[];
 }
 
-const pageTitle = "LLM 타임라인";
+const pageTitle = "LLM API 타임라인";
 const htmlLang = "ko";
 
 const vendorLabels: Record<string, string> = {
@@ -2003,7 +2003,7 @@ const styles = `
     --timeline-axis-width: 2px;
     --timeline-marker-size: 18px;
     --timeline-marker-top: 20px;
-    --timeline-date-width: 100px;
+    --timeline-date-width: 132px;
     --timeline-gutter-width: 56px;
     list-style: none;
     margin: 0;
@@ -2050,6 +2050,8 @@ const styles = `
 
   .timeline__day {
     font: 700 0.96rem/1.2 "Helvetica Neue", Arial, sans-serif;
+    white-space: nowrap;
+    word-break: keep-all;
   }
 
   .timeline__kind {
@@ -2057,6 +2059,8 @@ const styles = `
     font: 500 0.78rem/1.2 "Helvetica Neue", Arial, sans-serif;
     text-transform: uppercase;
     letter-spacing: 0.05em;
+    white-space: nowrap;
+    word-break: keep-all;
   }
 
   .event-card {

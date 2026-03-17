@@ -149,7 +149,7 @@ try {
 
   const feedsHtml = readFileSync(join(outDir, "feeds", "index.html"), "utf8");
   assert.match(feedsHtml, /<html lang="ko">/);
-  assert.match(feedsHtml, /LLM 타임라인/);
+  assert.match(feedsHtml, /LLM API 타임라인/);
   assert.match(feedsHtml, /내보낸 날짜 \d{4}년 \d{1,2}월 \d{1,2}일/);
   assert.match(feedsHtml, /https:\/\/github\.com\/atjsh\/llm-timeline/);
   assert.match(feedsHtml, /GitHub \(소스 코드\)/);
@@ -167,7 +167,7 @@ try {
   assert.doesNotMatch(feedsHtml, /Unused Source/);
   assert.match(feedsHtml, /\*,\s*\*::before,\s*\*::after\s*\{\s*box-sizing: border-box;/);
   assert.match(feedsHtml, /--timeline-axis-left: 20px;/);
-  assert.match(feedsHtml, /--timeline-date-width: 100px;/);
+  assert.match(feedsHtml, /--timeline-date-width: 132px;/);
   assert.match(feedsHtml, /--timeline-gutter-width: 56px;/);
   assert.match(
     feedsHtml,
